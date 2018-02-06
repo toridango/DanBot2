@@ -1,0 +1,67 @@
+{
+    "calm": {
+        "text": [
+            "A sense of calm slowly fills TRGT",
+            "TRGT suddenly calms down and feels at peace",
+            "TRGT takes a moment and reminds themself to take a moment and find themself"
+        ],
+        "requires": [
+            "target"
+        ]
+    },
+    "desalinate": {
+        "text": [
+            "TRGT is salty no more",
+            "Taking the form of a magic wave, the spell washes away TRGT's salt"
+        ],
+        "requires": [
+            "target"
+        ]
+    },
+    "fireball": {
+        "text": [
+            "CSTR forms a huge orb of flames and hurls it at TRGT"
+        ],
+        "requires": [
+            "cast",
+            "target",
+            "on"
+        ]
+    },
+    "kokoro heal": {
+        "text": [],
+        "requires": []
+    },
+    "heal": {
+        "text": [],
+        "requires": []
+    },
+    "invisibility": {
+        "text": [],
+        "requires": [
+            "cast"
+        ]
+    },
+    "song of storms": {
+        "text": [],
+        "requires": [
+            "sing"
+        ]
+    },
+    "condemn": {
+        "text": [],
+        "requires": [
+            "cast"
+        ]
+    },
+    "reference": {
+        "text": [
+            "If only I could be so grossly incandescent",
+            "Tuturuuuu...  Mayushii desu!",
+            "Look to my coming at first light on the fifth day. At dawn, look to the east."
+        ],
+        "requires": [
+            "pray"
+        ]
+    }
+}

@@ -1,0 +1,198 @@
+{
+    "469375229": {
+        "username": "MarkovClaimBot",
+        "first_name": "Markov Claim Bot",
+        "is_bot": true,
+        "cmdUsage": [],
+        "equipment": {},
+        "titles": [],
+        "id": "469375229"
+    },
+    "3951296": {
+        "username": "Zanartorias",
+        "first_name": "Dan",
+        "last_name": "Go",
+        "cmdUsage": {
+            "kokoro heal": "2",
+            "/help": "4",
+            "/markov": "1",
+            "reference": "1",
+            "condemn": "1",
+            "/showequip": "8",
+            "Hello": "1",
+            "/spamratio": "4",
+            "calm": "3",
+            "invisibility": "1",
+            "desalinate": "2",
+            "fireball": "3",
+            "heal": "2",
+            "song of storms": "2",
+            "/equip": "13"
+        },
+        "equipment": {
+            "armor": "Albornoz +1",
+            "trinket": "Order Icon",
+            "right hand": "Combat quill",
+            "left hand": "Dan's Grimoire",
+            "hat": "Capuchón de Boli",
+            "glasses": "combat visor"
+        },
+        "titles": [],
+        "language_code": "es",
+        "id": "3951296"
+    },
+    "1698703": {
+        "username": "TacoChan",
+        "first_name": "Rubén",
+        "cmdUsage": {
+            "/markov": "1"
+        },
+        "equipment": {},
+        "titles": [],
+        "id": "1698703"
+    },
+    "40825003": {
+        "first_name": "Richard",
+        "last_name": "Segovia",
+        "cmdUsage": {
+            "/markov": "20"
+        },
+        "equipment": {},
+        "titles": [],
+        "id": "40825003"
+    },
+    "126055728": {
+        "username": "JaChiKore",
+        "first_name": "Jialuo",
+        "last_name": "Chen",
+        "cmdUsage": {
+            "/markov": "72",
+            "/showequip": "1",
+            "/help": "2",
+            "/spamratio": "5"
+        },
+        "equipment": {
+            "armor": "warmorg",
+            "weapon": "EX-咖哩棒",
+            "hat": "rabadon",
+            "trinket": "max Defense"
+        },
+        "titles": [],
+        "id": "126055728"
+    },
+    "38732906": {
+        "username": "nilaisr",
+        "first_name": "Nilai",
+        "last_name": "Sallent",
+        "cmdUsage": {},
+        "equipment": {},
+        "titles": [],
+        "id": "38732906"
+    },
+    "156361810": {
+        "username": "PuedeselegirunaliasenTelegram",
+        "first_name": "Alex",
+        "last_name": "Torrell",
+        "cmdUsage": {
+            "/help": "4",
+            "/markov": "22",
+            "/hint": "2"
+        },
+        "equipment": {
+            "armor": "Pink enchanted invisible visible not pink giant patterned christmash latex bondage onesie",
+            "weapon": "Giant telepatic double magical sparkly robotic pink dildo",
+            "hat": "Magical slim swaggered dirty aluminium foil hat",
+            "trinket": "Immortality suppository"
+        },
+        "titles": [],
+        "id": "156361810"
+    },
+    "192616195": {
+        "username": "kikones34",
+        "first_name": "Adrià",
+        "last_name": "Rico",
+        "cmdUsage": {
+            "/markov": "34",
+            "/spamratio": "1",
+            "/help": "1"
+        },
+        "equipment": {
+            "brain": "markov"
+        },
+        "titles": [],
+        "id": "192616195"
+    },
+    "138497945": {
+        "username": "imsniff",
+        "first_name": "Sergi",
+        "last_name": "Pous",
+        "cmdUsage": {
+            "/showequip": "1",
+            "/markov": "8"
+        },
+        "equipment": {
+            "weapon": "broken blade",
+            "trinket": "ashe manos largas"
+        },
+        "titles": [],
+        "id": "138497945"
+    },
+    "3141882": {
+        "username": "ericin",
+        "first_name": "Eric",
+        "last_name": "City",
+        "cmdUsage": {
+            "/showequip": "1"
+        },
+        "equipment": {},
+        "titles": [],
+        "id": "3141882"
+    },
+    "13363913": {
+        "username": "DaniAz",
+        "first_name": "Daniel",
+        "last_name": "Azemarㅤ",
+        "cmdUsage": {
+            "/markov": "76"
+        },
+        "equipment": {},
+        "titles": [],
+        "language_code": "en-GB",
+        "id": "13363913"
+    },
+    "77414676": {
+        "first_name": "Daniel",
+        "is_bot": false,
+        "id": "77414676",
+        "equipment": {},
+        "titles": [],
+        "cmdUsage": []
+    },
+    "213562854": {
+        "username": "hitagibot",
+        "first_name": "Hitagi",
+        "is_bot": true,
+        "id": "213562854",
+        "equipment": {},
+        "titles": [],
+        "cmdUsage": []
+    },
+    "302791699": {
+        "username": "reverseSearchBot",
+        "first_name": "Reverse Image Search",
+        "is_bot": true,
+        "cmdUsage": [],
+        "equipment": {},
+        "titles": [],
+        "id": "302791699"
+    },
+    "424602839": {
+        "username": "Quoniam",
+        "first_name": "Adrian",
+        "last_name": "Navarro",
+        "cmdUsage": {},
+        "equipment": {},
+        "titles": [],
+        "id": "424602839"
+    }
+}
