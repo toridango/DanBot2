@@ -1,0 +1,92 @@
+{
+    "translations": {
+        "chillpill": "calm",
+        "pu": "calm",
+        "firaga": "fireball",
+        "chameleon": "invisibility"
+    },
+    "glyphs": {},
+    "spells": {
+        "calm": {
+            "text": [
+                "A sense of calm slowly fills TRGT",
+                "TRGT suddenly calms down and feels at peace",
+                "TRGT takes a moment and reminds themselves to take a moment and find themselves"
+            ],
+            "requires": [
+                "target"
+            ]
+        },
+        "desalinate": {
+            "text": [
+                "TRGT is salty no more",
+                "Taking the form of a magic wave, the spell washes away TRGT's salt"
+            ],
+            "requires": [
+                "target"
+            ]
+        },
+        "fireball": {
+            "text": [
+                "CSTR forms a huge orb of flames and hurls it at TRGT"
+            ],
+            "requires": [
+                "cast",
+                "target"
+            ]
+        },
+        "kokoro heal": {
+            "text": [
+                "TRGT's strong feels magically start to reduce their intensity",
+                "Where once used to be TRGT's broken heart, now a beat can be felt again"
+            ],
+            "requires": []
+        },
+        "heal": {
+            "text": [
+                "A potent healing factor overruns TRGT and their wounds heal rapidly",
+                "The damage done to TRGT's body is quickly eliminated, and they feel as good as new!",
+                "Something very strong must have healed TRGT, because even their last haircut grew back..."
+            ],
+            "requires": []
+        },
+        "invisibility": {
+            "text": [
+                "With a muffled sound, CSTR suddently disappears",
+                "In the blink of an eye, CSTR appears to be gone"
+            ],
+            "requires": [
+                "cast"
+            ]
+        },
+        "song of storms": {
+            "text": [
+                "CSTR begins singing a sweet song. As the melody's speed picks up, the air begins to feel heavy, and after it has finished, a rumble is heard in the distance"
+            ],
+            "requires": [
+                "sing"
+            ]
+        },
+        "condemn": {
+            "text": [
+                "CSTR has called upon the spirits to punish TRGT for their heinous acts!",
+                "A gloom aura envelops TRGT as they become haunted",
+                "Such offense can't go unpaid! The spirits have heard CSTR and leer angrily at TRGT"
+            ],
+            "requires": [
+                "cast",
+                "target"
+            ]
+        },
+        "reference": {
+            "text": [
+                "If only I could be so grossly incandescent",
+                "Tuturuuuu...  Mayushii desu!",
+                "Look to my coming at first light on the fifth day. At dawn, look to the east."
+            ],
+            "requires": [
+                "pray"
+            ]
+        }
+    }
+}

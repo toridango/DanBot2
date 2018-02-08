@@ -112,10 +112,10 @@ def processSpell(spells, casterDict, text, verbose=False):
 
 if __name__ == '__main__':
 	spells = {}
-	caster = {"1": {"username": "Zanartorias", "first_name": "Dan", "last_name": "Go", "id": "3951296", "equipment": {}}}
+	caster = {"1": {"username": "JDUser", "first_name": "Jane", "last_name": "Doe", "id": "321123321", "equipment": {}}}
 
 	import json
-	with open('spells.json','r') as f:
+	with open('res/spells.json','r') as f:
 	    spells = json.load(f)
 
 	print "RIGHT ------------"
