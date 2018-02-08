@@ -115,7 +115,7 @@ if __name__ == '__main__':
 	caster = {"1": {"username": "JDUser", "first_name": "Jane", "last_name": "Doe", "id": "321123321", "equipment": {}}}
 
 	import json
-	with open('res/spells.json','r') as f:
+	with open('res/strings/en-Uk/spells.json','r') as f:
 	    spells = json.load(f)
 
 	print "RIGHT ------------"
