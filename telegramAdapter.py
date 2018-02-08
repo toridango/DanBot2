@@ -9,12 +9,16 @@ from telepot.namedtuple import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboar
 from getAHK import *
 from processSpells import *
 import random as rand
-import json
 import shutil
 import os
 
 
+import json
+
+
 TOKEN = ""  # token should be loaded from file 
+keysPath = "res/keys.json"
+
 bote = 0
 bingoNUM = 512
 Passphrase = "Now it's time to start the fun"
@@ -25,14 +29,53 @@ spells = {}
 pauseFlag = False
 
 
+# Reads json from filepath and returns the unadultered read contents
+def readJson(filepath):
+
+	with open(filepath, 'r') as f:
+		data = json.load(f)
+
+	return data
+
+
+
+# gets the data from the json key data file and returns the target parameter
+def getKeysData(filepath, target):
+
+	data = readJson(filepath)
+
+	if target in data:
+		target_value = data[target]
+	else:
+		target_value = None
+
+	return target_value
+
+
+
 
 def handle(msg):
     content_type, chat_type, chat_id, date, msg_id = telepot.glance(msg, long = True)
 
 
 
-MessageLoop(bot, handle).run_as_thread()
-print('Listening ...')
+def main():
 
-while 1:
-	time.sleep(10)
+	global TOKEN
+
+	TOKEN = getKeysData(keysPath, "TOKEN")
+
+	MessageLoop(bot, handle).run_as_thread()
+	print('Listening ...')
+
+	while 1:
+		time.sleep(10)
+
+
+
+
+
+
+
+if __name__ == '__main__':
+	main()
