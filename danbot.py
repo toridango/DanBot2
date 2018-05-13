@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import random as rand
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
 
 from processSpells import *
 from dbHandler import *
@@ -53,7 +56,7 @@ def get_name(msg_from):
     return ret
 
 
-class DanBot(object):
+class DanBot():
 
     def __init__(self):
 
@@ -336,7 +339,6 @@ class DanBot(object):
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
 
         update = self.preliminary_checks(msg)
-
         prob = rand.randint(1,self.bingoNUM)
         self.bingo_data[-1] += 1
 
@@ -347,6 +349,8 @@ class DanBot(object):
             print "Carrying on..."
             self.pauseFlag = False
 
+        s = msg['from']['first_name']
+        print type(s)
 
         if content_type == 'text' and not self.pauseFlag:
 

@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 def move(dx, dy, tabs = 1):
 
 	return tabs*"\t"+"MouseGetPos, xpos, ypos\n"+tabs*"\t"+"MouseMove, xpos"+dx+", ypos"+dy+"\n"+tabs*"\t"+"Sleep, 10\n"
@@ -21,7 +21,7 @@ def getAHK(code, clickFrame = "on"):
 		clickFrame = "on"
 
 	clean = code.replace(" ","").replace("\n","").replace("\t","").split(";")
-	
+
 	if clean[-1] == "":
 		del clean[-1]
 
