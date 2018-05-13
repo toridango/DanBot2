@@ -6,7 +6,6 @@ import telepot
 import datetime as dt
 from telepot.loop import MessageLoop
 from telepot.namedtuple import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
-import random as rand
 import shutil
 import os
 import sys
@@ -37,6 +36,7 @@ def main():
 	bot = telepot.Bot(TOKEN)
 	print(bot.getMe())
 	TOKEN = getKeysData(keysPath, ["TOKEN"])[0]
+	toriteli.set_bot(bot)
 
 	MessageLoop(bot, handle).run_as_thread()
 	print('Listening ...')
