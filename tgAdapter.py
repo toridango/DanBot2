@@ -7,8 +7,8 @@ import datetime as dt
 from telepot.loop import MessageLoop
 from telepot.namedtuple import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 import shutil
-import os
 import sys
+import os
 sys.path.insert(0, '..\\')
 
 from danbot import *

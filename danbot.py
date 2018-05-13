@@ -48,7 +48,7 @@ def get_name(msg_from):
         ret = msg_from['first_name']
         # print userList.keys()
     except:
-        ret =  msg_from['username']
+        ret = msg_from['username']
         # print userList.keys()
     return ret
 
@@ -146,11 +146,11 @@ class DanBot(object):
 
         elif txt == "Greetings":
             update = self.logUsage(self.userList, msg['from'], txt)
-            self.bot.sendMessage(chat_id, txt + " " + get_name(msg['from'] + ".\nI am the new Danbot"))
+            self.bot.sendMessage(chat_id, txt + " " + get_name(msg['from']) + ".\nI am the new Danbot")
 
         return update
 
-    def callback_getahk(self, msg):
+    def callback_getahk(self, msg, chat_id):
 
         update = self.logUsage(self.userList, msg['from'], "/getahk")
 
@@ -173,13 +173,13 @@ class DanBot(object):
 
         return update
 
-    def callback_hint(self, msg):
+    def callback_hint(self, msg, chat_id):
 
         update = self.logUsage(self.userList, msg['from'], "/hint")
         self.bot.sendMessage(chat_id, self.strings["hint"])
         return update
 
-    def callback_passphrase(self, msg):
+    def callback_passphrase(self, msg, chat_id):
 
         update = self.logUsage(self.userList, msg['from'], "Passphrase")
 
@@ -192,7 +192,7 @@ class DanBot(object):
             self.passphrase = "I'm a Fusion!"
 
 
-    def callback_spamratio(self, msg):
+    def callback_spamratio(self, msg, chat_id):
 
         if (msg['text'] == "/spamratio" or msg['text'] == "/spamratio@noobdanbot"):
 
@@ -225,12 +225,12 @@ class DanBot(object):
                 ret = "No data found"
             else:
                 ret = getRatio(users)
-            bot.sendMessage(chat_id, ret)
+            self.bot.sendMessage(chat_id, ret)
 
             return update
 
 
-    def callback_equip(self, msg):
+    def callback_equip(self, msg, chat_id):
 
         update = self.logUsage(self.userList, msg['from'], "/equip")
 
@@ -257,27 +257,27 @@ class DanBot(object):
 
 
         if noTags and (" " in slot or len(slot) > maxSlotLen or not s_aux.isalpha()):
-            bot.sendMessage(chat_id, "The slot can only be one word consisting of 15 alphabetic characters or less.")
+            self.bot.sendMessage(chat_id, "The slot can only be one word consisting of 15 alphabetic characters or less.")
         else:
             if not noTags and (len(slot) > maxSlotLen or not s_aux.isalpha()):
-                bot.sendMessage(chat_id, "The slot inside tags can consist at most of 15 alphabetic characters or less.")
+                self.bot.sendMessage(chat_id, "The slot inside tags can consist at most of 15 alphabetic characters or less.")
             else:
                 w_aux = what[:]
                 for c in "'+-1234567890":
                     w_aux = w_aux.replace(c,"")
 
                 if not w_aux.replace(" ", "").isalpha():
-                    bot.sendMessage(chat_id, "Use only alphabetic characters for the item (or null to delete the slot)")
+                    self.bot.sendMessage(chat_id, "Use only alphabetic characters for the item (or null to delete the slot)")
                 else:
                     if len(userList[str(msg['from']['id'])]['equipment']) > maxSlots:
-                        bot.sendMessage(chat_id, "Maximum number of equipment slots in use ("+str(maxSlots)+")")
+                        self.bot.sendMessage(chat_id, "Maximum number of equipment slots in use ("+str(maxSlots)+")")
                     else:
                         if what == "null":
                             try:
                                 del userList[str(msg['from']['id'])]['equipment'][slot.lower()]
                                 update = True
                             except:
-                                bot.sendMessage(chat_id, "No such slot")
+                                self.bot.sendMessage(chat_id, "No such slot")
                         else:
                             userList[str(msg['from']['id'])]['equipment'][slot.lower()] = what
                             update = True
@@ -285,7 +285,7 @@ class DanBot(object):
         return update
 
 
-    def callback_delequip(self, msg):
+    def callback_delequip(self, msg, chat_id):
 
         update = False
         text = msg['text'][len("/equip"):].strip()
@@ -304,9 +304,9 @@ class DanBot(object):
         return update
 
 
-    def callback_showequip(self, msg):
+    def callback_showequip(self, msg, chat_id):
 
-        update = self.logUsage(userList, msg['from'], "/showequip")
+        update = self.logUsage(self.userList, msg['from'], "/showequip")
 
         equip = ""
         for key in self.userList[str(msg['from']['id'])]['equipment']:
@@ -320,7 +320,7 @@ class DanBot(object):
         return update
 
 
-    def callback_cast(self, msg):
+    def callback_cast(self, msg, chat_id):
 
         spell, effect = processSpell(spells, msg['from'], msg['text'])
 
@@ -366,30 +366,30 @@ class DanBot(object):
                 update = self.callback_greet("Greetings", msg, chat_id)
 
             elif msg['text'][:len('/getahk')] == '/getahk':
-                update = self.callback_getahk(msg)
+                update = self.callback_getahk(msg, chat_id)
 
             elif msg['text'][:len("/hint")] == "/hint":
-                update = self.callback_hint(msg)
+                update = self.callback_hint(msg, chat_id)
 
             elif self.passphrase in msg['text']:
-                update = self.callback_passphrase(msg)
+                update = self.callback_passphrase(msg, chat_id)
 
             elif msg['text'][:len('/spamratio')] == "/spamratio":
-                update = self.callback_spamratio(msg)
+                update = self.callback_spamratio(msg, chat_id)
 
             elif msg['text'][:len('/equip')] == "/equip":
-                update = self.callback_equip(msg)
+                update = self.callback_equip(msg, chat_id)
 
             elif msg['text'][:len('/delequip')] == "/delequip":
-                update = self.callback_delequip(msg)
+                update = self.callback_delequip(msg, chat_id)
 
             elif msg['text'][:len('/showequip')] == "/showequip":
-                update = self.callback_showequip(msg)
+                update = self.callback_showequip(msg, chat_id)
 
             elif msg['text'][:len('Cast ')] == "Cast " or\
                     msg['text'][:len('Sing ')] == "Sing " or\
                     msg['text'][:len('Pray for ')] == "Pray for ":
-                update = self.callback_cast(msg)
+                update = self.callback_cast(msg, chat_id)
 
 
         if update:
