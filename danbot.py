@@ -410,6 +410,11 @@ class DanBot():
             indx = rand.randint(0,len(self.quotes)-1)
             bot.sendMessage(chat_id, self.quotes[indx])
 
+        if prob > 350:
+            r = rand.randint(0, len(self.strings["comments"]))
+            bot.sendMessage(chat_id, self.strings["comments"][r])
+
+
 
         saveBingo('bingo_'+str(self.bingoNUM)+'.txt', self.bingo_data)
 
