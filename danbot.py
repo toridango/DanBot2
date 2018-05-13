@@ -349,8 +349,6 @@ class DanBot():
             print "Carrying on..."
             self.pauseFlag = False
 
-        s = msg['from']['first_name']
-        print type(s)
 
         if content_type == 'text' and not self.pauseFlag:
 
@@ -412,7 +410,7 @@ class DanBot():
 
         if prob > 350:
             r = rand.randint(0, len(self.strings["comments"]))
-            bot.sendMessage(chat_id, self.strings["comments"][r])
+            self.bot.sendMessage(chat_id, self.strings["comments"][r])
 
 
 
