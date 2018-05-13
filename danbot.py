@@ -65,6 +65,7 @@ class DanBot():
 
         self.bingoNUM = 512
         self.bingo_data = readBingo('./res/bingo_'+str(self.bingoNUM)+'.txt')
+        self.comment_thresh = 385
 
         self.passphrase = self.strings["passphrase"]
         self.default_passphrase = self.strings["default_passphrase"]
@@ -333,6 +334,17 @@ class DanBot():
 
         return update
 
+    def callback_editThresh(self, msg):
+
+        if len(msg['text'].split(" ")[1]) == 3:
+
+            try:
+                ret = int(msg['text'].split(" ")[1])
+            except:
+                ret = self.comment_thresh
+
+        return ret
+
 
 
 
@@ -393,6 +405,16 @@ class DanBot():
                     msg['text'][:len('Pray for ')] == "Pray for ":
                 update = self.callback_cast(msg, chat_id)
 
+            elif msg['text'][:len('changecommentthreshold ')] == 'changecommentthreshold ':
+                self.comment_thresh = self.callback_editThresh(msg, chat_id)
+
+            elif msg['text'] == "Danbot":
+                self.bot.sendMessage(chat_id, ["What?", "Nani?"][rand.randint(0,1)])
+
+            elif msg['text'] in ["xD", "lol", "xd", "XD", "hahaha", "hahahaha"]:
+                self.bot.sendMessage(chat_id, ["hahaha", "xD", "ay limón"][rand.randint(0,3)])
+
+
 
         if update:
             saveJSON(self.user_path, self.userList)
@@ -408,8 +430,8 @@ class DanBot():
             indx = rand.randint(0,len(self.quotes)-1)
             bot.sendMessage(chat_id, self.quotes[indx])
 
-        if prob > 350:
-            r = rand.randint(0, len(self.strings["comments"]))
+        if prob > self.comment_thresh:
+            r = rand.randint(0, len(self.strings["comments"])-1)
             self.bot.sendMessage(chat_id, self.strings["comments"][r])
 
 
