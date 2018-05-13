@@ -1,35 +1,8 @@
 {
 
-"help": "/help - Explains the functions this bot performs
-        /equip - slot item Equips the given item in the given slot.
-            Arguments:
-            slot (maximum 15 alphabetic characters, maximum 20 slots),
-            item (alphabetic characters, or "null" without the quotes to
-            delete the item slot).
-            If you want to use spaces in the slot name use tags like so:
-            <slotname> <itemname>
-        /showequip - Shows the equipped items
-        /spamratio - Computes the ratio of spam messages of every user.
-            Use: type the command, then type < > (tags) and paste inside the
-            message count of the users that the messagestats bot returns.
-            Then, add a comma and a space (\", \") after every number, and
-            paste the number that corresponds to that user's
-            spam message count.
-        /getahk - Get ahk code for sent danscript (ahk autodraw shortener)
-            Write the danscript command inside a code block (with ``` at
-            the begginning and end)
-            Available commands:
-            for: <int>;
-            up/down/right/left: <int> (*i);
-            end
-        /hint - Get hint for the current secret phrase",
+"help": "/help - Explains the functions this bot performs\n/equip - slot item Equips the given item in the given slot.\nArguments:\nslot (maximum 15 alphabetic characters, maximum 20 slots),\nitem (alphabetic characters, or \"null\" without the quotes to delete the item slot).\nIf you want to use spaces in the slot name use tags like so:\n<slotname> <itemname>\n/showequip - Shows the equipped items\n/spamratio - Computes the ratio of spam messages of every user.\nUse: type the command, then type < > (tags) and paste inside the message count of the users that the messagestats bot returns.\nThen, add a comma and a space (\", \") after every number, and paste the number that corresponds to that user's spam message count.\n/getahk - Get ahk code for sent danscript (ahk autodraw shortener)\nWrite the danscript command inside a code block (with ``` at the begginning and end)\nAvailable commands:\nfor: <int>;\nup/down/right/left: <int> (*i);\nend\n/hint - Get hint for the current secret phrase",
 
-"spamratio_tooltip":"/spamratio - Computes the ratio of spam messages of every user.
-            Use: type the command, then type < > (tags) and paste inside the
-            message count of the users that the messagestats bot returns.
-            Then, add a comma and a space (\", \") after every number, and
-            paste the number that corresponds to that user's
-            spam message count.",
+"spamratio_tooltip":"/spamratio - Computes the ratio of spam messages of every user. Use: type the command, then type < > (tags) and paste inside the message count of the users that the messagestats bot returns. Then, add a comma and a space (\", \") after every number, and paste the number that corresponds to that user's spam message count.",
 
 "passphrase": "Now it's time to start the fun",
 

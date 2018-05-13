@@ -57,11 +57,11 @@ class DanBot(object):
 
     def __init__(self):
 
-        self.strings = readJSON(keysPath)
+        self.strings = readJSON("./res/strings/en-Uk/strings.json")
         self.quotes = getQuotes('./res/Quotes.txt')
 
         self.bingoNUM = 512
-        self.bingo_data = readBingo('./res/bingo_'+str(bingoNUM)+'.txt')
+        self.bingo_data = readBingo('./res/bingo_'+str(self.bingoNUM)+'.txt')
 
         self.passphrase = self.strings["passphrase"]
         self.default_passphrase = self.strings["default_passphrase"]
@@ -88,19 +88,19 @@ class DanBot(object):
             print "MEMBER LEFT D:"
 
         # Check if member is new
-        if str(msg['from']['id']) not in userList.keys():
+        if str(msg['from']['id']) not in self.userList.keys():
             print("New user: " + getID_and_callsign(msg))
             self.newUser(msg)
             update = True
 
         # Check if member has a chat list
-        if 'chats' not in self.userList[msg['from']['id']]:
-            self.userList[msg['from']['id']]['chats'] = []
+        if 'chats' not in self.userList[str(msg['from']['id'])]:
+            self.userList[str(msg['from']['id'])]['chats'] = []
             update = True
 
         # Check if member has this chat in their list
-        if msg['chat']['id'] not in self.userList[msg['from']['id']]['chats']:
-            self.userList[msg['from']['id']]['chats'].append(msg['chat']['id'])
+        if msg['chat']['id'] not in self.userList[str(msg['from']['id'])]['chats']:
+            self.userList[str(msg['from']['id'])]['chats'].append(msg['chat']['id'])
             update = True
 
         return update
@@ -332,8 +332,8 @@ class DanBot(object):
 
         update = self.preliminary_checks(msg)
 
-        prob = rand.randint(1,bingoNUM)
-        bingo_data[-1] += 1
+        prob = rand.randint(1,self.bingoNUM)
+        self.bingo_data[-1] += 1
 
         if content_type == "text" and msg['text'][:len("/yamete")] == "/yamete":
             print "Taking a break..."
@@ -343,7 +343,7 @@ class DanBot(object):
             self.pauseFlag = False
 
 
-        if content_type == 'text' and not pauseFlag:
+        if content_type == 'text' and not self.pauseFlag:
 
             if  msg['text'][:len('/markov')] == "/markov":
                 update = self.callback_markov(msg, chat_id, msg_id)
@@ -385,12 +385,12 @@ class DanBot(object):
 
 
         if update:
-            saveJSON(self.user_path, userList)
+            saveJSON(self.user_path, self.userList)
 
-        if prob == bingoNUM:
+        if prob == self.bingoNUM:
             print("BINGO! After "+str(self.bingo_data[-1])+" messages")
-            saveBingo('bingo_'+str(self.bingoNUM)+'.txt')
-            bingo_data.append(0)
+            saveBingo('bingo_'+str(self.bingoNUM)+'.txt', self.bingo_data)
+            self.bingo_data.append(0)
             # Markov --------------------------------------------------
             # sent = self.bot.sendMessage(chat_id, "/markov@Markov_Bot")
             # self.bot.deleteMessage((chat_id, sent['message_id']))
@@ -399,7 +399,7 @@ class DanBot(object):
             bot.sendMessage(chat_id, self.quotes[indx])
 
 
-        saveBingo('bingo_'+str(bingoNUM)+'.txt')
+        saveBingo('bingo_'+str(self.bingoNUM)+'.txt', self.bingo_data)
 
 
 

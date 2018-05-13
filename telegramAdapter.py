@@ -11,20 +11,19 @@ import os
 import sys
 sys.path.insert(0, '..\\')
 
-from DanBot import *
+from danbot import *
 
 
 TOKEN = ""  # token should be loaded from file
 keysPath = "res/keys.json"
 
 
-toriteli = DanBot(keysPath)
+toriteli = DanBot()
 
 
 def handle(msg):
 
-    content_type, chat_type, chat_id, date, msg_id = telepot.glance(msg, long = True)
-
+	content_type, chat_type, chat_id, date, msg_id = telepot.glance(msg, long = True)
 	response = toriteli.process_msg(msg, content_type, chat_type, chat_id, date, msg_id)
 
 
@@ -32,6 +31,8 @@ def handle(msg):
 def main():
 
 	global TOKEN
+
+	TOKEN = readJSON("./res/keys.json")["TOKEN"]
 
 	bot = telepot.Bot(TOKEN)
 	print(bot.getMe())

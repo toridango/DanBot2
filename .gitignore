@@ -7,6 +7,7 @@ __pycache__/
 keys.json
 users.json
 Quotes.txt
+bingo*.txt
 
 
 # C extensions

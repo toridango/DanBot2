@@ -46,7 +46,7 @@ def readBingo(filename):
 
 
 
-def saveBingo(filename):
+def saveBingo(filename, bingo_data):
     # print bingo_data
 
     with open(filename, 'w') as f:
@@ -76,11 +76,11 @@ def getQuotes(filename):
 # gets the data from the json key data file and returns the target parameter
 def getKeysData(filepath, targets):
 
-	data = readJSON(filepath)
+    data = readJSON(filepath)
     values = []
 
     for t in targets:
-    	if target in data:
-    		values.append(data[target])
+    	if t in data:
+    		values.append(data[t])
 
 	return values
