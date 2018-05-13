@@ -8,6 +8,7 @@ keys.json
 users.json
 Quotes.txt
 bingo*.txt
+*.bat
 
 
 # C extensions

@@ -140,9 +140,14 @@ class DanBot(object):
 
     def callback_greet(self, txt, msg, chat_id):
 
-        if txt == "Hello Danbot":
+        if txt == "Hello" or txt == "Hola":
             update = logUsage(self.userList, msg['from'], txt)
             self.bot.sendMessage(chat_id, txt + " " + get_name(msg['from']))
+
+        elif txt == "Greetings":
+            update = logUsage(self.userList, msg['from'], txt)
+            self.bot.sendMessage(chat_id, txt + " " + get_name(msg['from'] + ".\nI am the new Danbot"))
+
         return update
 
     def callback_getahk(self, msg):
@@ -356,6 +361,9 @@ class DanBot(object):
 
             elif msg['text'] == "Hola Danbot":
                 update = self.callback_greet("Hola", msg, chat_id)
+
+            elif msg['text'] == "Greetings Danbot":
+                update = self.callback_greet("Greetings", msg, chat_id)
 
             elif msg['text'][:len('/getahk')] == '/getahk':
                 update = self.callback_getahk(msg)
