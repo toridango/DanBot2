@@ -115,44 +115,44 @@ class DanBot(object):
         self.userList[str(msg['from']['id'])]['chats'] = []
 
 
-    def logUsage(userList, user, command):
+    def logUsage(self, userList, user, command):
         userid = str(user['id'])
-        if command in userList[userid]['cmdUsage']:
-            userList[userid]['cmdUsage'][command] = str(1+int(userList[userid]['cmdUsage'][command]))
+        if command in self.userList[userid]['cmdUsage']:
+            self.userList[userid]['cmdUsage'][command] = str(1+int(self.userList[userid]['cmdUsage'][command]))
         else:
-            userList[userid]['cmdUsage'][command] = "1"
+            self.userList[userid]['cmdUsage'][command] = "1"
 
         return True
 
 
     def callback_markov(self, msg, chat_id, msg_id):
 
-        update = logUsage(self.userList, msg['from'], "/markov")
+        update = self.logUsage(self.userList, msg['from'], "/markov")
         self.bot.deleteMessage((chat_id, msg_id))
         return update
 
 
     def callback_help(self, msg, chat_id):
 
-        update = logUsage(self.userList, msg['from'], "/help")
+        update = self.logUsage(self.userList, msg['from'], "/help")
         self.bot.sendMessage(chat_id, self.strings["help"])
         return update
 
     def callback_greet(self, txt, msg, chat_id):
 
         if txt == "Hello" or txt == "Hola":
-            update = logUsage(self.userList, msg['from'], txt)
+            update = self.logUsage(self.userList, msg['from'], txt)
             self.bot.sendMessage(chat_id, txt + " " + get_name(msg['from']))
 
         elif txt == "Greetings":
-            update = logUsage(self.userList, msg['from'], txt)
+            update = self.logUsage(self.userList, msg['from'], txt)
             self.bot.sendMessage(chat_id, txt + " " + get_name(msg['from'] + ".\nI am the new Danbot"))
 
         return update
 
     def callback_getahk(self, msg):
 
-        update = logUsage(self.userList, msg['from'], "/getahk")
+        update = self.logUsage(self.userList, msg['from'], "/getahk")
 
         if "/getahk@noobdanbot" in msg['text']:
             st = len("/getahk@noobdanbot ")
@@ -175,13 +175,13 @@ class DanBot(object):
 
     def callback_hint(self, msg):
 
-        update = logUsage(self.userList, msg['from'], "/hint")
+        update = self.logUsage(self.userList, msg['from'], "/hint")
         self.bot.sendMessage(chat_id, self.strings["hint"])
         return update
 
     def callback_passphrase(self, msg):
 
-        update = logUsage(self.userList, msg['from'], "Passphrase")
+        update = self.logUsage(self.userList, msg['from'], "Passphrase")
 
         indx = rand.randint(0,len(self.quotes)-1)
         self.bot.sendMessage(chat_id, self.quotes[indx])
@@ -199,7 +199,7 @@ class DanBot(object):
             bot.sendMessage(chat_id, self.strings["spamratio_tooltip"])
 
         else:
-            update = logUsage(self.userList, msg['from'], "/spamratio")
+            update = self.logUsage(self.userList, msg['from'], "/spamratio")
 
             text = msg['text'][ msg['text'].find("<")+1 : msg['text'].find(">") ]
             end = False
@@ -232,7 +232,7 @@ class DanBot(object):
 
     def callback_equip(self, msg):
 
-        update = logUsage(self.userList, msg['from'], "/equip")
+        update = self.logUsage(self.userList, msg['from'], "/equip")
 
         maxSlotLen = 15
         maxSlots = 16
@@ -297,7 +297,7 @@ class DanBot(object):
 
             try:
                 del self.userList[str(msg['from']['id'])]['equipment'][slot.lower()]
-                update = logUsage(self.userList, msg['from'], "/delequip")
+                update = self.logUsage(self.userList, msg['from'], "/delequip")
             except:
                 self.bot.sendMessage(chat_id, "No such slot")
 
@@ -306,7 +306,7 @@ class DanBot(object):
 
     def callback_showequip(self, msg):
 
-        update = logUsage(userList, msg['from'], "/showequip")
+        update = self.logUsage(userList, msg['from'], "/showequip")
 
         equip = ""
         for key in self.userList[str(msg['from']['id'])]['equipment']:
@@ -326,7 +326,7 @@ class DanBot(object):
 
         if spell != "wrong" and effect != "wrong":
             self.bot.sendMessage(chat_id, effect)
-            update = logUsage(self.userList, msg['from'], spell)
+            update = self.logUsage(self.userList, msg['from'], spell)
 
         return update
 
