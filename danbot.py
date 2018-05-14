@@ -65,7 +65,7 @@ class DanBot():
 
         self.bingoNUM = 512
         self.bingo_data = readBingo('./res/bingo_'+str(self.bingoNUM)+'.txt')
-        self.comment_thresh = 385
+        self.comment_thresh = 0.02
 
         self.passphrase = self.strings["passphrase"]
         self.default_passphrase = self.strings["default_passphrase"]
@@ -94,7 +94,7 @@ class DanBot():
         # Check if member is new
         if str(msg['from']['id']) not in self.userList.keys():
             print("New user: " + getID_and_callsign(msg))
-            self.newUser(msg)
+            self.new_user(msg)
             update = True
 
         # Check if member has a chat list
@@ -345,6 +345,11 @@ class DanBot():
 
         return ret
 
+    def callback_laughAlong(self, chat_id):
+
+        if (rand.random() < 0.1):
+            self.bot.sendMessage(chat_id, ["hahaha", "xD", "ay limón"][rand.randint(0,3)])
+
 
 
 
@@ -406,13 +411,14 @@ class DanBot():
                 update = self.callback_cast(msg, chat_id)
 
             elif msg['text'][:len('changecommentthreshold ')] == 'changecommentthreshold ':
-                self.comment_thresh = self.callback_editThresh(msg, chat_id)
+                self.comment_thresh = self.callback_editThresh(msg)
+                print("Threshold changed to "+str(self.comment_thresh))
 
             elif msg['text'] == "Danbot":
                 self.bot.sendMessage(chat_id, ["What?", "Nani?"][rand.randint(0,1)])
 
             elif msg['text'] in ["xD", "lol", "xd", "XD", "hahaha", "hahahaha"]:
-                self.bot.sendMessage(chat_id, ["hahaha", "xD", "ay limón"][rand.randint(0,3)])
+                self.callback_laughAlong(chat_id)
 
 
 
@@ -421,7 +427,7 @@ class DanBot():
 
         if prob == self.bingoNUM:
             print("BINGO! After "+str(self.bingo_data[-1])+" messages")
-            saveBingo('bingo_'+str(self.bingoNUM)+'.txt', self.bingo_data)
+            saveBingo('./res/bingo_'+str(self.bingoNUM)+'.txt', self.bingo_data)
             self.bingo_data.append(0)
             # Markov --------------------------------------------------
             # sent = self.bot.sendMessage(chat_id, "/markov@Markov_Bot")
@@ -430,13 +436,14 @@ class DanBot():
             indx = rand.randint(0,len(self.quotes)-1)
             bot.sendMessage(chat_id, self.quotes[indx])
 
-        if prob > self.comment_thresh:
+        if rand.random() < self.comment_thresh:
             r = rand.randint(0, len(self.strings["comments"])-1)
             self.bot.sendMessage(chat_id, self.strings["comments"][r])
 
 
 
-        saveBingo('bingo_'+str(self.bingoNUM)+'.txt', self.bingo_data)
+        saveBingo('./res/bingo_'+str(self.bingoNUM)+'.txt', self.bingo_data)
+
 
 
 
