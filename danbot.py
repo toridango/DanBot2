@@ -326,7 +326,7 @@ class DanBot():
 
     def callback_cast(self, msg, chat_id):
 
-        spell, effect = processSpell(spells, msg['from'], msg['text'])
+        spell, effect = processSpell(self.spells, msg['from'], msg['text'])
 
         if spell != "wrong" and effect != "wrong":
             self.bot.sendMessage(chat_id, effect)
