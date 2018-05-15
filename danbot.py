@@ -39,20 +39,20 @@ def get_callsign(msg_from):
 
     try:
         ret = msg_from['username']
-        # print userList.keys()
+        # print self.userList.keys()
     except:
         ret =  msg_from['first_name']
-        # print userList.keys()
+        # print self.userList.keys()
     return ret
 
 def get_name(msg_from):
 
     try:
         ret = msg_from['first_name']
-        # print userList.keys()
+        # print self.userList.keys()
     except:
         ret = msg_from['username']
-        # print userList.keys()
+        # print self.userList.keys()
     return ret
 
 
@@ -273,17 +273,17 @@ class DanBot():
                 if not w_aux.replace(" ", "").isalpha():
                     self.bot.sendMessage(chat_id, "Use only alphabetic characters for the item (or null to delete the slot)")
                 else:
-                    if len(userList[str(msg['from']['id'])]['equipment']) > maxSlots:
+                    if len(self.userList[str(msg['from']['id'])]['equipment']) > maxSlots:
                         self.bot.sendMessage(chat_id, "Maximum number of equipment slots in use ("+str(maxSlots)+")")
                     else:
                         if what == "null":
                             try:
-                                del userList[str(msg['from']['id'])]['equipment'][slot.lower()]
+                                del self.userList[str(msg['from']['id'])]['equipment'][slot.lower()]
                                 update = True
                             except:
                                 self.bot.sendMessage(chat_id, "No such slot")
                         else:
-                            userList[str(msg['from']['id'])]['equipment'][slot.lower()] = what
+                            self.userList[str(msg['from']['id'])]['equipment'][slot.lower()] = what
                             update = True
 
         return update
@@ -325,7 +325,7 @@ class DanBot():
 
 
     def callback_cast(self, msg, chat_id):
-
+        update = False
         spell, effect = processSpell(self.spells, msg['from'], msg['text'])
 
         if spell != "wrong" and effect != "wrong":
@@ -434,7 +434,7 @@ class DanBot():
             # self.bot.deleteMessage((chat_id, sent['message_id']))
             # Adri Quotes ---------------------------------------------
             indx = rand.randint(0,len(self.quotes)-1)
-            bot.sendMessage(chat_id, self.quotes[indx])
+            self.bot.sendMessage(chat_id, self.quotes[indx])
 
         if rand.random() < self.comment_thresh:
             r = rand.randint(0, len(self.strings["comments"])-1)

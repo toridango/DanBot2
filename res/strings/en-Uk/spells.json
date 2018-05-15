@@ -3,7 +3,8 @@
         "chillpill": "calm",
         "pu": "calm",
         "firaga": "fireball",
-        "chameleon": "invisibility"
+        "chameleon": "invisibility",
+        "kaminari": "lightning"
     },
     "glyphs": {},
     "spells": {
@@ -14,6 +15,15 @@
                 "TRGT takes a moment and reminds themselves to take a moment and find themselves"
             ],
             "requires": [
+                "target"
+            ]
+        },
+        "sleep": {
+            "text": [
+                "TRGT starts feeling drowsy. Their last thoughts fade away as they fall asleep"
+              ],
+            "requires": [
+                "cast",
                 "target"
             ]
         },
@@ -28,12 +38,31 @@
         },
         "fireball": {
             "text": [
-                "CSTR forms a huge orb of flames and hurls it at TRGT"
+                "CSTR forms a huge orb of flames and hurls it at TRGT",
+                "༼つಠ益ಠ༽つ ─=≡ΣO))"
             ],
             "requires": [
                 "cast",
                 "target"
             ]
+        },
+        "thunder": {
+          "text": [
+              "CSTR points their hands at TRGT, and a loud, thunderous noise emanates from them. It's so relaxing..."
+          ],
+          "requires": [
+            "cast",
+            "target"
+          ]
+        },
+        "lightning": {
+          "text": [
+              "CSTR poises themselves looking towards the sky, and gestures upward as if beckoning Zeus himself. Immediately, a bolt of lightning strikes TRGT where they lay"
+          ],
+          "requires": [
+            "cast",
+            "target"
+          ]
         },
         "kokoro heal": {
             "text": [
@@ -61,7 +90,7 @@
         },
         "song of storms": {
             "text": [
-                "CSTR begins singing a sweet song. As the melody's speed picks up, the air begins to feel heavy, and after it has finished, a rumble is heard in the distance"
+                "CSTR begins singing a sweet song. As the melody picks up speed, the air begins to feel heavy, and after it has finished, a rumble is heard in the distance. Not long after, the downpour starts"
             ],
             "requires": [
                 "sing"
