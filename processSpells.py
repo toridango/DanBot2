@@ -15,11 +15,11 @@ def checksReqs(reqs, cf, sf, pf, tf, gf, glyph, verbose=False):
 	return all([cf, sf, pf, tf, gf])
 
 def processSpell(spells, casterDict, text, verbose=False):
-	glyph_flag = ("Draw" in text and "glyph" in text)
-	cast_flag = "Cast" in text
-	sing_flag = "Sing" in text
-	spell_flag = "spell" in text
-	pray_flag = "Pray for" in text
+	glyph_flag = ("draw" in text.lower() and "glyph" in text.lower())
+	cast_flag = "cast" in text.lower()
+	sing_flag = "sing" in text.lower()
+	spell_flag = "spell" in text.lower()
+	pray_flag = "pray for" in text.lower()
 	# print "cf",cast_flag,"sf",sing_flag,"pf",pray_flag,"gf",glyph_flag
 
 	glyph = ""
@@ -69,17 +69,17 @@ def processSpell(spells, casterDict, text, verbose=False):
 		spell_lims[1] = " spell"
 
 	if cast_flag:
-		spell_lims[0] = "Cast "
+		spell_lims[0] = "cast "
 	elif sing_flag:
-		spell_lims[0] = "Sing "
+		spell_lims[0] = "sing "
 	elif pray_flag:
-		spell_lims[0] = "Pray for "
+		spell_lims[0] = "pray for "
 
 
 	if spell_lims[1] == "":
-		spell = text[text.find(spell_lims[0]) + len(spell_lims[0]) : ].lower()
+		spell = text[text.lower().find(spell_lims[0]) + len(spell_lims[0]) : ].lower()
 	else:
-		spell = text[text.find(spell_lims[0]) + len(spell_lims[0]) : text.find(spell_lims[1])].lower()
+		spell = text[text.lower().find(spell_lims[0]) + len(spell_lims[0]) : text.lower().find(spell_lims[1])].lower()
 
 	if verbose:
 		print spell
@@ -121,7 +121,7 @@ if __name__ == '__main__':
 
 	print "RIGHT ------------"
 
-	text = "Cast Fireball spell on Dummy"
+	text = "cast Fireball spell on Dummy"
 	print processSpell(spells, caster["1"], text)
 
 	text = "Cast Calm spell on Dummy"
@@ -137,6 +137,9 @@ if __name__ == '__main__':
 	print processSpell(spells, caster["1"], text)
 
 	text = "Pray for reference"
+	print processSpell(spells, caster["1"], text)
+
+	text = "pray for reference"
 	print processSpell(spells, caster["1"], text)
 
 	print "WRONG -------------"

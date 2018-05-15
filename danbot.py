@@ -405,9 +405,9 @@ class DanBot():
             elif msg['text'][:len('/showequip')] == "/showequip":
                 update = self.callback_showequip(msg, chat_id)
 
-            elif msg['text'][:len('Cast ')] == "Cast " or\
-                    msg['text'][:len('Sing ')] == "Sing " or\
-                    msg['text'][:len('Pray for ')] == "Pray for ":
+            elif msg['text'][:len('Cast ')].lower() == "cast " or\
+                    msg['text'][:len('Sing ')].lower() == "sing " or\
+                    msg['text'][:len('Pray for ')].lower() == "pray for ":
                 update = self.callback_cast(msg, chat_id)
 
             elif msg['text'][:len('changecommentthreshold ')] == 'changecommentthreshold ':
