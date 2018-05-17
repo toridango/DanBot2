@@ -7,7 +7,7 @@ __pycache__/
 keys.json
 users.json
 Quotes.txt
-res/bingo*.txt
+bingo*.txt
 data.json
 *.bat
 

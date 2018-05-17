@@ -243,7 +243,10 @@ class DanBot():
         noTags = True
         charExceptions = "+-1234567890"
 
-        text = msg['text'][len("/equip"):].strip()
+        if "@noobdanbot" in msg["text"]:
+            text = msg['text'][len("/equip@noobdanbot"):].strip()
+        else:
+            text = msg['text'][len("/equip"):].strip()
 
         if "<" in text and ">" in text:
             noTags = False
@@ -454,6 +457,8 @@ class DanBot():
             print "Carrying on..."
             self.pauseFlag = False
 
+        if msg['from']["is_bot"]:
+            print "I see a bot: username {}, first_name {}".format(msg['from']['username'], msg['from']['first_name'])
 
         if content_type == 'text' and not self.pauseFlag:
 
