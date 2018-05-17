@@ -334,6 +334,94 @@ class DanBot():
 
         return update
 
+
+    def usersInGroup(self, group, chat_id):
+        users = []
+        for key in self.userList:
+            if "chats" in self.userList[key]:
+                if chat_id in self.userList[key]["chats"]:
+                    if "groups" in self.userList[key]:
+                        if group.lower() in map(str.lower, self.userList[key]["groups"]) or group.lower() == "everyone":
+                            users.append(key)
+
+    	return users
+
+    # TODO print list of groups maybe? or add that command
+    def callback_join(self, msg, chat_id):
+        update = self.logUsage(self.userList, msg['from'], "/join")
+
+        group = ""
+        txt = msg["text"]
+        message = ""
+
+        if "<" in txt and ">" in txt:
+
+            group = txt[txt.find("<")+1 : txt.find(">")]
+
+            if "groups" in self.userList[str(msg["from"]["id"])]:
+                self.userList[str(msg["from"]["id"])]["groups"].append(group)
+            else:
+                self.userList[str(msg["from"]["id"])]["groups"] = [group]
+
+        else:
+            self.bot.sendMessage(chat_id, self.strings["join_tooltip"])
+
+
+    	return update
+
+
+    def callback_leave(self, msg, chat_id):
+        update = self.logUsage(self.userList, msg['from'], "/join")
+
+        group = ""
+        txt = msg["text"]
+        message = ""
+
+        if "<" in txt and ">" in txt:
+
+            group = txt[txt.find("<")+1 : txt.find(">")]
+
+            if "groups" in self.userList[str(msg["from"]["id"])]:
+                self.userList[str(msg["from"]["id"])]["groups"].remove(group)
+
+        else:
+            self.bot.sendMessage(chat_id, self.strings["leave_tooltip"])
+
+
+        return update
+
+
+    def callback_shoutouts(self, msg, chat_id):
+        update = self.logUsage(self.userList, msg['from'], "/shoutouts")
+
+        group = ""
+        txt = msg["text"]
+        message = ""
+
+        if "<" in txt and ">" in txt:
+            group = txt[txt.find("<")+1 : txt.find(">")]
+
+            empty = True
+            for userID in self.usersInGroup(group, chat_id):
+                empty = False
+                if "username" in self.userList[userID]:
+                    message += "@{}".format(self.userList[userID]["username"], userID)
+                else:
+                    message += "[{}](tg://user?id={})".format(self.userList[userID]["first_name"], userID)
+
+            if empty:
+                message = "Empty group"
+
+            self.bot.sendMessage(chat_id, message, parse_mode = "Markdown", reply_to_message_id = msg["message_id"])
+
+        else:
+            self.bot.sendMessage(chat_id, self.strings["shoutouts_tooltip"])
+
+        return update
+
+
+
+
     def callback_editThresh(self, msg):
 
         if len(msg['text'].split(" ")[1]) == 3:
@@ -346,9 +434,9 @@ class DanBot():
         return ret
 
     def callback_laughAlong(self, chat_id):
-
+        laughs = self.strings["laughs"]
         if (rand.random() < 0.1):
-            self.bot.sendMessage(chat_id, ["hahaha", "xD", "ay limón"][rand.randint(0,3)])
+            self.bot.sendMessage(chat_id, laughs[rand.randint(0,len(laughs)-1)])
 
 
 
@@ -369,7 +457,11 @@ class DanBot():
 
         if content_type == 'text' and not self.pauseFlag:
 
-            if  msg['text'][:len('/markov')] == "/markov":
+            if msg['text'].startswith("/markdown"):
+                self.bot.deleteMessage((chat_id, msg_id))
+                self.bot.sendMessage(chat_id, msg['text'][len("/markdown "):], parse_mode="Markdown")
+
+            elif  msg['text'][:len('/markov')] == "/markov":
                 update = self.callback_markov(msg, chat_id, msg_id)
 
             elif msg['text'] in ['/help', '/help@noobdanbot']:
@@ -417,8 +509,17 @@ class DanBot():
             elif msg['text'] == "Danbot":
                 self.bot.sendMessage(chat_id, ["What?", "Nani?"][rand.randint(0,1)])
 
-            elif msg['text'] in ["xD", "lol", "xd", "XD", "hahaha", "hahahaha"]:
+            elif msg['text'] in self.strings["laugh_triggers"]:
                 self.callback_laughAlong(chat_id)
+
+            elif msg['text'].startswith("/join"):
+                update = self.callback_join(msg, chat_id)
+
+            elif msg['text'].startswith("/leave"):
+                update = self.callback_leave(msg, chat_id)
+
+            elif msg['text'].startswith("/shoutouts"):
+                update = self.callback_shoutouts(msg, chat_id)
 
 
 

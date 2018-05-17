@@ -2,6 +2,9 @@ help - Explains the functions this bot performs
 equip - slot item Equips the given item in the given slot (arguments: slot, item)
 delequip - Deletes the slot specified between the tags: <slot>
 showequip - Shows the equipped items
+join - Adds user to group specified between "<" and ">"
+leave - Removes user from group specified between "<" and ">"
+shoutouts - mentions users in the group specified between "<" and ">"
 spamratio - Using a special syntax, it computes the ratio of spam messages of every user (arguments: messages number, spam numbers. Use /help for instructions)
 getahk - Get ahk code for sent danscript (ahk autodraw shortener)
 hint - Get hint for the current secret phrase
