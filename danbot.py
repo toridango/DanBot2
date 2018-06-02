@@ -2,12 +2,15 @@
 
 import random as rand
 import sys
+import datetime as dt
+import re
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
 from processSpells import *
 from dbHandler import *
 from getAHK import *
+from IFC_Calendar import getIFCStringDate
 
 
 
@@ -56,6 +59,21 @@ def get_name(msg_from):
     return ret
 
 
+
+def try_parsing_date(text):
+    for fmt in ('%d/%m/%Y', '%Y/%m/%d', '%d-%m-%Y', '%Y-%m-%d', '%d.%m.%Y', '%Y.%m.%d'):
+        try:
+            return dt.datetime.strptime(text, fmt)
+        except ValueError:
+            pass
+    raise ValueError('no valid date format found')
+
+
+
+
+
+
+
 class DanBot():
 
     def __init__(self):
@@ -63,6 +81,7 @@ class DanBot():
         self.strings = readJSON("./res/strings/en-Uk/strings.json")
         self.quotes = getQuotes('./res/Quotes.txt')
 
+        self.MAX_GROUP_NAME_LEN = 20
         self.bingoNUM = 512
         self.bingo_data = readBingo('./res/bingo_'+str(self.bingoNUM)+'.txt')
         self.comment_thresh = 0.02
@@ -76,6 +95,9 @@ class DanBot():
         self.spell_path = './res/strings/en-Uk/spells.json'
         self.spells = readJSON(self.spell_path)
         self.pauseFlag = False
+
+        self.reDict = {"date":r"((\d{4})[-\/\.](0?[1-9]|1[012])[-\/\.](3[01]|[12][0-9]|0?[1-9]))|((3[01]|[12][0-9]|0?[1-9])[-\/\.](0?[1-9]|1[012])[-\/\.](\d{4}))"}
+
 
     def set_bot(self, bot):
 
@@ -338,18 +360,33 @@ class DanBot():
         return update
 
 
+    # unicode lower case comparison
+    def ulower(s1, s2):
+        pass
+
+
     def usersInGroup(self, group, chat_id):
         users = []
         for key in self.userList:
             if "chats" in self.userList[key]:
                 if chat_id in self.userList[key]["chats"]:
                     if "groups" in self.userList[key]:
-                        if group.lower() in map(str.lower, self.userList[key]["groups"]) or group.lower() == "everyone":
+                        found = (group.lower() == "everyone")
+                        i = 0
+                        while not found and i < len(self.userList[key]["groups"]):
+                            if group.lower() == self.userList[key]["groups"][i].lower():
+                                found = True
+                            i += 1
+                        if found:
                             users.append(key)
+
+                    else:
+                        self.userList[key]["groups"] = []
 
     	return users
 
-    # TODO print list of groups maybe? or add that command
+
+
     def callback_join(self, msg, chat_id):
         update = self.logUsage(self.userList, msg['from'], "/join")
 
@@ -360,11 +397,18 @@ class DanBot():
         if "<" in txt and ">" in txt:
 
             group = txt[txt.find("<")+1 : txt.find(">")]
+            if len(group) > self.MAX_GROUP_NAME_LEN:
+                group = group[:group.find(" ")]
 
-            if "groups" in self.userList[str(msg["from"]["id"])]:
-                self.userList[str(msg["from"]["id"])]["groups"].append(group)
+            if group == self.strings["no_groups"]:
+                self.bot.sendMessage(chat_id, self.strings["that_wont_work"][rand.randint(0, len(self.strings["that_wont_work"])-1)])
             else:
-                self.userList[str(msg["from"]["id"])]["groups"] = [group]
+
+                if "groups" in self.userList[str(msg["from"]["id"])]:
+                    if group not in self.userList[str(msg["from"]["id"])]["groups"]:
+                        self.userList[str(msg["from"]["id"])]["groups"].append(group)
+                else:
+                    self.userList[str(msg["from"]["id"])]["groups"] = [group]
 
         else:
             self.bot.sendMessage(chat_id, self.strings["join_tooltip"])
@@ -384,14 +428,21 @@ class DanBot():
 
             group = txt[txt.find("<")+1 : txt.find(">")]
 
-            if "groups" in self.userList[str(msg["from"]["id"])]:
-                self.userList[str(msg["from"]["id"])]["groups"].remove(group)
+            someLeft = True
+            while someLeft:
+                if "groups" in self.userList[str(msg["from"]["id"])]:
+                    if group in self.userList[str(msg["from"]["id"])]["groups"]:
+                        self.userList[str(msg["from"]["id"])]["groups"].remove(group)
+                    else:
+                        someLeft = False
 
         else:
             self.bot.sendMessage(chat_id, self.strings["leave_tooltip"])
 
 
         return update
+
+
 
 
     def callback_shoutouts(self, msg, chat_id):
@@ -408,9 +459,9 @@ class DanBot():
             for userID in self.usersInGroup(group, chat_id):
                 empty = False
                 if "username" in self.userList[userID]:
-                    message += "@{}".format(self.userList[userID]["username"], userID)
+                    message += "@{} ".format(self.userList[userID]["username"], userID)
                 else:
-                    message += "[{}](tg://user?id={})".format(self.userList[userID]["first_name"], userID)
+                    message += "[{}](tg://user?id={}) ".format(self.userList[userID]["first_name"], userID)
 
             if empty:
                 message = "Empty group"
@@ -422,6 +473,13 @@ class DanBot():
 
         return update
 
+
+    def callback_lsgroups(self, msg, chat_id):
+        update = self.logUsage(self.userList, msg['from'], "/lsgroups")
+        if len(self.userList[str(msg["from"]["id"])]["groups"]) > 0:
+            self.bot.sendMessage(chat_id, ", ".join(self.userList[str(msg["from"]["id"])]["groups"]))
+        else:
+            self.bot.sendMessage(chat_id, self.strings["no_groups"])
 
 
 
@@ -442,10 +500,43 @@ class DanBot():
             self.bot.sendMessage(chat_id, laughs[rand.randint(0,len(laughs)-1)])
 
 
+    def callback_ifc(self, msg, chat_id):
+        update = self.logUsage(self.userList, msg['from'], "/ifc")
+
+        dateStr = ""
+        txt = msg["text"]
+        failed = False
+
+        if txt == "/ifc" or txt == "/ifc@noobdanbot":
+            today = dt.date.today()
+            self.bot.sendMessage(chat_id, getIFCStringDate(today.day, today.month, today.year))
+            return update
+
+        else:
+            if "<" in txt and ">" in txt:
+                dateStr = txt[txt.find("<")+1 : txt.find(">")].strip()
+                if len(dateStr) in [10, 9, 8] and re.match(self.reDict["date"], dateStr):
+                    try:
+                        date = try_parsing_date(dateStr)
+                        self.bot.sendMessage(chat_id, getIFCStringDate(date.day, date.month, date.year))
+                        return update
+
+                    except ValueError:
+                        failed = True
+                else:
+                    failed = True
+            else:
+                failed = True
+
+        if failed:
+            self.bot.sendMessage(chat_id, self.strings["ifc_tooltip"])
+
+
 
 
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
 
+        trolls = []
         update = self.preliminary_checks(msg)
         prob = rand.randint(1,self.bingoNUM)
         self.bingo_data[-1] += 1
@@ -526,6 +617,15 @@ class DanBot():
             elif msg['text'].startswith("/shoutouts"):
                 update = self.callback_shoutouts(msg, chat_id)
 
+            elif msg['text'].startswith("/everyone") and msg['from']['id'] not in trolls:
+                msg["text"] = "/shoutouts <everyone>"
+                update = self.callback_shoutouts(msg, chat_id)
+
+            elif msg['text'].startswith("/lsgroups"):
+                update = self.callback_lsgroups(msg, chat_id)
+
+            elif msg['text'].lower().startswith("/ifc"):
+                update = self.callback_ifc(msg, chat_id)
 
 
         if update:

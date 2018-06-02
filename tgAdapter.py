@@ -3,12 +3,12 @@
 # import serial
 import time
 import telepot
-import datetime as dt
+# import datetime as dt
 from telepot.loop import MessageLoop
-from telepot.namedtuple import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
-import shutil
+# from telepot.namedtuple import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
+# import shutil
 import sys
-import os
+# import os
 sys.path.insert(0, '..\\')
 
 from danbot import *

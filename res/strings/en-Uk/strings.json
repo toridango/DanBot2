@@ -16,9 +16,15 @@
 
 "shoutouts_tooltip": "/shoutouts - mentions users in the group specified between \"<\" and \">\"",
 
+"ifc_tooltip": "/ifc - Returns International Fix Calendar date equivalent of today by default, or, if given between \"<\" and \">\", the given date.\nAcceptable date formats: YYYY-MM-DD and DD-MM-YYY, with or without zeros, and hyphens can be changed for forward slashes",
+
 "laughs": ["hahaha", "xD", "ay limón", "lemeyonty c++"],
 
 "laugh_triggers": ["xD", "lol", "xd", "XD", "hahaha", "hahahaha", "lemeyonty c++"],
+
+"no_groups": "No groups joined",
+
+"that_wont_work": ["I see what you did there", "That doesn't work on me", "I predicted you'd do that, tché"],
 
 "comments": ["A callar", "No", "limón", "xD", "lol", "It's a trap!", "What a weeb", "Globgor", "Fuck you Adri", "fuk u Alex"]
 
