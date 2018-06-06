@@ -10,11 +10,11 @@
 
 "default_passphrase": "I'm a Fusion",
 
-"join_tooltip": "/join - Adds user to group specified between \"<\" and \">\"",
+"join_tooltip": "/join - Adds user to a given group (max 20 characters)",
 
-"leave_tooltip": "/leave - Removes user from group specified between \"<\" and \">\"",
+"leave_tooltip": "/leave - Removes user from a given group",
 
-"shoutouts_tooltip": "/shoutouts - mentions users in the group specified between \"<\" and \">\"",
+"shoutouts_tooltip": "/shoutouts - mentions users in the specified group",
 
 "ifc_tooltip": "/ifc - Returns International Fix Calendar date equivalent of today by default, or, if given between \"<\" and \">\", the given date.\nAcceptable date formats: YYYY-MM-DD and DD-MM-YYY, with or without zeros, and hyphens can be changed for forward slashes",
 
@@ -26,6 +26,6 @@
 
 "that_wont_work": ["I see what you did there", "That doesn't work on me", "I predicted you'd do that, tché"],
 
-"comments": ["A callar", "No", "limón", "xD", "lol", "It's a trap!", "What a weeb", "Globgor", "Fuck you Adri", "fuk u Alex"]
+"comments": ["A callar", "No", "limón", "xD", "lol", "It's a trap!", "What a weeb", "Globgor", "fuk u Alex", "Fuck you Adri"]
 
 }
