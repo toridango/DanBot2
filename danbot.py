@@ -98,6 +98,9 @@ class DanBot():
 
         self.reDict = {"date":r"((\d{4})[-\/\.](0?[1-9]|1[012])[-\/\.](3[01]|[12][0-9]|0?[1-9]))|((3[01]|[12][0-9]|0?[1-9])[-\/\.](0?[1-9]|1[012])[-\/\.](\d{4}))"}
 
+        self.subRRegex = re.compile(r"\A\s*[\d\.]+\w{0,3}\s*\Z")
+        self.subRLen = 21
+
 
     def set_bot(self, bot):
 
@@ -139,6 +142,26 @@ class DanBot():
         self.userList[str(msg['from']['id'])]["titles"] = []
         self.userList[str(msg['from']['id'])]["cmdUsage"] = []
         self.userList[str(msg['from']['id'])]['chats'] = []
+        self.userList[str(msg['from']['id'])]['inventory'] = {"coins": 0}
+
+    def updateUserField(self, msg, field):
+        if field in msg["from"]:
+            if self.userList[str(msg['from']['id'])][field] != msg["from"][field]:
+                self.userList[str(msg['from']['id'])][field] = msg["from"][field]
+                return True
+        return False
+
+    def updateUserNames(self, msg):
+        update = False
+        str_id = str(msg['from']['id'])
+        user = self.userList[str_id]
+
+        update = update or self.updateUserField(msg, "first_name")
+        update = update or self.updateUserField(msg, "last_name")
+        update = update or self.updateUserField(msg, "username")
+
+        return update
+
 
 
     def logUsage(self, userList, user, command):
@@ -149,6 +172,18 @@ class DanBot():
             self.userList[userid]['cmdUsage'][command] = "1"
 
         return True
+
+    def addCoinsToUser(self, jackpot, user):
+        if "inventory" in self.userList[str(user['id'])]:
+            if "coins" in self.userList[str(user['id'])]["inventory"]:
+                self.userList[str(user['id'])]["inventory"]["coins"] += jackpot
+            else:
+                self.userList[str(user['id'])]["inventory"]["coins"] = jackpot
+        else:
+            self.userList[str(user['id'])]["inventory"] = {"coins": jackpot}
+
+        return True
+
 
 
     def callback_markov(self, msg, chat_id, msg_id):
@@ -515,6 +550,9 @@ class DanBot():
 
         if group != "":
 
+            if "\n" in group:
+                group = group[:group.find("\n")]
+
             if len(group) > self.MAX_GROUP_NAME_LEN:
                 group = group[:group.find(" ")]
 
@@ -625,6 +663,18 @@ class DanBot():
         if failed:
             self.bot.sendMessage(chat_id, self.strings["ifc_tooltip"])
 
+    def callback_subreddit(self, msg, chat_id):
+
+        txt = msg['text']
+
+        message = ""
+        for subr in re.findall(r"r/([^\s/]+)", txt):
+            if len(subr) <= self.subRLen:
+                message += "[r/{}](https://reddit.com/r/{}) ".format(subr, subr)
+
+        if message != "":
+            self.bot.sendMessage(chat_id, message, parse_mode = "Markdown", disable_web_page_preview = True)
+
 
 
 
@@ -634,6 +684,7 @@ class DanBot():
         update = self.preliminary_checks(msg)
         prob = rand.randint(1,self.bingoNUM)
         self.bingo_data[-1] += 1
+        isEdit = "edit_date" in msg
 
         if content_type == "text" and msg['text'][:len("/yamete")] == "/yamete":
             print "Taking a break..."
@@ -644,6 +695,8 @@ class DanBot():
 
         if msg['from']["is_bot"]:
             print "I see a bot: username {}, first_name {}".format(msg['from']['username'], msg['from']['first_name'])
+        else:
+            self.updateUserNames(msg)
 
         if content_type == 'text' and not self.pauseFlag:
 
@@ -698,10 +751,14 @@ class DanBot():
             #         self.comment_thresh = aux
             #     print("Threshold changed to "+str(self.comment_thresh))
 
-            elif msg['text'] == "Danbot":
+            elif msg['text'].lower() == "danbot":
                 self.bot.sendMessage(chat_id, ["What?", "Nani?"][rand.randint(0,1)])
+            elif msg['text'].lower() in [u"ダンボト", u"暖ボト"]:
+                self.bot.sendMessage(chat_id, "何？")
+            elif msg['text'].lower() in [u"お前はもう死んでいる"]:
+                self.bot.sendMessage(chat_id, "What a weeb")
 
-            elif msg['text'] in self.strings["laugh_triggers"]:
+            elif msg['text'] in self.strings["laugh_triggers"] and not isEdit:
                 self.callback_laughAlong(chat_id)
 
             elif msg['text'].startswith("/join"):
@@ -710,10 +767,10 @@ class DanBot():
             elif msg['text'].startswith("/leave"):
                 update = self.callback_newleave(msg, chat_id)
 
-            elif msg['text'].startswith("/shoutouts"):
+            elif msg['text'].startswith("/shoutouts") and not isEdit:
                 update = self.callback_newshoutouts(msg, chat_id)
 
-            elif msg['text'].startswith("/everyone") and msg['from']['id'] not in trolls:
+            elif msg['text'].startswith("/everyone") and msg['from']['id'] not in trolls and not isEdit:
                 msg["text"] = "/shoutouts <everyone>"
                 update = self.callback_shoutouts(msg, chat_id)
 
@@ -723,20 +780,33 @@ class DanBot():
             elif msg['text'].lower().startswith("/ifc"): # and msg['from']['id'] not in trolls:
                 update = self.callback_ifc(msg, chat_id)
 
+            elif msg['text'].startswith("r/"):
+                self.callback_subreddit(msg, chat_id)
 
-        if update:
-            saveJSON(self.user_path, self.userList)
+            elif msg['text'].lower().startswith("danbot say something") or msg['text'].lower().startswith("say something danbot"):
+                aggregate = self.strings["comments"] + self.strings["that_wont_work"]
+                self.bot.sendMessage(chat_id, aggregate[rand.randint(0, len(aggregate)-1)])
+
+
+
 
         if prob == self.bingoNUM:
+            jackpot = self.bingo_data[-1]
             print("BINGO! After "+str(self.bingo_data[-1])+" messages")
             saveBingo('./res/bingo_'+str(self.bingoNUM)+'.txt', self.bingo_data)
             self.bingo_data.append(0)
             # Markov --------------------------------------------------
             # sent = self.bot.sendMessage(chat_id, "/markov@Markov_Bot")
             # self.bot.deleteMessage((chat_id, sent['message_id']))
-            # Adri Quotes ---------------------------------------------
-            indx = rand.randint(0,len(self.quotes)-1)
-            self.bot.sendMessage(chat_id, self.quotes[indx])
+            # Coins (were Adri Quotes) --------------------------------
+            # indx = rand.randint(0,len(self.quotes)-1)
+            # self.bot.sendMessage(chat_id, self.quotes[indx])
+            update = self.addCoinsToUser(jackpot, msg['from'])
+            name = get_callsign(msg['from'])
+            self.bot.sendMessage(chat_id, "{} just won the jackpot of {} coins++ !!!".format(name, jackpot).upper())
+
+        if update:
+            saveJSON(self.user_path, self.userList)
 
         if rand.random() < self.comment_thresh:
             r = rand.randint(0, len(self.strings["comments"])-1)
