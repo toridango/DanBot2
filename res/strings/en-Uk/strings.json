@@ -18,7 +18,7 @@
 
 "ifc_tooltip": "/ifc - Returns International Fix Calendar date equivalent of today by default, or, if given between \"<\" and \">\", the given date.\nAcceptable date formats: YYYY-MM-DD and DD-MM-YYY, with or without zeros, and hyphens can be changed for forward slashes",
 
-"laughs": ["hahaha", "xD", "ay limón", "lemeyonty c++"],
+"laughs": ["hahaha", "xD", "ay limón", "lemeyonty c++", "it's funny because it's true"],
 
 "laugh_triggers": ["xD", "lol", "xd", "XD", "hahaha", "hahahaha", "lemeyonty c++"],
 
@@ -26,6 +26,6 @@
 
 "that_wont_work": ["I see what you did there", "That doesn't work on me", "I predicted you'd do that, tché"],
 
-"comments": ["A callar", "No", "limón", "xD", "lol", "It's a trap!", "What a weeb", "Globgor", "fuk u Alex", "Fuck you Adri"]
+"comments": ["A callar", "No", "limón", "xD", "lol", "It's a trap!", "What a weeb", "A wizard did it", "I'm in it for the money", "aing?"]
 
 }

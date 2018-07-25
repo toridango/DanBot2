@@ -145,10 +145,14 @@ class DanBot():
         self.userList[str(msg['from']['id'])]['inventory'] = {"coins": 0}
 
     def updateUserField(self, msg, field):
+        user = self.userList[str(msg['from']['id'])]
         if field in msg["from"]:
-            if self.userList[str(msg['from']['id'])][field] != msg["from"][field]:
+            if field in user:
+                if user[field] != msg["from"][field]:
+                    self.userList[str(msg['from']['id'])][field] = msg["from"][field]
+                    return True
+            else:
                 self.userList[str(msg['from']['id'])][field] = msg["from"][field]
-                return True
         return False
 
     def updateUserNames(self, msg):
@@ -223,8 +227,9 @@ class DanBot():
         cod = msg['text'][st+1-1:-1]
         frame = "on"
 
-        if msg['text'][len("/getahk")] == "!":
-            frame = "off"
+        if len(msg['text']) > len("/getahk"):
+            if msg['text'][len("/getahk")] == "!":
+                frame = "off"
 
         try:
             ahk = getAHK(cod, frame)
@@ -698,7 +703,7 @@ class DanBot():
         else:
             self.updateUserNames(msg)
 
-        if content_type == 'text' and not self.pauseFlag:
+        if content_type == 'text' and not self.pauseFlag and not msg['from']['id'] in trolls:
 
             if msg['text'].startswith("/markdown"):
                 self.bot.deleteMessage((chat_id, msg_id))
