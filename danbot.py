@@ -11,6 +11,7 @@ from processSpells import *
 from dbHandler import *
 from getAHK import *
 from IFC_Calendar import getIFCStringDate
+from GDQuote import get_GDQuote
 
 
 
@@ -455,40 +456,6 @@ class DanBot():
     	return update
 
 
-
-    def callback_join(self, msg, chat_id):
-        update = self.logUsage(self.userList, msg['from'], "/join")
-
-        group = ""
-        txt = msg["text"]
-        message = ""
-
-        if "<" in txt and ">" in txt:
-
-            group = txt[txt.find("<")+1 : txt.find(">")]
-            if len(group) > self.MAX_GROUP_NAME_LEN:
-                group = group[:group.find(" ")]
-
-            if len(group) > self.MAX_GROUP_NAME_LEN:
-                group = group[:self.MAX_GROUP_NAME_LEN]
-
-            if group == self.strings["no_groups"]:
-                self.bot.sendMessage(chat_id, self.strings["that_wont_work"][rand.randint(0, len(self.strings["that_wont_work"])-1)])
-            else:
-
-                if "groups" in self.userList[str(msg["from"]["id"])]:
-                    if group not in self.userList[str(msg["from"]["id"])]["groups"]:
-                        self.userList[str(msg["from"]["id"])]["groups"].append(group)
-                else:
-                    self.userList[str(msg["from"]["id"])]["groups"] = [group]
-
-        else:
-            self.bot.sendMessage(chat_id, self.strings["join_tooltip"])
-
-
-    	return update
-
-
     def callback_newleave(self, msg, chat_id):
         update = self.logUsage(self.userList, msg['from'], "/join")
 
@@ -519,34 +486,6 @@ class DanBot():
     	return update
 
 
-
-    def callback_leave(self, msg, chat_id):
-        update = self.logUsage(self.userList, msg['from'], "/join")
-
-        group = ""
-        txt = msg["text"]
-        message = ""
-
-        if "<" in txt and ">" in txt:
-
-            group = txt[txt.find("<")+1 : txt.find(">")]
-
-            someLeft = True
-            while someLeft:
-                if "groups" in self.userList[str(msg["from"]["id"])]:
-                    if group in self.userList[str(msg["from"]["id"])]["groups"]:
-                        self.userList[str(msg["from"]["id"])]["groups"].remove(group)
-                    else:
-                        someLeft = False
-
-        else:
-            self.bot.sendMessage(chat_id, self.strings["leave_tooltip"])
-
-
-        return update
-
-
-
     def callback_newshoutouts(self, msg, chat_id):
         update = self.logUsage(self.userList, msg['from'], "/shoutouts")
 
@@ -563,36 +502,6 @@ class DanBot():
 
             if len(group) > self.MAX_GROUP_NAME_LEN:
                 group = group[:self.MAX_GROUP_NAME_LEN]
-
-            empty = True
-            for userID in self.usersInGroup(group, chat_id):
-                empty = False
-                if "username" in self.userList[userID]:
-                    message += "@{} ".format(self.userList[userID]["username"], userID)
-                else:
-                    message += "[{}](tg://user?id={}) ".format(self.userList[userID]["first_name"], userID)
-
-            if empty:
-                message = "Empty group"
-
-            self.bot.sendMessage(chat_id, message, parse_mode = "Markdown", reply_to_message_id = msg["message_id"])
-
-        else:
-            self.bot.sendMessage(chat_id, self.strings["shoutouts_tooltip"])
-
-        return update
-
-
-
-    def callback_shoutouts(self, msg, chat_id):
-        update = self.logUsage(self.userList, msg['from'], "/shoutouts")
-
-        group = ""
-        txt = msg["text"]
-        message = ""
-
-        if "<" in txt and ">" in txt:
-            group = txt[txt.find("<")+1 : txt.find(">")]
 
             empty = True
             for userID in self.usersInGroup(group, chat_id):
@@ -680,7 +589,9 @@ class DanBot():
         if message != "":
             self.bot.sendMessage(chat_id, message, parse_mode = "Markdown", disable_web_page_preview = True)
 
-
+    def callback_gdquote(self, chat_id):
+        self.logUsage(self.userList, msg['from'], "/gdquote")
+        self.bot.sendMessage(chat_id, get_GDQuote())
 
 
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
@@ -792,6 +703,8 @@ class DanBot():
                 aggregate = self.strings["comments"] + self.strings["that_wont_work"]
                 self.bot.sendMessage(chat_id, aggregate[rand.randint(0, len(aggregate)-1)])
 
+            elif msg['text'].lower().startswith("/gdquote"):
+                self.callback_gdquote(chat_id)
 
 
 
