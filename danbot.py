@@ -589,7 +589,7 @@ class DanBot():
         if message != "":
             self.bot.sendMessage(chat_id, message, parse_mode = "Markdown", disable_web_page_preview = True)
 
-    def callback_gdquote(self, chat_id):
+    def callback_gdquote(self, msg, chat_id):
         self.logUsage(self.userList, msg['from'], "/gdquote")
         self.bot.sendMessage(chat_id, get_GDQuote())
 
@@ -704,7 +704,7 @@ class DanBot():
                 self.bot.sendMessage(chat_id, aggregate[rand.randint(0, len(aggregate)-1)])
 
             elif msg['text'].lower().startswith("/gdquote"):
-                self.callback_gdquote(chat_id)
+                self.callback_gdquote(msg, chat_id)
 
 
 
