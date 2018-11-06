@@ -102,6 +102,8 @@ class DanBot():
         self.subRRegex = re.compile(r"\A\s*[\d\.]+\w{0,3}\s*\Z")
         self.subRLen = 21
 
+        self.debatemode = False
+
 
     def set_bot(self, bot):
 
@@ -593,6 +595,21 @@ class DanBot():
         self.logUsage(self.userList, msg['from'], "/gdquote")
         self.bot.sendMessage(chat_id, get_GDQuote())
 
+    def callback_debatemode(self, msg, chat_id):
+        usage_msg = "Usage: /debatemode [on|off]"
+        self.logUsage(self.userList, msg['from'], "/debatemode")
+        args = msg['text'].split(" ")
+        if len(args) != 2:
+            self.bot.sendMessage(chat_id, usage_msg)
+        else:
+            switch = args[1]
+            if switch == "on":
+                self.debatemode = True
+            elif switch == "off":
+                self.debatemode = False
+            else:
+                self.bot.sendMessage(chat_id, usage_msg)
+
 
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
 
@@ -674,7 +691,7 @@ class DanBot():
             elif msg['text'].lower() in [u"お前はもう死んでいる"]:
                 self.bot.sendMessage(chat_id, "What a weeb")
 
-            elif msg['text'] in self.strings["laugh_triggers"] and not isEdit:
+            elif msg['text'] in self.strings["laugh_triggers"] and not isEdit and not self.debatemode:
                 self.callback_laughAlong(chat_id)
 
             elif msg['text'].startswith("/join"):
@@ -706,6 +723,8 @@ class DanBot():
             elif msg['text'].lower().startswith("/gdquote"):
                 self.callback_gdquote(msg, chat_id)
 
+            elif msg['text'].lower().startswith("/debatemode"):
+                self.callback_debatemode(msg, chat_id)
 
 
         if prob == self.bingoNUM:
@@ -726,7 +745,7 @@ class DanBot():
         if update:
             saveJSON(self.user_path, self.userList)
 
-        if rand.random() < self.comment_thresh:
+        if rand.random() < self.comment_thresh and not self.debatemode:
             r = rand.randint(0, len(self.strings["comments"])-1)
             self.bot.sendMessage(chat_id, self.strings["comments"][r])
 
