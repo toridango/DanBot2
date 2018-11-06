@@ -191,6 +191,14 @@ class DanBot():
 
         return True
 
+    def getUserCoins(self, user):
+        if "inventory" not in self.userList[str(user['id'])]:
+            self.userList[str(user['id'])]["inventory"] = {"coins": 0}
+
+        if "coins" not in self.userList[str(user['id'])]["inventory"]:
+            self.userList[str(user['id'])]["inventory"]["coins"] = 0
+
+        return self.userList[str(user['id'])]["inventory"]["coins"]
 
 
     def callback_markov(self, msg, chat_id, msg_id):
@@ -610,10 +618,18 @@ class DanBot():
             else:
                 self.bot.sendMessage(chat_id, usage_msg)
 
+    def callback_showcoins(self, msg, chat_id):
+        self.logUsage(self.userList, msg['from'], "/showcoins")
+
+        name = get_callsign(msg['from'])
+        coins = getUserCoins(msg['from'])
+        
+        self.bot.sendMessage(chat_id, "{name} has {coins} coins.".format(name=name, coins=coins))
+
 
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
 
-        trolls = [13363913]
+        trolls = []
         update = self.preliminary_checks(msg)
         prob = rand.randint(1,self.bingoNUM)
         self.bingo_data[-1] += 1
@@ -718,6 +734,8 @@ class DanBot():
 
             elif msg['text'].lower().startswith("danbot say something") or msg['text'].lower().startswith("say something danbot"):
                 aggregate = self.strings["comments"] + self.strings["that_wont_work"]
+                if self.debatemode:
+                    aggregate += ["please disable debate mode"]
                 self.bot.sendMessage(chat_id, aggregate[rand.randint(0, len(aggregate)-1)])
 
             elif msg['text'].lower().startswith("/gdquote"):
@@ -725,6 +743,9 @@ class DanBot():
 
             elif msg['text'].lower().startswith("/debatemode"):
                 self.callback_debatemode(msg, chat_id)
+
+            elif msg['text'].lower().startswith("/showcoins"):
+                self.callback_showcoins(msg, chat_id)
 
 
         if prob == self.bingoNUM:
