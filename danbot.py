@@ -622,7 +622,7 @@ class DanBot():
         self.logUsage(self.userList, msg['from'], "/showcoins")
 
         name = get_callsign(msg['from'])
-        coins = getUserCoins(msg['from'])
+        coins = self.getUserCoins(msg['from'])
         
         self.bot.sendMessage(chat_id, "{name} has {coins} coins.".format(name=name, coins=coins))
 
