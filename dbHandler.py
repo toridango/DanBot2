@@ -7,16 +7,16 @@ import json
 # Reads json from filepath and returns the unadultered read contents
 def readJSON(filepath):
 
-	with open(filepath, 'r') as f:
-		data = json.load(f)
+    with open(filepath, 'r') as f:
+        data = json.load(f)
 
-	return data
+    return data
 
 # Saves json from data structure into disk
 def saveJSON(filename, data):
 
-	with open(filename, 'w') as f:
-		json.dump(data, f, sort_keys=True, indent=4, separators=(',', ': '))
+    with open(filename, 'w') as f:
+        json.dump(data, f, sort_keys=True, indent=4, separators=(',', ': '))
 
 
 
@@ -81,7 +81,7 @@ def getKeysData(filepath, targets):
     values = []
 
     for t in targets:
-    	if t in data:
-    		values.append(data[t])
+        if t in data:
+            values.append(data[t])
 
-	return values
+    return values
