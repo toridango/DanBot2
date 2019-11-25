@@ -142,7 +142,7 @@ if __name__ == '__main__':
     text = "pray for reference"
     print(processSpell(spells, caster["1"], text))
 
-    print("WRONG -------------"
+    print("WRONG -------------")
 
     text = "Pray for teference"
     print(processSpell(spells, caster["1"], text))

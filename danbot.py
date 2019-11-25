@@ -4,8 +4,9 @@ import random as rand
 import sys
 import datetime as dt
 import re
+
+from importlib import reload
 reload(sys)
-sys.setdefaultencoding("utf-8")
 
 from processSpells import *
 from dbHandler import *

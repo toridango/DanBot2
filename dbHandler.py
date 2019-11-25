@@ -7,7 +7,7 @@ import json
 # Reads json from filepath and returns the unadultered read contents
 def readJSON(filepath):
 
-    with open(filepath, 'r') as f:
+    with open(filepath, 'r', encoding='utf8') as f:
         data = json.load(f)
 
     return data
@@ -15,7 +15,7 @@ def readJSON(filepath):
 # Saves json from data structure into disk
 def saveJSON(filename, data):
 
-    with open(filename, 'w') as f:
+    with open(filename, 'w', encoding='utf8') as f:
         json.dump(data, f, sort_keys=True, indent=4, separators=(',', ': '))
 
 

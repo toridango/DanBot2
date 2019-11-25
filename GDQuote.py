@@ -8,4 +8,4 @@ def get_GDQuote():
     return r.content.decode()
 
 if __name__ == "__main__":
-    print get_GDQuote()
+    print(get_GDQuote())
