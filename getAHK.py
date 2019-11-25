@@ -127,4 +127,4 @@ if __name__ == '__main__':
 
     cod = "up:5;"
 
-    print getAHK(cod)
+    print(getAHK(cod))

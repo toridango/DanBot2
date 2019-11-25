@@ -5,7 +5,7 @@ import random as rand
 # Reqs: target, cast, sing, pray
 def checksReqs(reqs, cf, sf, pf, tf, gf, glyph, verbose=False):
     if verbose:
-        print reqs, "cf", cf, "sf", sf, "pf", pf, "tf", tf, "gf", gf, glyph
+        print(reqs, "cf", cf, "sf", sf, "pf", pf, "tf", tf, "gf", gf, glyph)
     cf = (("cast" in reqs) == cf) or not ("sing" in reqs or "pray" in reqs)
     sf = (("sing" in reqs) == sf) or not ("cast" in reqs or "pray" in reqs)
     pf = ("pray" in reqs) == pf
@@ -49,7 +49,7 @@ def processSpell(spells, casterDict, text, verbose=False):
     CSTR = casterDict['first_name']
 
     if verbose:
-        print "target", trgt_flag, "||", CSTR, "->", TRGT
+        print("target", trgt_flag, "||", CSTR, "->", TRGT)
 
     if glyph_flag:
         glyph = text[text.find("Draw ") + len("Draw ") : text.find(" glyph")]
@@ -82,7 +82,7 @@ def processSpell(spells, casterDict, text, verbose=False):
         spell = text[text.lower().find(spell_lims[0]) + len(spell_lims[0]) : text.lower().find(spell_lims[1])].lower()
 
     if verbose:
-        print spell
+        print(spell)
 
     if spell not in spells['spells']:
         if spell not in spells['translations']:
@@ -119,39 +119,39 @@ if __name__ == '__main__':
     with open('res/strings/en-Uk/spells.json','r') as f:
         spells = json.load(f)
 
-    print "RIGHT ------------"
+    print("RIGHT ------------")
 
     text = "cast Fireball spell on Dummy"
-    print processSpell(spells, caster["1"], text)
+    print(processSpell(spells, caster["1"], text))
 
     text = "Cast Calm spell on Dummy"
-    print processSpell(spells, caster["1"], text)
+    print(processSpell(spells, caster["1"], text))
 
     text = "Cast Heal spell on Dummy"
-    print processSpell(spells, caster["1"], text)
+    print(processSpell(spells, caster["1"], text))
 
     text = "Cast Invisibility spell"
-    print processSpell(spells, caster["1"], text)
+    print(processSpell(spells, caster["1"], text))
 
     text = "Sing Song of storms"
-    print processSpell(spells, caster["1"], text)
+    print(processSpell(spells, caster["1"], text))
 
     text = "Pray for reference"
-    print processSpell(spells, caster["1"], text)
+    print(processSpell(spells, caster["1"], text))
 
     text = "pray for reference"
-    print processSpell(spells, caster["1"], text)
+    print(processSpell(spells, caster["1"], text))
 
-    print "WRONG -------------"
+    print("WRONG -------------"
 
     text = "Pray for teference"
-    print processSpell(spells, caster["1"], text)
+    print(processSpell(spells, caster["1"], text))
 
     text = "Cast for reference"
-    print processSpell(spells, caster["1"], text)
+    print(processSpell(spells, caster["1"], text))
 
     text = "Sing fireball spell on Dummy"
-    print processSpell(spells, caster["1"], text)
+    print(processSpell(spells, caster["1"], text))
 
     text = "Cast Song of Storms"
-    print processSpell(spells, caster["1"], text)
+    print(processSpell(spells, caster["1"], text))

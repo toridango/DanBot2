@@ -173,9 +173,9 @@ class DanBot():
 
     def logUsage(self, userList, user, command):
         userid = str(user['id'])
-        print userid
-        print self.userList
-        print self.userList[userid]['cmdUsage']
+        print("UserID:", userid, " Command:", command)
+        #print(self.userList)
+        #print(self.userList[userid]['cmdUsage'])
         if command in self.userList[userid]['cmdUsage']:
             self.userList[userid]['cmdUsage'][command] = str(1+int(self.userList[userid]['cmdUsage'][command]))
         else:
