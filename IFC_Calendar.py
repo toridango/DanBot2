@@ -39,8 +39,8 @@ def gregorian2IFC(day, month, year):
         monthIFC -=1
 
     if (monthIFC == 14 and dayIFC == 1):
-        monthIFC = 13;
-        dayIFC = 29;
+        monthIFC = 13
+        dayIFC = 29
 
     return dayIFC,monthIFC,year
     

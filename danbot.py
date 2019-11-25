@@ -117,11 +117,11 @@ class DanBot():
 
         # Check if member has left
         if 'left_chat_member' in msg.keys():
-            print "MEMBER LEFT D:"
+            print("\nMEMBER LEFT D:")
 
         # Check if member is new
         if str(msg['from']['id']) not in self.userList.keys():
-            print("New user: " + getID_and_callsign(msg))
+            print("\nNew user: " + getID_and_callsign(msg))
             self.new_user(msg)
             update = True
 
@@ -437,7 +437,7 @@ class DanBot():
                     else:
                         self.userList[key]["groups"] = []
 
-    	return users
+        return users
 
 
     def callback_newjoin(self, msg, chat_id):
@@ -466,7 +466,7 @@ class DanBot():
         else:
             self.bot.sendMessage(chat_id, self.strings["join_tooltip"])
 
-    	return update
+        return update
 
 
     def callback_newleave(self, msg, chat_id):
@@ -496,7 +496,7 @@ class DanBot():
         else:
             self.bot.sendMessage(chat_id, self.strings["leave_tooltip"])
 
-    	return update
+        return update
 
 
     def callback_newshoutouts(self, msg, chat_id):
@@ -639,14 +639,14 @@ class DanBot():
         isEdit = "edit_date" in msg
 
         if content_type == "text" and msg['text'][:len("/yamete")] == "/yamete":
-            print "Taking a break..."
+            print("\nTaking a break...")
             self.pauseFlag = True
         elif content_type == "text" and msg['text'][:len("/tsudzukete")] == "/tsudzukete":
-            print "Carrying on..."
+            print("\nCarrying on...")
             self.pauseFlag = False
 
         if msg['from']["is_bot"]:
-            print "I see a bot: username {}, first_name {}".format(msg['from']['username'], msg['from']['first_name'])
+            print("\nI see a bot: username {}, first_name {}".format(msg['from']['username'], msg['from']['first_name']))
         else:
             self.updateUserNames(msg)
 
@@ -753,7 +753,7 @@ class DanBot():
 
         if prob == self.bingoNUM:
             jackpot = self.bingo_data[-1]
-            print("BINGO! After "+str(self.bingo_data[-1])+" messages")
+            print("\nBINGO! After "+str(self.bingo_data[-1])+" messages")
             saveBingo('./res/bingo_'+str(self.bingoNUM)+'.txt', self.bingo_data)
             self.bingo_data.append(0)
             # Markov --------------------------------------------------
