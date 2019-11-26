@@ -144,7 +144,7 @@ class DanBot():
         self.userList[str(msg['from']['id'])]['id'] = str(self.userList[str(msg['from']['id'])]['id'])
         self.userList[str(msg['from']['id'])]["equipment"] = {}
         self.userList[str(msg['from']['id'])]["titles"] = []
-        self.userList[str(msg['from']['id'])]["cmdUsage"] = []
+        self.userList[str(msg['from']['id'])]["cmdUsage"] = {}
         self.userList[str(msg['from']['id'])]['chats'] = []
         self.userList[str(msg['from']['id'])]['inventory'] = {"coins": 0}
 
