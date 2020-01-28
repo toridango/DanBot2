@@ -12,7 +12,7 @@ import datetime as dt
 # Reads json from filepath and returns the unadultered read contents
 def readJSON(filepath):
 
-    with open(filepath, 'r', encoding='utf8') as f:
+    with open(filepath, "r", encoding="utf8") as f:
         data = json.load(f)
 
     return data
@@ -33,7 +33,7 @@ def ParseRollArguments(message):
     msg.replace("\n", "")
     msg.replace("\t", "")
     # \(\d{0,2})d(4|6|8|10|12|20)([+-]\d{1,2})??
-    match = re.search('(?P<num_rolls>\d{0,2})[dD](?P<dice_size>4|6|8|100|12|20|10)(?P<plus_minus>[+-]\d{1,2})?', message.content)
+    match = re.search("(?P<num_rolls>\d{0,2})[dD](?P<dice_size>4|6|8|100|12|20|10)(?P<plus_minus>[+-]\d{1,2})?", message.content)
 
     if(match):
         if(match.group(0)):
@@ -56,7 +56,7 @@ def ParseWorkArguments(message):
     msg.replace("\n", "")
     msg.replace("\t", "")
 
-    match = re.search('(?P<plus_minus>[+-]\d{1,2})', message.content)
+    match = re.search("(?P<plus_minus>[+-]\d{1,2})", message.content)
 
     if(match):
         if(match.group(0)):
@@ -230,7 +230,7 @@ def runBot(filename):
 
     @client.event
     async def on_ready():
-        print(f'{client.user} has connected to Discord!')
+        print(f"{client.user} has connected to Discord!")
 
     @client.event
     async def on_message(message):
