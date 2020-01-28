@@ -11,6 +11,9 @@ bingo*.txt
 data.json
 *.bat
 
+#DandDanbot
+config.json
+
 
 # C extensions
 *.so
