@@ -230,7 +230,7 @@ def runBot(filename):
 
     @client.event
     async def on_ready():
-        print(f"{client.user} has connected to Discord!")
+        print("{0} has connected to Discord!".format(client.user))
 
     @client.event
     async def on_message(message):
@@ -333,7 +333,7 @@ def runBot(filename):
 
 
 def main():
-    exitCode = runBot('config.json')
+    exitCode = runBot("./config.json")
 
 
 if __name__ == "__main__":
