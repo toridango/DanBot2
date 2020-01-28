@@ -27,14 +27,15 @@ def RollNdX(N, X):
 
 
 def ParseRollArguments(message):
-    msg = message.content
+    msg = message.content#[len("!roll "):]
     
-    msg.replace(" ", "")
-    msg.replace("\n", "")
-    msg.replace("\t", "")
+    msg = msg.replace(" ", "")
+    msg = msg.replace("\n", "")
+    msg = msg.replace("\t", "")
     # \(\d{0,2})d(4|6|8|10|12|20)([+-]\d{1,2})??
-    match = re.search("(?P<num_rolls>\d{0,2})[dD](?P<dice_size>4|6|8|100|12|20|10)(?P<plus_minus>[+-]\d{1,2})?", message.content)
-
+    # print(msg)
+    match = re.search("(?P<num_rolls>\d{0,2})[dD](?P<dice_size>4|6|8|100|12|20|10)(?P<plus_minus>[+-]\d{1,2})?", msg)
+    
     if(match):
         if(match.group(0)):
             # print("Rolling...")
@@ -52,11 +53,11 @@ def ParseRollArguments(message):
 def ParseWorkArguments(message):
     msg = message.content
     
-    msg.replace(" ", "")
-    msg.replace("\n", "")
-    msg.replace("\t", "")
+    msg = msg.replace(" ", "")
+    msg = msg.replace("\n", "")
+    msg = msg.replace("\t", "")
 
-    match = re.search("(?P<plus_minus>[+-]\d{1,2})", message.content)
+    match = re.search("(?P<plus_minus>[+-]\d{1,2})", msg)
 
     if(match):
         if(match.group(0)):
