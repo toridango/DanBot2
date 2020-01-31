@@ -1,11 +1,11 @@
 
 
-import discord
 import json
 import random
 import re
-import numpy as np
 import datetime as dt
+import numpy as np
+import discord
 
 
 
@@ -215,6 +215,41 @@ def CommandAddParty(message):
         return roleAndMembers
 
 
+
+def CommandStats(message):
+    
+    msg = message.content
+    response = ""
+    match = re.search("(?P<num_stats>\d{0,2})", msg)
+    num_stats = 6 if not match.group("num_stats") else int(match.group("num_stats"))
+    if num_stats < 1:
+        num_stats = 6
+
+    stats = []
+    rollGroups = []
+    discardedIndices = []
+
+    totalPointBuyValue = 0
+
+    for i in range(num_stats):
+        roll = RollNdX(4, 6)
+        stat = sum(roll) - min(roll)
+
+        stats.append(stat)
+        rollGroups.append(roll)
+
+        pointBuyValue = stat - 8 if stat < 14 else (stat - 8) + (stat - 13) 
+        totalPointBuyValue += pointBuyValue
+
+        sortedRoll = sorted(roll, reverse=True)
+        response += "`{4:2} = `({0} + {1} + {2} + ~~{3}~~)\n".format(*sortedRoll, stat)
+        
+    response += "Total point buy cost: {0}".format(totalPointBuyValue)
+
+
+    return response
+
+
 def runBot(filename):
     
     token = ""
@@ -310,6 +345,9 @@ def runBot(filename):
                     await message.guild.get_channel(channel_id).send(log)
                 else:
                     await message.channel.send(log)
+
+        elif msg.startswith("!stats"):
+            response = CommandStats(message)
 
         elif msg.startswith("QQ"):
             dm = ""
