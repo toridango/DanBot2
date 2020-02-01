@@ -139,13 +139,22 @@ def CommandHelp():
                 "roll starting gold for class"],
             ["!work +/-<M>", 
                 "roll for wages based on ability modifier M"],
+            ["!stats <N>", 
+                "rolls N stats, or 6 if unspecified"],
             ["!addparty <party_name> DM: <dungeon_master> <member1> <member2> <member3> ... <memberN>", 
                 '''Creates a party and adds DM and members to it.\
                 If the party already exists, adds members to it.\
                 DM is overwritten on re-assignment.\
                 Note: mention users, rather than typing their usernames or nicknames'''],
             ["!rmparty <party_name>", 
-                "removes a party"]
+                "removes a party"],
+            ["!addgroup <group_name> <member1> <member2> <member3> ... <memberN>", 
+                '''Creates a group and adds members to it.\
+                If the group already exists, adds members to it.\
+                (no DM required and the changes are not logged).\
+                Note: mention users, rather than typing their usernames or nicknames'''],
+            ["!rmgroup <group_name>", 
+                "removes a group"]
         ]
 
     return "\n".join(notes) + "\n\n" + "Commands:\n```"+"\n".join(["  -  ".join(e) for e in commandData])+"```"
@@ -250,6 +259,23 @@ def CommandStats(message):
     return response
 
 
+def CommandAddGroup(message):
+    
+    msg = message.content[len("!addgroup "):]
+    
+    members = []
+    roleAndMembers = {}
+
+    for m in message.mentions:
+        members.append(m)
+    party_name = msg.split(" ")[0]
+
+    roleAndMembers["group_name"] = party_name
+    roleAndMembers["members"] = members
+    print("NEW GROUP!", roleAndMembers)
+    return roleAndMembers
+
+
 def runBot(filename):
     
     token = ""
@@ -349,13 +375,76 @@ def runBot(filename):
         elif msg.startswith("!stats"):
             response = CommandStats(message)
 
-        elif msg.startswith("QQ"):
-            dm = ""
-            for m in message.mentions:
-                text = "DM @" + m.name
-                if (text in message.clean_content):
-                    dm = m.name
-            await message.channel.send("```DM is @"+str(dm)+"```")
+        
+        elif msg.startswith("!addgroup"):
+            roleAndMembers = CommandAddGroup(message)
+            if not roleAndMembers:
+                await message.channel.send("Incorrect format. Check `!help` for more information")
+            else:
+                role = GetRoleByName(message.guild.roles, roleAndMembers["group_name"])
+
+                today = dt.datetime.today()
+                date = dt.date(today.year, today.month, today.day).isoformat()
+
+                header = ""
+                newGroup = False
+
+                # if roleAndMembers["party_name"] not in message.guild.roles:
+                if not role:
+                    role = await message.guild.create_role(name = roleAndMembers["group_name"], mentionable = True)
+                    header = "{0} created! ({1})".format(roleAndMembers["group_name"], ", ".join([m.name for m in roleAndMembers["members"] if role not in m.roles]))
+                    newGroup = True
+                else:
+                    header = "{0} joined {1}!".format(", ".join([m.name for m in roleAndMembers["members"] if role not in m.roles]), role.name)
+
+                joined = []
+                for m in roleAndMembers["members"]:
+                    if role not in m.roles:
+                        await m.add_roles(role)
+                        joined.append(m.name)
+                        
+                if not newGroup and len(joined) < 1:
+                    await message.channel.send("All members are already in the party")
+                else:
+                    log = "`{date}:` {header}".format(date = date, header = header)
+                    # print and LOG IT if there's a party log channel
+
+                    if str(message.guild.id) in logChannelsDict:
+                        channel_id = logChannelsDict[str(message.guild.id)]
+                        await message.guild.get_channel(channel_id).send(log)
+                    else:
+                        await message.channel.send(log)
+                        
+                            
+        elif msg.startswith("!rmgroup"):
+            msg = message.content[len("!rmgroup "):]
+            role = GetRoleByName(message.guild.roles, msg)
+            if not role:
+                await message.channel.send("Role not found.".format(role = role))
+            else:
+                # await message.guild.delete_role(role)
+                await role.delete()
+                header = "Role \"{role}\" deleted.".format(role = role)
+                                
+                today = dt.datetime.today()
+                date = dt.date(today.year, today.month, today.day).isoformat()
+
+                log = "`{date}:` {header}".format(date = date, header = header)
+
+                # print and LOG IT if there's a party log channel
+                if str(message.guild.id) in logChannelsDict:
+                    channel_id = logChannelsDict[str(message.guild.id)]
+                    await message.guild.get_channel(channel_id).send(log)
+                else:
+                    await message.channel.send(log)
+
+        # elif msg.startswith("QQ"):
+        #     dm = ""
+        #     for m in message.mentions:
+        #         text = "DM @" + m.name
+        #         if (text in message.clean_content):
+        #             dm = m.name
+        #     await message.channel.send("```DM is @"+str(dm)+"```")
             # else:
                 # await message.channel.send(" ".join([text, "|in|", msg]))
                 # for c in (msg):
