@@ -142,22 +142,22 @@ def CommandHelp():
             ["!stats <N>", 
                 "rolls N stats, or 6 if unspecified"],
             ["!addparty <party_name> DM: <dungeon_master> <member1> <member2> <member3> ... <memberN>", 
-                '''Creates a party and adds DM and members to it.\
-                If the party already exists, adds members to it.\
-                DM is overwritten on re-assignment.\
-                Note: mention users, rather than typing their usernames or nicknames'''],
+                '''\nCreates a party and adds DM and members to it.\n\
+If the party already exists, adds members to it.\n\
+DM is overwritten on re-assignment.\n\
+Note: mention users, rather than typing their usernames or nicknames'''],
             ["!rmparty <party_name>", 
                 "removes a party"],
             ["!addgroup <group_name> <member1> <member2> <member3> ... <memberN>", 
-                '''Creates a group and adds members to it.\
-                If the group already exists, adds members to it.\
-                (no DM required and the changes are not logged).\
-                Note: mention users, rather than typing their usernames or nicknames'''],
+                '''\nCreates a group and adds members to it.\n\
+If the group already exists, adds members to it.\n\
+(no DM required and the changes are not logged).\n\
+Note: mention users, rather than typing their usernames or nicknames'''],
             ["!rmgroup <group_name>", 
                 "removes a group"]
         ]
 
-    return "\n".join(notes) + "\n\n" + "Commands:\n```"+"\n".join(["  -  ".join(e) for e in commandData])+"```"
+    return "Commands:\n"+"\n".join(["`{0}`    {1}\n".format(e[0], e[1]) for e in commandData])+ "\n\n" + "\n".join(notes)
 
 
 def CommandWork(message):
