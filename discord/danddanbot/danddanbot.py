@@ -151,7 +151,7 @@ Note: mention users, rather than typing their usernames or nicknames'''],
             ["!addgroup <group_name> <member1> <member2> <member3> ... <memberN>", 
                 '''\nCreates a group and adds members to it.\n\
 If the group already exists, adds members to it.\n\
-(no DM required and the changes are not logged).\n\
+(no DM required).\n\
 Note: mention users, rather than typing their usernames or nicknames'''],
             ["!rmgroup <group_name>", 
                 "removes a group"]
