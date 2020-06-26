@@ -276,6 +276,12 @@ def CommandAddGroup(message):
     return roleAndMembers
 
 
+def CommandIsItTime(targetDate):
+    now = dt.datetime.now()
+    return now > targetDate
+
+
+
 def runBot(filename):
     
     token = ""
@@ -437,6 +443,16 @@ def runBot(filename):
                     await message.guild.get_channel(channel_id).send(log)
                 else:
                     await message.channel.send(log)
+                    
+        elif msg.startswith("omg goes"):
+            now = dt.datetime.now()
+            today1800 = now.replace(hour=18, minute=0, second=0, microsecond=0)
+            if (CommandIsItTime(today1800)):
+                await message.channel.send("Go ahead and ask")
+            else:
+                await message.channel.send("Not yet")
+
+
 
         # elif msg.startswith("QQ"):
         #     dm = ""
