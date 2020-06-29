@@ -444,9 +444,9 @@ def runBot(filename):
                 else:
                     await message.channel.send(log)
                     
-        elif msg.startswith("omg goes"):
+        elif msg.lower().startswith("omg goes") or msg.lower().startswith("goes") or msg.lower().startswith("i ara"):
             now = dt.datetime.now()
-            today1800 = now.replace(hour=18, minute=0, second=0, microsecond=0)
+            today1700 = now.replace(hour=17, minute=0, second=0, microsecond=0)
             if (CommandIsItTime(today1800)):
                 await message.channel.send("Go ahead and ask")
             else:
