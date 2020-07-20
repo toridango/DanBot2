@@ -281,6 +281,37 @@ def CommandIsItTime(targetDate):
     return now > targetDate
 
 
+def ParseBulkAttackArguments(message, header):
+    msg = message.content[len(header):]    
+    msg = msg.replace(" ", "")
+    msg = msg.replace("\n", "")
+    msg = msg.replace("\t", "")    
+
+    match = re.search("(?P<num_atks>\d{1,2})\,(?P<hit_mod>[+-]?\d{1,2}) vs (?P<ac>\d{1,2})", msg)
+    
+    num_atks = int(match.group("num_atks"))
+    hit_mod = int(match.group("hit_mod"))
+    ac = int(match.group("ac"))
+
+    return num_rolls, dice_size, mod
+
+def CommandBulkAttack(message, header):
+    
+    num_atks, hit_mod, ac = ParseRollArguments(message, header)
+
+    hit_count = 0
+    crit_count = 0
+    for i in range(num_atks):
+        atk = RollNdX(1, 20)
+        if atk == 20:
+            crit_count += 1
+        else:
+            hit_count += int(atk + hit_mod >= ac)
+
+    response = "You made {num_atks} attacks (hit mod {hit_mod}) versus an AC of {ac}\nResults: `{hit_count}` hits, `{crit_count}` crits."
+    return response.format(num_atks=num_atks, hit_mod=hit_mod, ac=ac, hit_count=hit_count, crit_count=crit_count)
+
+
 
 def runBot(filename):
     
@@ -451,6 +482,9 @@ def runBot(filename):
                 await message.channel.send("Go ahead and ask")
             else:
                 await message.channel.send("Not yet")
+
+        elif msg.startswith("!attack"):
+            response = CommandBulkAttack(message, "!attack")
 
 
 
