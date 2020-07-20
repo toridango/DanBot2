@@ -282,18 +282,18 @@ def CommandIsItTime(targetDate):
 
 
 def ParseBulkAttackArguments(message, header):
-    msg = message.content[len(header):]    
+    msg = message.content#[len(header):]
     msg = msg.replace(" ", "")
     msg = msg.replace("\n", "")
-    msg = msg.replace("\t", "")    
+    msg = msg.replace("\t", "")
 
-    match = re.search("(?P<num_atks>\d{1,2})\,(?P<hit_mod>[+-]?\d{1,2}) vs (?P<ac>\d{1,2})", msg)
+    match = re.search("(?P<num_atks>\d{1,2})\,(?P<hit_mod>[+-]?\d{1,2})vs(?P<ac>\d{1,2})", msg)
     
     num_atks = int(match.group("num_atks"))
     hit_mod = int(match.group("hit_mod"))
     ac = int(match.group("ac"))
-
-    return num_rolls, dice_size, mod
+    
+    return num_atks, hit_mod, ac
 
 def CommandBulkAttack(message, header):
     
@@ -302,7 +302,7 @@ def CommandBulkAttack(message, header):
     hit_count = 0
     crit_count = 0
     for i in range(num_atks):
-        atk = RollNdX(1, 20)
+        atk = RollNdX(1, 20)[0]
         if atk == 20:
             crit_count += 1
         else:
