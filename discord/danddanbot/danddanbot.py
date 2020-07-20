@@ -297,7 +297,7 @@ def ParseBulkAttackArguments(message, header):
 
 def CommandBulkAttack(message, header):
     
-    num_atks, hit_mod, ac = ParseRollArguments(message, header)
+    num_atks, hit_mod, ac = ParseBulkAttackArguments(message, header)
 
     hit_count = 0
     crit_count = 0
