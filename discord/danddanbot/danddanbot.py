@@ -154,7 +154,11 @@ If the group already exists, adds members to it.\n\
 (no DM required).\n\
 Note: mention users, rather than typing their usernames or nicknames'''],
             ["!rmgroup <group_name>", 
-                "removes a group"]
+                "removes a group"],
+            ["!attack <Num>, <Hit Mod> vs <AC>", 
+                "Attacks <Num> times using <Hit Mod> against <AC> armor class. Tip: don't forget to type the comma.\nExample: !attack 10, +4 vs 14"],
+            ["!save <Num>, <Save Mod> vs <DC>", 
+                "Performs a saving throw <Num> times using <Save Mod> against <DC> difficulty class. Tip: don't forget to type the comma.\nExample: !save 10, -1 vs 13"]
         ]
 
     return "Commands:\n"+"\n".join(["`{0}`    {1}\n".format(e[0], e[1]) for e in commandData])+ "\n\n" + "\n".join(notes)
@@ -281,23 +285,23 @@ def CommandIsItTime(targetDate):
     return now > targetDate
 
 
-def ParseBulkAttackArguments(message, header):
-    msg = message.content#[len(header):]
+def ParseBulkArguments(message):
+    msg = message.content
     msg = msg.replace(" ", "")
     msg = msg.replace("\n", "")
     msg = msg.replace("\t", "")
 
-    match = re.search("(?P<num_atks>\d{1,2})\,(?P<hit_mod>[+-]?\d{1,2})vs(?P<ac>\d{1,2})", msg)
+    match = re.search("(?P<count>\d{1,2})\,(?P<mod>[+-]?\d{1,2})vs(?P<dc>\d{1,2})", msg)
     
-    num_atks = int(match.group("num_atks"))
-    hit_mod = int(match.group("hit_mod"))
-    ac = int(match.group("ac"))
+    count = int(match.group("count"))
+    mod = int(match.group("mod"))
+    dc = int(match.group("dc"))
     
-    return num_atks, hit_mod, ac
+    return count, mod, dc
 
-def CommandBulkAttack(message, header):
+def CommandBulkAttack(message):
     
-    num_atks, hit_mod, ac = ParseBulkAttackArguments(message, header)
+    num_atks, hit_mod, ac = ParseBulkArguments(message)
 
     hit_count = 0
     crit_count = 0
@@ -311,7 +315,25 @@ def CommandBulkAttack(message, header):
     response = "You made {num_atks} attacks (hit mod {hit_mod}) versus an AC of {ac}\nResults: `{hit_count}` hits, `{crit_count}` crits."
     return response.format(num_atks=num_atks, hit_mod=hit_mod, ac=ac, hit_count=hit_count, crit_count=crit_count)
 
+def CommandBulkSave(message):
+    
+    num_saves, save_mod, dc = ParseBulkArguments(message)
 
+    save_count = 0
+    hit_count = 0
+    crit_count = 0
+    for i in range(num_saves):
+        save = RollNdX(1, 20)[0]
+        if save == 1:
+            crit_count += 1
+        else:
+            if (save + save_mod) >= dc:
+                save_count += 1
+            else:
+                hit_count += 1
+
+    response = "{save_count} creatures out of {num_saves} saved (with save mod {save_mod}) from the DC {dc} effect\nResults: `{hit_count}` failed and `{crit_count}` critically failed."
+    return response.format(save_count=save_count, num_saves=num_saves, save_mod=save_mod, dc=dc, hit_count=hit_count, crit_count=crit_count)
 
 def runBot(filename):
     
@@ -484,7 +506,9 @@ def runBot(filename):
                 await message.channel.send("Not yet")
 
         elif msg.startswith("!attack"):
-            response = CommandBulkAttack(message, "!attack")
+            response = CommandBulkAttack(message)
+        elif msg.startswith("!save"):
+            response = CommandBulkSave(message)
 
 
 
