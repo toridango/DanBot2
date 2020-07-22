@@ -1,61 +1,59 @@
-'''
+"""
 @author: Daniel Gomez-Casañ
 @date: 14 March 2019
 @desc: This module converts 3rd person "tell-them-this" sentences into 2nd person "this" sentences
 Basically like pettily trying to ignore someone and still talk to them through a third individual, but sarcastically, of course (?)
 
 Disclaimer: this was hacked in a short time and patched later in a rush
-'''
+"""
+
 
 def CaseApostrophe(wordList):
-    
     newList = []
     for i, w in enumerate(wordList):
         newWord = w
         if w in ["she's", "he's", "they're"]:
-            if wordList[i+1] == "got":
+            if wordList[i + 1] == "got":
                 newWord = "you've"
             else:
                 newWord = "you're"
         elif w == "they've":
             newWord = "you've"
-            
+
         newList.append(newWord)
 
     return newList
 
 
 def FixAfterPronouns(wordList):
-    
     newList = []
     for i, w in enumerate(wordList):
         newWord = w
-        if wordList[i-1] in ["she", "he", "they"]:
+        if wordList[i - 1] in ["she", "he", "they"]:
             if w == "is":
                 newWord = "are"
             elif w[-1] == "s":
                 newWord = w[:-1]
-                
+
         newList.append(newWord)
 
     return newList
 
+
 def FixExtraPronouns(wordList):
-    outList = [(lambda w: "yourself" if w in ["herself", "himself", "themselves"] else w)(w) for i, w in enumerate(wordList)]
+    outList = [(lambda w: "yourself" if w in ["herself", "himself", "themselves"] else w)(w) for i, w in
+               enumerate(wordList)]
     return [(lambda w: "your" if w in ["her", "him", "their"] else w)(w) for i, w in enumerate(outList)]
 
 
-
-def convert3Pto2P(sentence, author = "someone" , cmdStart = "tell", authorPronoun = "me"):
-
+def convert3Pto2P(sentence, author="someone", cmdStart="tell", authorPronoun="me"):
     l_sentence = sentence.lower()
     wordList = (sentence.split(" "))
     # print(wordList)
     outList = []
 
-
     # tuple: (pos withing parent string, substring)
-    auxStr = (l_sentence.find(cmdStart) + len(cmdStart) + 1, l_sentence[l_sentence.find(cmdStart) + len(cmdStart) + 1 :])
+    auxStr = (l_sentence.find(cmdStart) + len(cmdStart) + 1, l_sentence[l_sentence.find(cmdStart) + len(cmdStart) + 1:])
 
     # first word after the command and capitalise the first letter
     targ = auxStr[1][:auxStr[1].find(" ")]
@@ -68,11 +66,11 @@ def convert3Pto2P(sentence, author = "someone" , cmdStart = "tell", authorPronou
     # find 3rd person pronoun
     proPos = [i for i, w in enumerate(wordList) if w.lower() in ["she", "he", "they"]]
     # print(proPos)
-    
+
     # find 3rd person pronoun with an included verb
     spProPos = [i for i, w in enumerate(wordList) if w.lower() in ["she's", "he's", "they're", "they've"]]
     # print(proPos)
-    
+
     # find "to"
     otherCasePos = [i for i, w in enumerate(wordList) if w.lower() in ["to", "that", "can"]]
     # print(otherCasePos)
@@ -104,7 +102,7 @@ def convert3Pto2P(sentence, author = "someone" , cmdStart = "tell", authorPronou
 
     # pronoun found case
     if (case == 0):
-    
+
         outList.append("you")
 
         rest = [(lambda w: w[:-1] if w[-1].lower() == "s" else w)(w) for i, w in enumerate(wordList[proPos[0] + 1:])]
@@ -112,7 +110,7 @@ def convert3Pto2P(sentence, author = "someone" , cmdStart = "tell", authorPronou
 
         outList += rest
         FixExtraPronouns(outList)
-        
+
     elif (case == 1):
 
         # I would make this a map but I need to look ahead
@@ -129,15 +127,16 @@ def convert3Pto2P(sentence, author = "someone" , cmdStart = "tell", authorPronou
             # print("not tell")
             wordList = FixAfterPronouns(wordList)
             # Pronouns are being changed for the more usual cases, so "tell <X> to tell <Y> that they <Z>" cases won't work
-            rest = [(lambda w: "you" if w.lower() in ["she", "he", "they"] else w)(w) for i, w in enumerate(wordList[otherCasePos[0] + 1:])] 
+            rest = [(lambda w: "you" if w.lower() in ["she", "he", "they"] else w)(w) for i, w in
+                    enumerate(wordList[otherCasePos[0] + 1:])]
             # print(rest)
 
             outList += rest
             outList = FixExtraPronouns(outList)
 
     if (targ == "them"):
-        outList = [(lambda w: w[0].upper()+w[1:] if "you" in w.lower() else w)(w) for i, w in enumerate(outList[1:])]
-        
+        outList = [(lambda w: w[0].upper() + w[1:] if "you" in w.lower() else w)(w) for i, w in enumerate(outList[1:])]
+
     return " ".join([(lambda w: author if w == authorPronoun else w)(w) for i, w in enumerate(outList)])
 
 

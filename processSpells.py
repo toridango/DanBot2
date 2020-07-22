@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import random as rand
 
 
@@ -10,11 +9,12 @@ def checksReqs(reqs, cf, sf, pf, tf, gf, glyph, verbose=False):
     sf = (("sing" in reqs) == sf) or not ("cast" in reqs or "pray" in reqs)
     pf = ("pray" in reqs) == pf
     tf = (("target" in reqs) == tf) or not "target" in reqs
-    gf = ("glyph "+glyph in reqs) == gf
+    gf = ("glyph " + glyph in reqs) == gf
 
     return all([cf, sf, pf, tf, gf])
 
-def processSpell(spells, casterDict, text, verbose=False):
+
+def process_spell(spells, casterDict, text, verbose=False):
     glyph_flag = ("draw" in text.lower() and "glyph" in text.lower())
     cast_flag = "cast" in text.lower()
     sing_flag = "sing" in text.lower()
@@ -32,9 +32,9 @@ def processSpell(spells, casterDict, text, verbose=False):
     spell = ""
     effect = ""
 
-    if (cast_flag and sing_flag) or (cast_flag and pray_flag) or (pray_flag and sing_flag) or (spell_flag and pray_flag) or (not cast_flag and not sing_flag and not pray_flag):
+    if (cast_flag and sing_flag) or (cast_flag and pray_flag) or (pray_flag and sing_flag) or (
+            spell_flag and pray_flag) or (not cast_flag and not sing_flag and not pray_flag):
         return "wrong", "wrong"
-
 
     trgt_flag = False
 
@@ -52,7 +52,7 @@ def processSpell(spells, casterDict, text, verbose=False):
         print("target", trgt_flag, "||", CSTR, "->", TRGT)
 
     if glyph_flag:
-        glyph = text[text.find("Draw ") + len("Draw ") : text.find(" glyph")]
+        glyph = text[text.find("Draw ") + len("Draw "): text.find(" glyph")]
 
         if glyph not in spells['glyphs']:
             return "wrong", "wrong"
@@ -75,11 +75,10 @@ def processSpell(spells, casterDict, text, verbose=False):
     elif pray_flag:
         spell_lims[0] = "pray for "
 
-
     if spell_lims[1] == "":
-        spell = text[text.lower().find(spell_lims[0]) + len(spell_lims[0]) : ].lower()
+        spell = text[text.lower().find(spell_lims[0]) + len(spell_lims[0]):].lower()
     else:
-        spell = text[text.lower().find(spell_lims[0]) + len(spell_lims[0]) : text.lower().find(spell_lims[1])].lower()
+        spell = text[text.lower().find(spell_lims[0]) + len(spell_lims[0]): text.lower().find(spell_lims[1])].lower()
 
     if verbose:
         print(spell)
@@ -90,12 +89,11 @@ def processSpell(spells, casterDict, text, verbose=False):
         else:
             spell = spells['translations'][spell]
 
-
-    if not checksReqs(spells['spells'][spell]['requires'], cast_flag, sing_flag, pray_flag, trgt_flag, glyph_flag, glyph):
-            return "wrong", "wrong"
+    if not checksReqs(spells['spells'][spell]['requires'], cast_flag, sing_flag, pray_flag, trgt_flag, glyph_flag,
+                      glyph):
+        return "wrong", "wrong"
     else:
-        effect = spells['spells'][spell.lower()]['text'][rand.randint(0, len(spells['spells'][spell]['text'])-1)]
-
+        effect = spells['spells'][spell.lower()]['text'][rand.randint(0, len(spells['spells'][spell]['text']) - 1)]
 
     if "CSTR" in effect:
         effect = effect.replace("CSTR", CSTR)
@@ -109,49 +107,48 @@ def processSpell(spells, casterDict, text, verbose=False):
     return spell, effect
 
 
-
-
 if __name__ == '__main__':
     spells = {}
     caster = {"1": {"username": "JDUser", "first_name": "Jane", "last_name": "Doe", "id": "321123321", "equipment": {}}}
 
     import json
-    with open('res/strings/en-Uk/spells.json','r') as f:
+
+    with open('res/strings/en-Uk/spells.json', 'r') as f:
         spells = json.load(f)
 
     print("RIGHT ------------")
 
     text = "cast Fireball spell on Dummy"
-    print(processSpell(spells, caster["1"], text))
+    print(process_spell(spells, caster["1"], text))
 
     text = "Cast Calm spell on Dummy"
-    print(processSpell(spells, caster["1"], text))
+    print(process_spell(spells, caster["1"], text))
 
     text = "Cast Heal spell on Dummy"
-    print(processSpell(spells, caster["1"], text))
+    print(process_spell(spells, caster["1"], text))
 
     text = "Cast Invisibility spell"
-    print(processSpell(spells, caster["1"], text))
+    print(process_spell(spells, caster["1"], text))
 
     text = "Sing Song of storms"
-    print(processSpell(spells, caster["1"], text))
+    print(process_spell(spells, caster["1"], text))
 
     text = "Pray for reference"
-    print(processSpell(spells, caster["1"], text))
+    print(process_spell(spells, caster["1"], text))
 
     text = "pray for reference"
-    print(processSpell(spells, caster["1"], text))
+    print(process_spell(spells, caster["1"], text))
 
     print("WRONG -------------")
 
     text = "Pray for teference"
-    print(processSpell(spells, caster["1"], text))
+    print(process_spell(spells, caster["1"], text))
 
     text = "Cast for reference"
-    print(processSpell(spells, caster["1"], text))
+    print(process_spell(spells, caster["1"], text))
 
     text = "Sing fireball spell on Dummy"
-    print(processSpell(spells, caster["1"], text))
+    print(process_spell(spells, caster["1"], text))
 
     text = "Cast Song of Storms"
-    print(processSpell(spells, caster["1"], text))
+    print(process_spell(spells, caster["1"], text))

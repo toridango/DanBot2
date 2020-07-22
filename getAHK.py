@@ -1,10 +1,12 @@
-# -*- coding: utf-8 -*-
-def move(dx, dy, tabs = 1):
+def move(dx, dy, tabs=1):
+    return tabs * "\t" + "MouseGetPos, xpos, ypos\n" \
+           + tabs * "\t" + "MouseMove, xpos" + dx + ", ypos" + dy + "\n" \
+           + tabs * "\t" + "Sleep, 10\n"
 
-    return tabs*"\t"+"MouseGetPos, xpos, ypos\n"+tabs*"\t"+"MouseMove, xpos"+dx+", ypos"+dy+"\n"+tabs*"\t"+"Sleep, 10\n"
 
 def pack(d):
-    return "+("+d+")*A_Index"
+    return "+(" + d + ")*A_Index"
+
 
 def help():
     print('''
@@ -15,12 +17,12 @@ end: close loop ! REQUIRES PREVIOUS FOR
 *i: index of iteration. place after number. asterisk necessary
 ''')
 
-def getAHK(code, clickFrame = "on"):
 
-    if clickFrame not in "on off":
-        clickFrame = "on"
+def get_ahk(code, click_frame="on"):
+    if click_frame not in "on off":
+        click_frame = "on"
 
-    clean = code.replace(" ","").replace("\n","").replace("\t","").split(";")
+    clean = code.replace(" ", "").replace("\n", "").replace("\t", "").split(";")
 
     if clean[-1] == "":
         del clean[-1]
@@ -30,7 +32,7 @@ def getAHK(code, clickFrame = "on"):
     dx = 0
     dy = 0
     tabs = 1
-    ahk = {"on":"\tClick down\n", "off":""}[clickFrame]
+    ahk = {"on": "\tClick down\n", "off": ""}[click_frame]
 
     for elem in clean:
         elem = elem.split(":")
@@ -45,10 +47,10 @@ def getAHK(code, clickFrame = "on"):
                     dist = args[0].replace("*i", "*A_Index")
                 else:
                     dist = args[0]
-                dx = {"right":"+"+dist,"down":"","left":"-"+dist,"up":""}[call]
-                dy = {"right":"","down":"+"+dist,"left":"","up":"-"+dist}[call]
+                dx = {"right": "+" + dist, "down": "", "left": "-" + dist, "up": ""}[call]
+                dy = {"right": "", "down": "+" + dist, "left": "", "up": "-" + dist}[call]
             except:
-                print("Wrong arguments for function "+call+".")
+                print("Wrong arguments for function " + call + ".")
 
             ahk += move(dx, dy, tabs)
 
@@ -60,9 +62,9 @@ def getAHK(code, clickFrame = "on"):
                     dx = args[0]
 
                 if "*i" in args[1]:
-                    dy = str(-1*int(args[1].replace("*i","")))
+                    dy = str(-1 * int(args[1].replace("*i", "")))
                 else:
-                    dy = str(-1*int(args[1]))
+                    dy = str(-1 * int(args[1]))
 
                 dx = pack(dx)
                 dy = pack(dy)
@@ -74,24 +76,22 @@ def getAHK(code, clickFrame = "on"):
 
         elif call == "for":
             try:
-                ahk += tabs*"\t"+"Loop, "+str(args[0])+"\n"+tabs*"\t"+"{\n"
+                ahk += tabs * "\t" + "Loop, " + str(args[0]) + "\n" + tabs * "\t" + "{\n"
                 tabs += 1
             except:
                 print("Wrong arguments for function for.\nUse: for: N_iterations;")
 
         elif call == "end":
-            ahk += (tabs-1)*"\t"+"}\n"
+            ahk += (tabs - 1) * "\t" + "}\n"
             tabs -= 1
 
-        elif call == "pon": # Pencil ON
-            ahk += tabs*"\t"+"Click down\n"
+        elif call == "pon":  # Pencil ON
+            ahk += tabs * "\t" + "Click down\n"
 
-        elif call == "poff": # Pencil OFF
-            ahk += tabs*"\t"+"Click up\n"
+        elif call == "poff":  # Pencil OFF
+            ahk += tabs * "\t" + "Click up\n"
 
-
-    return ahk+{"on": tabs*"\t"+"Click up", "off":""}[clickFrame]
-
+    return ahk + {"on": tabs * "\t" + "Click up", "off": ""}[click_frame]
 
 
 if __name__ == '__main__':
@@ -127,4 +127,4 @@ if __name__ == '__main__':
 
     cod = "up:5;"
 
-    print(getAHK(cod))
+    print(get_ahk(cod))
