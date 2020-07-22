@@ -9,53 +9,53 @@ monthNames = ["January", "February", "March", "April", "May", "June", "Sol", "Ju
 gregorianDaysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
 
-def isLeap(year):
-    return (year % 4 == 0 and year % 100 != 0 and year % 400 != 0)
+def is_leap(year):
+    return year % 4 == 0 and year % 100 != 0 and year % 400 != 0
 
 
-def dayInYear(day, month, year):
-    return day + sum(gregorianDaysPerMonth[:month - 1]) + (month > 2 and isLeap(year))
+def day_in_year(day, month, year):
+    return day + sum(gregorianDaysPerMonth[:month - 1]) + (month > 2 and is_leap(year))
 
 
-def gregorian2IFC(day, month, year):
-    yearIsLeap = isLeap(year)
-    accDay = dayInYear(day, month, year)
+def gregorian2ifc(day, month, year):
+    year_is_leap = is_leap(year)
+    acc_day = day_in_year(day, month, year)
 
-    dayIFC = accDay % 28
+    day_ifc = acc_day % 28
 
-    monthIFC = ((accDay - dayIFC) / 28) + 1
+    month_ifc = ((acc_day - day_ifc) // 28) + 1
 
-    if (yearIsLeap):
-        if (monthIFC == 7 and dayIFC == 1):
-            monthIFC = 6
-            dayIFC = 29
-        elif (accDay > 168):
-            dayIFC -= 1
+    if year_is_leap:
+        if month_ifc == 7 and day_ifc == 1:
+            month_ifc = 6
+            day_ifc = 29
+        elif acc_day > 168:
+            day_ifc -= 1
 
-    if (dayIFC > 28 and not (dayIFC == 29 and (monthIFC == 13 or (yearIsLeap and monthIFC == 6)))):
-        dayIFC -= 28
-        monthIFC += 1
+    if day_ifc > 28 and not (day_ifc == 29 and (month_ifc == 13 or (year_is_leap and month_ifc == 6))):
+        day_ifc -= 28
+        month_ifc += 1
 
-    if (dayIFC < 1):
-        dayIFC += 28
-        monthIFC -= 1
+    if day_ifc < 1:
+        day_ifc += 28
+        month_ifc -= 1
 
-    if (monthIFC == 14 and dayIFC == 1):
-        monthIFC = 13
-        dayIFC = 29
+    if month_ifc == 14 and day_ifc == 1:
+        month_ifc = 13
+        day_ifc = 29
 
-    return dayIFC, monthIFC, year
+    return day_ifc, month_ifc, year
 
 
 def get_ifc_string_date(day, month, year):
-    dayIFC, monthIFC, year = gregorian2IFC(day, month, year)
+    day_ifc, month_ifc, year = gregorian2ifc(day, month, year)
 
-    dateSTR = str(dayIFC) + " " + monthNames[monthIFC - 1] + " " + str(year)
+    date_str = str(day_ifc) + " " + monthNames[month_ifc - 1] + " " + str(year)
 
-    if (monthIFC == 13 and dayIFC == 29):
-        dateSTR = monthNames[14 - 1] + " " + str(year)
+    if month_ifc == 13 and day_ifc == 29:
+        date_str = monthNames[14 - 1] + " " + str(year)
 
-    if (monthIFC == 6 and dayIFC == 29):
-        dateSTR = monthNames[15 - 1] + " " + str(year)
+    if month_ifc == 6 and day_ifc == 29:
+        date_str = monthNames[15 - 1] + " " + str(year)
 
-    return dateSTR
+    return date_str
