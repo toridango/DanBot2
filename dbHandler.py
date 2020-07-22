@@ -55,7 +55,7 @@ def save_bingo(filename, bingo_data):
 def get_quotes(filename):
     with open(filename, 'r') as f:
         data = f.read()
-        data = data.split("")
+        data = data.split("\n\n")
         for i, elem in enumerate(data):
             st = elem.find('"')
             en = elem.find('"', st + 3)
