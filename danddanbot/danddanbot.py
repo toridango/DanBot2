@@ -535,7 +535,7 @@ def runBot(filename):
 
 
 def main():
-    exitCode = runBot("./config.json")
+    exitCode = runBot("config.json")
 
 
 if __name__ == "__main__":

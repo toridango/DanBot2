@@ -3,18 +3,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-#Custom
-keys.json
-users.json
-Quotes.txt
-bingo*.txt
-data.json
-*.bat
-
-#DandDanbot
-config.json
-
-
 # C extensions
 *.so
 

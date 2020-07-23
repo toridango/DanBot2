@@ -2,11 +2,11 @@ import datetime as dt
 import random as rand
 import re
 
-from GDQuote import get_gdquote
-from IFC_Calendar import get_ifc_string_date
-from dbHandler import read_json, save_json, read_bingo, save_bingo, get_quotes
-from getAHK import get_ahk
-from processSpells import process_spell
+from . import db_handler as db
+from .modules.gdquote import get_gdquote
+from .modules.get_ahk import get_ahk
+from .modules.ifc_calendar import get_ifc_string_date
+from .modules.process_spells import process_spell
 
 
 def get_ratio(data):
@@ -51,7 +51,7 @@ def try_parsing_date(text):
 
 
 class DanBot:
-    def __init__(self):
+    def __init__(self, bot):
         # TODO move all these constants to a JSON or smth instead of hardcoding in init
         self.MAX_GROUP_NAME_LEN = 20
         self.BINGO_NUM = 512
@@ -63,25 +63,18 @@ class DanBot:
         }
         self.SUBREDDIT_LEN = 21
 
-        self.strings = read_json("./res/strings/en-Uk/strings.json")
-        self.quotes = get_quotes('./res/Quotes.txt')
+        self.strings = db.load_resource("strings")
+        self.user_list = db.load_resource("users")
+        self.spells = db.load_resource("spells")
+        self.global_data = db.load_resource("global")
+        self.quotes = db.get_quotes()
 
         self.passphrase = self.strings["passphrase"]
         self.default_passphrase = self.strings["default_passphrase"]
 
-        self.user_path = "./res/users.json"
-        self.user_list = read_json(self.user_path)
-
-        self.spell_path = './res/strings/en-Uk/spells.json'
-        self.spells = read_json(self.spell_path)
-
-        self.bingo_data = read_bingo('./res/bingo_' + str(self.BINGO_NUM) + '.txt')
-
         self.debate_mode = False
         self.pause_flag = False
 
-    # TODO would make more sense to set the bot when creating the class right?
-    def set_bot(self, bot):
         self.bot = bot
 
     def preliminary_checks(self, msg):
@@ -569,15 +562,17 @@ class DanBot:
 
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
         trolls = []
-        update = self.preliminary_checks(msg)
+        update_users = self.preliminary_checks(msg)
         prob = rand.randint(1, self.BINGO_NUM)
-        self.bingo_data[-1] += 1
         is_edit = "edit_date" in msg
+
+        if not is_edit:
+            self.global_data["jackpot"] += 1
 
         if content_type == "text" and msg['text'][:len("/yamete")] == "/yamete":
             print("\nTaking a break...")
             self.pause_flag = True
-        elif content_type == "text" and msg['text'][:len("/tsudzukete")] == "/tsudzukete":
+        elif content_type == "text" and msg['text'][:len("/tsudzukete")] == "/tsudzuite":
             print("\nCarrying on...")
             self.pause_flag = False
 
@@ -592,51 +587,45 @@ class DanBot:
                 self.bot.sendMessage(chat_id, msg['text'][len("/markdown "):], parse_mode="Markdown")
 
             elif msg['text'][:len('/markov')] == "/markov":
-                update = self.callback_markov(msg, chat_id, msg_id)
+                update_users = self.callback_markov(msg, chat_id, msg_id)
 
             elif msg['text'] in ['/help', '/help@noobdanbot']:
-                update = self.callback_help(msg, chat_id)
+                update_users = self.callback_help(msg, chat_id)
 
             elif msg['text'] == "Hello Danbot":
-                update = self.callback_greet("Hello", msg, chat_id)
+                update_users = self.callback_greet("Hello", msg, chat_id)
 
             elif msg['text'] == "Hola Danbot":
-                update = self.callback_greet("Hola", msg, chat_id)
+                update_users = self.callback_greet("Hola", msg, chat_id)
 
             elif msg['text'] == "Greetings Danbot":
-                update = self.callback_greet("Greetings", msg, chat_id)
+                update_users = self.callback_greet("Greetings", msg, chat_id)
 
             elif msg['text'][:len('/getahk')] == '/getahk':
-                update = self.callback_getahk(msg, chat_id)
+                update_users = self.callback_getahk(msg, chat_id)
 
             elif msg['text'][:len("/hint")] == "/hint":
-                update = self.callback_hint(msg, chat_id)
+                update_users = self.callback_hint(msg, chat_id)
 
             elif self.passphrase in msg['text']:
-                update = self.callback_passphrase(msg, chat_id)
+                update_users = self.callback_passphrase(msg, chat_id)
 
             elif msg['text'][:len('/spamratio')] == "/spamratio":
-                update = self.callback_spamratio(msg, chat_id)
+                update_users = self.callback_spamratio(msg, chat_id)
 
             elif msg['text'][:len('/equip')] == "/equip":
-                update = self.callback_equip(msg, chat_id)
+                update_users = self.callback_equip(msg, chat_id)
 
             elif msg['text'][:len('/delequip')] == "/delequip":
-                update = self.callback_delequip(msg, chat_id)
+                update_users = self.callback_delequip(msg, chat_id)
 
             elif msg['text'][:len('/showequip')] == "/showequip":
-                update = self.callback_showequip(msg, chat_id)
+                update_users = self.callback_showequip(msg, chat_id)
 
             elif msg['text'][:len('Cast ')].lower() == "cast " or \
                     msg['text'][:len('Sing ')].lower() == "sing " or \
                     msg['text'][:len('Pray for ')].lower() == "pray for ":
-                update = self.callback_cast(msg, chat_id)
-
-            # elif msg['text'][:len('changecommentthreshold ')] == 'changecommentthreshold ':
-            #     aux = self.callback_editThresh(msg)
-            #     if aux != None and aux < 1 and aux > 0:
-            #         self.comment_thresh = aux
-            #     print("Threshold changed to "+str(self.comment_thresh))
+                update_users = self.callback_cast(msg, chat_id)
 
             elif msg['text'].lower() == "danbot":
                 self.bot.sendMessage(chat_id, ["What?", "Nani?"][rand.randint(0, 1)])
@@ -649,23 +638,23 @@ class DanBot:
                 self.callback_laugh_along(chat_id)
 
             elif msg['text'].startswith("/join"):
-                update = self.callback_newjoin(msg, chat_id)
+                update_users = self.callback_newjoin(msg, chat_id)
 
             elif msg['text'].startswith("/leave"):
-                update = self.callback_newleave(msg, chat_id)
+                update_users = self.callback_newleave(msg, chat_id)
 
             elif msg['text'].startswith("/shoutouts") and not is_edit:
-                update = self.callback_shoutouts(msg, chat_id)
+                update_users = self.callback_shoutouts(msg, chat_id)
 
             elif msg['text'].startswith("/everyone") and not is_edit:
                 msg["text"] = "/shoutouts <everyone>"
-                update = self.callback_shoutouts(msg, chat_id)
+                update_users = self.callback_shoutouts(msg, chat_id)
 
             elif msg['text'].startswith("/lsgroups"):
-                update = self.callback_lsgroups(msg, chat_id)
+                update_users = self.callback_lsgroups(msg, chat_id)
 
             elif msg['text'].lower().startswith("/ifc"):
-                update = self.callback_ifc(msg, chat_id)
+                update_users = self.callback_ifc(msg, chat_id)
 
             elif msg['text'].startswith("r/"):
                 self.callback_subreddit(msg, chat_id)
@@ -686,29 +675,22 @@ class DanBot:
             elif msg['text'].lower().startswith("/showcoins"):
                 self.callback_showcoins(msg, chat_id)
 
-        if prob == self.BINGO_NUM:
-            jackpot = self.bingo_data[-1]
-            print("\nBINGO! After " + str(self.bingo_data[-1]) + " messages")
-            save_bingo('./res/bingo_' + str(self.BINGO_NUM) + '.txt', self.bingo_data)
-            self.bingo_data.append(0)
-            # Markov --------------------------------------------------
-            # sent = self.bot.sendMessage(chat_id, "/markov@Markov_Bot")
-            # self.bot.deleteMessage((chat_id, sent['message_id']))
-            # Coins (were Adri Quotes) --------------------------------
-            # indx = rand.randint(0,len(self.quotes)-1)
-            # self.bot.sendMessage(chat_id, self.quotes[indx])
-            update = self.add_coins_to_user(jackpot, msg['from'])
+        if prob == self.BINGO_NUM and not is_edit:
+            jackpot = self.global_data["jackpot"]
+            print(f"\nBINGO! After {jackpot} messages")
+            self.global_data["bingo_stats"].append({"coins": jackpot, "user": msg['from']['id']})
+            update_users = self.add_coins_to_user(jackpot, msg['from'])
             name = get_callsign(msg['from'])
-            self.bot.sendMessage(chat_id, "{} just won the jackpot of {} coins++ !!!".format(name, jackpot).upper())
+            self.bot.sendMessage(chat_id, f"{name} just won the jackpot of {jackpot} coins++ !!!".upper())
 
-        if update:
-            save_json(self.user_path, self.user_list)
+        if update_users:
+            db.save_resource("users", self.user_list)
 
         if rand.random() < self.COMMENT_THRESH and not self.debate_mode:
             r = rand.randint(0, len(self.strings["comments"]) - 1)
             self.bot.sendMessage(chat_id, self.strings["comments"][r])
 
-        save_bingo('./res/bingo_' + str(self.BINGO_NUM) + '.txt', self.bingo_data)
+        db.save_resource("global", self.global_data)
 
 
 def main():

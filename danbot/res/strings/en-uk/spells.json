@@ -21,7 +21,7 @@
         "sleep": {
             "text": [
                 "TRGT starts feeling drowsy. Their last thoughts fade away as they fall asleep"
-              ],
+            ],
             "requires": [
                 "cast",
                 "target"
@@ -47,22 +47,22 @@
             ]
         },
         "thunder": {
-          "text": [
-              "CSTR points their hands at TRGT, and a loud, thunderous noise emanates from them. It's so relaxing..."
-          ],
-          "requires": [
-            "cast",
-            "target"
-          ]
+            "text": [
+                "CSTR points their hands at TRGT, and a loud, thunderous noise emanates from them. It's so relaxing..."
+            ],
+            "requires": [
+                "cast",
+                "target"
+            ]
         },
         "lightning": {
-          "text": [
-              "CSTR poises themselves looking towards the sky, and gestures upward as if beckoning Zeus himself. Immediately, a bolt of lightning strikes TRGT where they lay"
-          ],
-          "requires": [
-            "cast",
-            "target"
-          ]
+            "text": [
+                "CSTR poises themselves looking towards the sky, and gestures upward as if beckoning Zeus himself. Immediately, a bolt of lightning strikes TRGT where they lay"
+            ],
+            "requires": [
+                "cast",
+                "target"
+            ]
         },
         "kokoro heal": {
             "text": [
