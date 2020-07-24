@@ -591,7 +591,7 @@ class DanBot:
         user_msg_after_jackpot = user_msg_total - self.user_list[str(msg["from"]["id"])]["msg_count_before_jackpot"]
 
         global_msg_total = self.get_total_messages_sent(after_jackpot=True)
-        ratio = user_msg_total / global_msg_total
+        ratio = user_msg_after_jackpot / global_msg_total
 
         current_coins = self.get_user_coins(msg['from'])
         expected_coins = calc_expected_coins(global_msg_total, user_msg_total, 1 - 1 / self.BINGO_NUM)
