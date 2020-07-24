@@ -103,13 +103,16 @@ class DanBot:
         return update
 
     def new_user(self, msg):
-        self.user_list[str(msg['from']['id'])] = msg['from']
-        self.user_list[str(msg['from']['id'])]['id'] = str(self.user_list[str(msg['from']['id'])]['id'])
-        self.user_list[str(msg['from']['id'])]["equipment"] = {}
-        self.user_list[str(msg['from']['id'])]["titles"] = []
-        self.user_list[str(msg['from']['id'])]["cmdUsage"] = {}
-        self.user_list[str(msg['from']['id'])]['chats'] = []
-        self.user_list[str(msg['from']['id'])]['inventory'] = {"coins": 0}
+        user_id = str(msg['from']['id'])
+        self.user_list[user_id] = msg['from']
+        self.user_list[user_id]['id'] = str(self.user_list[user_id]['id'])
+        self.user_list[user_id]["equipment"] = {}
+        self.user_list[user_id]["titles"] = []
+        self.user_list[user_id]["cmdUsage"] = {}
+        self.user_list[user_id]['chats'] = []
+        self.user_list[user_id]['inventory'] = {"coins": 0}
+        self.user_list[user_id]['msg_count'] = 0
+        self.user_list[user_id]['msg_count_before_jackpot'] = 0
 
     def update_user_field(self, msg, field):
         user = self.user_list[str(msg['from']['id'])]
@@ -377,7 +380,6 @@ class DanBot:
                             i += 1
                         if found:
                             users.append(key)
-
                     else:
                         self.user_list[key]["groups"] = []
 
@@ -505,7 +507,6 @@ class DanBot:
             today = dt.date.today()
             self.bot.sendMessage(chat_id, get_ifc_string_date(today.day, today.month, today.year))
             return update
-
         else:
             date_str = txt[len("/ifc ") + 1: len("/ifc ") + 1 + 10 + 1].strip()
             if len(date_str) in [10, 9, 8] and re.match(self.RE_DICT["date"], date_str):
@@ -513,7 +514,6 @@ class DanBot:
                     date = try_parsing_date(date_str)
                     self.bot.sendMessage(chat_id, get_ifc_string_date(date.day, date.month, date.year))
                     return update
-
                 except ValueError:
                     failed = True
             else:
@@ -568,6 +568,7 @@ class DanBot:
 
         if not is_edit:
             self.global_data["jackpot"] += 1
+            self.user_list[str(msg["from"]["id"])] += 1
 
         if content_type == "text" and msg['text'][:len("/yamete")] == "/yamete":
             print("\nTaking a break...")
