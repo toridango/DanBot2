@@ -7,6 +7,7 @@ from .modules.gdquote import get_gdquote
 from .modules.get_ahk import get_ahk
 from .modules.ifc_calendar import get_ifc_string_date
 from .modules.process_spells import process_spell
+from .modules.jackpot_calculations import calc_expected_coins, calc_expected_coin_volume
 
 
 def get_ratio(data):
@@ -558,7 +559,81 @@ class DanBot:
         name = get_callsign(msg['from'])
         coins = self.get_user_coins(msg['from'])
 
-        self.bot.sendMessage(chat_id, "{name} has {coins} coins.".format(name=name, coins=coins))
+        self.bot.sendMessage(chat_id, f"{name} has {coins} coins.")
+
+    def callback_msgcount(self, msg, chat_id):
+        self.log_usage(self.user_list, msg['from'], "/msgcount")
+
+        name = get_callsign(msg['from'])
+        messages = self.user_list[str(msg["from"]["id"])]["msg_count"]
+
+        reply = f"{name} has sent a total of {messages} messages accross all DanBot groups."
+
+        self.bot.sendMessage(chat_id, reply)
+
+    def get_total_messages_sent(self):
+        return sum(user["msg_count"] for user in self.user_list.values())
+
+    def get_total_coins(self):
+        return sum(self.get_user_coins(user) for user in self.user_list.values())
+
+    def callback_luck(self, msg, chat_id):
+        self.log_usage(self.user_list, msg['from'], "/luck")
+
+        name = get_callsign(msg['from'])
+        user_msg_total = self.user_list[str(msg["from"]["id"])]["msg_count"]
+        user_msg_after_jackpot = user_msg_total - self.user_list[str(msg["from"]["id"])]["msg_count_before_jackpot"]
+
+        global_msg_total = self.get_total_messages_sent()
+        ratio = user_msg_total / global_msg_total
+
+        current_coins = self.get_user_coins(msg['from'])
+        expected_coins = calc_expected_coins(global_msg_total, user_msg_total, 1 - 1 / self.BINGO_NUM)
+
+        luck_percentage = 100 * (current_coins - expected_coins) / expected_coins
+        lucky_str = "LUCKY" if luck_percentage > 0 else "UNLUCKY"
+
+        lucky_percentage_norm = luck_percentage - self.get_average_users_luck()
+        lucky_str_norm = "LUCKY" if lucky_percentage_norm > 0 else "UNLUCKY"
+
+        reply = f"Since jackpot was enabled:\n" \
+                f"{name} has sent {user_msg_after_jackpot} messages.\n" \
+                f"A total of {global_msg_total} messages have been sent by all users.\n" \
+                f"As such, {name} has sent {100 * ratio:.2f}% of all messages.\n" \
+                f"After performing advanced AI probabilistic calculations, I believe that...\n" \
+                f"*{name} deserves to have {int(expected_coins)} coins.*\n" \
+                f"Currently, {name} has {current_coins} coins. Thus, I conclude that...\n" \
+                f"*{name} is {abs(luck_percentage):.2f}% more {lucky_str} than average.*\n" \
+                f"However, taking into account the average luck of DanBot users, I conclude that...\n" \
+                f"*{name} is {abs(lucky_percentage_norm):.2f}% more {lucky_str_norm} than other DanBot users.*\n"
+
+        self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
+
+    def get_average_users_luck(self):
+        global_msg_total = self.get_total_messages_sent()
+
+        total_coins = self.get_total_coins()
+        expected_coins = calc_expected_coin_volume(global_msg_total, 1 - 1 / self.BINGO_NUM)
+
+        luck_percentage = 100 * (total_coins - expected_coins) / expected_coins
+
+        return luck_percentage
+
+    def callback_coin_volume(self, msg, chat_id):
+        self.log_usage(self.user_list, msg['from'], "/coinvolume")
+
+        total_coins = self.get_total_coins()
+        global_msg_total = self.get_total_messages_sent()
+        expected_coins = calc_expected_coin_volume(global_msg_total, 1 - 1 / self.BINGO_NUM)
+
+        luck_percentage = self.get_average_users_luck()
+        lucky_str = "LUCKY" if luck_percentage > 0 else "UNLUCKY"
+
+        reply = f"Current coin volume: {total_coins}\n" \
+                f"Expected coin volume: {int(expected_coins)}\n" \
+                f"In average, DanBot users are {abs(luck_percentage):.2f}% more {lucky_str} than average."
+
+        self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
 
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
         trolls = []
@@ -675,6 +750,15 @@ class DanBot:
 
             elif msg['text'].lower().startswith("/showcoins"):
                 self.callback_showcoins(msg, chat_id)
+
+            elif msg['text'].lower().startswith("/msgcount"):
+                self.callback_msgcount(msg, chat_id)
+
+            elif msg['text'].lower().startswith("/luck"):
+                self.callback_luck(msg, chat_id)
+
+            elif msg['text'].lower().startswith("/coinvolume"):
+                self.callback_coin_volume(msg, chat_id)
 
         if prob == self.BINGO_NUM and not is_edit:
             jackpot = self.global_data["jackpot"]
