@@ -641,6 +641,11 @@ class DanBot:
 
         self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
 
+    def callback_jackpot(self, msg, chat_id):
+        self.log_usage(self.user_list, msg['from'], "/jackpot")
+        reply = f"Currenly, the jackpot is at {self.global_data['jackpot']} coins."
+        self.bot.sendMessage(chat_id, reply)
+
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
         trolls = []
         self.preliminary_checks(msg)
@@ -765,6 +770,9 @@ class DanBot:
 
             elif msg['text'].lower().startswith("/coinvolume"):
                 self.callback_coin_volume(msg, chat_id)
+
+            elif msg['text'].lower().startswith("/jackpot"):
+                self.callback_jackpot(msg, chat_id)
 
         if prob == self.BINGO_NUM and not is_edit:
             jackpot = self.global_data["jackpot"]
