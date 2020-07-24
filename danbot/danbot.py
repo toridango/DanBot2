@@ -571,8 +571,14 @@ class DanBot:
 
         self.bot.sendMessage(chat_id, reply)
 
-    def get_total_messages_sent(self):
-        return sum(user["msg_count"] for user in self.user_list.values())
+    def get_total_messages_sent(self, after_jackpot=False):
+        total_msg = sum(user["msg_count"] for user in self.user_list.values())
+
+        if after_jackpot:
+            total_msg_before_jackpot = sum(user["msg_count_before_jackpot"] for user in self.user_list.values())
+            return total_msg - total_msg_before_jackpot
+        else:
+            return total_msg
 
     def get_total_coins(self):
         return sum(self.get_user_coins(user) for user in self.user_list.values())
@@ -584,7 +590,7 @@ class DanBot:
         user_msg_total = self.user_list[str(msg["from"]["id"])]["msg_count"]
         user_msg_after_jackpot = user_msg_total - self.user_list[str(msg["from"]["id"])]["msg_count_before_jackpot"]
 
-        global_msg_total = self.get_total_messages_sent()
+        global_msg_total = self.get_total_messages_sent(after_jackpot=True)
         ratio = user_msg_total / global_msg_total
 
         current_coins = self.get_user_coins(msg['from'])
@@ -610,7 +616,7 @@ class DanBot:
         self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
 
     def get_average_users_luck(self):
-        global_msg_total = self.get_total_messages_sent()
+        global_msg_total = self.get_total_messages_sent(after_jackpot=True)
 
         total_coins = self.get_total_coins()
         expected_coins = calc_expected_coin_volume(global_msg_total, 1 - 1 / self.BINGO_NUM)
@@ -623,7 +629,7 @@ class DanBot:
         self.log_usage(self.user_list, msg['from'], "/coinvolume")
 
         total_coins = self.get_total_coins()
-        global_msg_total = self.get_total_messages_sent()
+        global_msg_total = self.get_total_messages_sent(after_jackpot=True)
         expected_coins = calc_expected_coin_volume(global_msg_total, 1 - 1 / self.BINGO_NUM)
 
         luck_percentage = self.get_average_users_luck()
