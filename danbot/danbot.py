@@ -568,7 +568,7 @@ class DanBot:
 
         if not is_edit:
             self.global_data["jackpot"] += 1
-            self.user_list[str(msg["from"]["id"])] += 1
+            self.user_list[str(msg["from"]["id"])]["msg_count"] += 1
 
         if content_type == "text" and msg['text'][:len("/yamete")] == "/yamete":
             print("\nTaking a break...")
