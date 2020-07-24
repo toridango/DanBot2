@@ -594,7 +594,7 @@ class DanBot:
         ratio = user_msg_after_jackpot / global_msg_total
 
         current_coins = self.get_user_coins(msg['from'])
-        expected_coins = calc_expected_coins(global_msg_total, user_msg_total, 1 - 1 / self.BINGO_NUM)
+        expected_coins = calc_expected_coins(global_msg_total, user_msg_after_jackpot, 1 - 1 / self.BINGO_NUM)
 
         luck_percentage = 100 * (current_coins - expected_coins) / expected_coins
         lucky_str = "LUCKY" if luck_percentage > 0 else "UNLUCKY"
