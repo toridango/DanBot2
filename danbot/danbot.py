@@ -562,7 +562,7 @@ class DanBot:
 
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
         trolls = []
-        update_users = self.preliminary_checks(msg)
+        self.preliminary_checks(msg)
         prob = rand.randint(1, self.BINGO_NUM)
         is_edit = "edit_date" in msg
 
@@ -588,45 +588,45 @@ class DanBot:
                 self.bot.sendMessage(chat_id, msg['text'][len("/markdown "):], parse_mode="Markdown")
 
             elif msg['text'][:len('/markov')] == "/markov":
-                update_users = self.callback_markov(msg, chat_id, msg_id)
+                self.callback_markov(msg, chat_id, msg_id)
 
             elif msg['text'] in ['/help', '/help@noobdanbot']:
-                update_users = self.callback_help(msg, chat_id)
+                self.callback_help(msg, chat_id)
 
             elif msg['text'] == "Hello Danbot":
-                update_users = self.callback_greet("Hello", msg, chat_id)
+                self.callback_greet("Hello", msg, chat_id)
 
             elif msg['text'] == "Hola Danbot":
-                update_users = self.callback_greet("Hola", msg, chat_id)
+                self.callback_greet("Hola", msg, chat_id)
 
             elif msg['text'] == "Greetings Danbot":
-                update_users = self.callback_greet("Greetings", msg, chat_id)
+                self.callback_greet("Greetings", msg, chat_id)
 
             elif msg['text'][:len('/getahk')] == '/getahk':
-                update_users = self.callback_getahk(msg, chat_id)
+                self.callback_getahk(msg, chat_id)
 
             elif msg['text'][:len("/hint")] == "/hint":
-                update_users = self.callback_hint(msg, chat_id)
+                self.callback_hint(msg, chat_id)
 
             elif self.passphrase in msg['text']:
-                update_users = self.callback_passphrase(msg, chat_id)
+                self.callback_passphrase(msg, chat_id)
 
             elif msg['text'][:len('/spamratio')] == "/spamratio":
-                update_users = self.callback_spamratio(msg, chat_id)
+                self.callback_spamratio(msg, chat_id)
 
             elif msg['text'][:len('/equip')] == "/equip":
-                update_users = self.callback_equip(msg, chat_id)
+                self.callback_equip(msg, chat_id)
 
             elif msg['text'][:len('/delequip')] == "/delequip":
-                update_users = self.callback_delequip(msg, chat_id)
+                self.callback_delequip(msg, chat_id)
 
             elif msg['text'][:len('/showequip')] == "/showequip":
-                update_users = self.callback_showequip(msg, chat_id)
+                self.callback_showequip(msg, chat_id)
 
             elif msg['text'][:len('Cast ')].lower() == "cast " or \
                     msg['text'][:len('Sing ')].lower() == "sing " or \
                     msg['text'][:len('Pray for ')].lower() == "pray for ":
-                update_users = self.callback_cast(msg, chat_id)
+                self.callback_cast(msg, chat_id)
 
             elif msg['text'].lower() == "danbot":
                 self.bot.sendMessage(chat_id, ["What?", "Nani?"][rand.randint(0, 1)])
@@ -639,23 +639,23 @@ class DanBot:
                 self.callback_laugh_along(chat_id)
 
             elif msg['text'].startswith("/join"):
-                update_users = self.callback_newjoin(msg, chat_id)
+                self.callback_newjoin(msg, chat_id)
 
             elif msg['text'].startswith("/leave"):
-                update_users = self.callback_newleave(msg, chat_id)
+                self.callback_newleave(msg, chat_id)
 
             elif msg['text'].startswith("/shoutouts") and not is_edit:
-                update_users = self.callback_shoutouts(msg, chat_id)
+                self.callback_shoutouts(msg, chat_id)
 
             elif msg['text'].startswith("/everyone") and not is_edit:
                 msg["text"] = "/shoutouts <everyone>"
-                update_users = self.callback_shoutouts(msg, chat_id)
+                self.callback_shoutouts(msg, chat_id)
 
             elif msg['text'].startswith("/lsgroups"):
-                update_users = self.callback_lsgroups(msg, chat_id)
+                self.callback_lsgroups(msg, chat_id)
 
             elif msg['text'].lower().startswith("/ifc"):
-                update_users = self.callback_ifc(msg, chat_id)
+                self.callback_ifc(msg, chat_id)
 
             elif msg['text'].startswith("r/"):
                 self.callback_subreddit(msg, chat_id)
@@ -680,17 +680,15 @@ class DanBot:
             jackpot = self.global_data["jackpot"]
             print(f"\nBINGO! After {jackpot} messages")
             self.global_data["bingo_stats"].append({"coins": jackpot, "user": msg['from']['id']})
-            update_users = self.add_coins_to_user(jackpot, msg['from'])
+            self.add_coins_to_user(jackpot, msg['from'])
             name = get_callsign(msg['from'])
             self.bot.sendMessage(chat_id, f"{name} just won the jackpot of {jackpot} coins++ !!!".upper())
-
-        if update_users:
-            db.save_resource("users", self.user_list)
 
         if rand.random() < self.COMMENT_THRESH and not self.debate_mode:
             r = rand.randint(0, len(self.strings["comments"]) - 1)
             self.bot.sendMessage(chat_id, self.strings["comments"][r])
 
+        db.save_resource("users", self.user_list)
         db.save_resource("global", self.global_data)
 
 
