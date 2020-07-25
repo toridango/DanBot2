@@ -65,7 +65,7 @@ class DanBot:
         self.SUBREDDIT_LEN = 21
 
         self.strings = db.load_resource("strings")
-        self.user_list = db.load_resource("users")
+        self.user_dict = db.load_resource("users")
         self.spells = db.load_resource("spells")
         self.global_data = db.load_resource("global")
         self.quotes = db.get_quotes()
@@ -86,44 +86,44 @@ class DanBot:
             print("\nMEMBER LEFT D:")
 
         # Check if member is new
-        if str(msg['from']['id']) not in self.user_list.keys():
+        if str(msg['from']['id']) not in self.user_dict.keys():
             print("\nNew user: " + get_id_and_callsign(msg))
             self.new_user(msg)
             update = True
 
         # Check if member has a chat list
-        if 'chats' not in self.user_list[str(msg['from']['id'])]:
-            self.user_list[str(msg['from']['id'])]['chats'] = []
+        if 'chats' not in self.user_dict[str(msg['from']['id'])]:
+            self.user_dict[str(msg['from']['id'])]['chats'] = []
             update = True
 
         # Check if member has this chat in their list
-        if msg['chat']['id'] not in self.user_list[str(msg['from']['id'])]['chats']:
-            self.user_list[str(msg['from']['id'])]['chats'].append(msg['chat']['id'])
+        if msg['chat']['id'] not in self.user_dict[str(msg['from']['id'])]['chats']:
+            self.user_dict[str(msg['from']['id'])]['chats'].append(msg['chat']['id'])
             update = True
 
         return update
 
     def new_user(self, msg):
         user_id = str(msg['from']['id'])
-        self.user_list[user_id] = msg['from']
-        self.user_list[user_id]['id'] = str(self.user_list[user_id]['id'])
-        self.user_list[user_id]["equipment"] = {}
-        self.user_list[user_id]["titles"] = []
-        self.user_list[user_id]["cmdUsage"] = {}
-        self.user_list[user_id]['chats'] = []
-        self.user_list[user_id]['inventory'] = {"coins": 0}
-        self.user_list[user_id]['msg_count'] = 0
-        self.user_list[user_id]['msg_count_before_jackpot'] = 0
+        self.user_dict[user_id] = msg['from']
+        self.user_dict[user_id]['id'] = str(self.user_dict[user_id]['id'])
+        self.user_dict[user_id]["equipment"] = {}
+        self.user_dict[user_id]["titles"] = []
+        self.user_dict[user_id]["cmdUsage"] = {}
+        self.user_dict[user_id]['chats'] = []
+        self.user_dict[user_id]['inventory'] = {"coins": 0}
+        self.user_dict[user_id]['msg_count'] = 0
+        self.user_dict[user_id]['msg_count_before_jackpot'] = 0
 
     def update_user_field(self, msg, field):
-        user = self.user_list[str(msg['from']['id'])]
+        user = self.user_dict[str(msg['from']['id'])]
         if field in msg["from"]:
             if field in user:
                 if user[field] != msg["from"][field]:
-                    self.user_list[str(msg['from']['id'])][field] = msg["from"][field]
+                    self.user_dict[str(msg['from']['id'])][field] = msg["from"][field]
                     return True
             else:
-                self.user_list[str(msg['from']['id'])][field] = msg["from"][field]
+                self.user_dict[str(msg['from']['id'])][field] = msg["from"][field]
         return False
 
     def update_user_names(self, msg):
@@ -140,45 +140,45 @@ class DanBot:
         print("UserID:", userid, " Command:", command)
         # print(self.userList)
         # print(self.userList[userid]['cmdUsage'])
-        if command in self.user_list[userid]['cmdUsage']:
-            self.user_list[userid]['cmdUsage'][command] = str(1 + int(self.user_list[userid]['cmdUsage'][command]))
+        if command in self.user_dict[userid]['cmdUsage']:
+            self.user_dict[userid]['cmdUsage'][command] = str(1 + int(self.user_dict[userid]['cmdUsage'][command]))
         else:
-            self.user_list[userid]['cmdUsage'][command] = "1"
+            self.user_dict[userid]['cmdUsage'][command] = "1"
 
         return True
 
     def add_coins_to_user(self, jackpot, user):
-        if "inventory" in self.user_list[str(user['id'])]:
-            if "coins" in self.user_list[str(user['id'])]["inventory"]:
-                self.user_list[str(user['id'])]["inventory"]["coins"] += jackpot
+        if "inventory" in self.user_dict[str(user['id'])]:
+            if "coins" in self.user_dict[str(user['id'])]["inventory"]:
+                self.user_dict[str(user['id'])]["inventory"]["coins"] += jackpot
             else:
-                self.user_list[str(user['id'])]["inventory"]["coins"] = jackpot
+                self.user_dict[str(user['id'])]["inventory"]["coins"] = jackpot
         else:
-            self.user_list[str(user['id'])]["inventory"] = {"coins": jackpot}
+            self.user_dict[str(user['id'])]["inventory"] = {"coins": jackpot}
 
         return True
 
     def get_user_coins(self, user):
-        if "inventory" not in self.user_list[str(user['id'])]:
-            self.user_list[str(user['id'])]["inventory"] = {"coins": 0}
+        if "inventory" not in self.user_dict[str(user['id'])]:
+            self.user_dict[str(user['id'])]["inventory"] = {"coins": 0}
 
-        if "coins" not in self.user_list[str(user['id'])]["inventory"]:
-            self.user_list[str(user['id'])]["inventory"]["coins"] = 0
+        if "coins" not in self.user_dict[str(user['id'])]["inventory"]:
+            self.user_dict[str(user['id'])]["inventory"]["coins"] = 0
 
-        return self.user_list[str(user['id'])]["inventory"]["coins"]
+        return self.user_dict[str(user['id'])]["inventory"]["coins"]
 
     def callback_markov(self, msg, chat_id, msg_id):
-        update = self.log_usage(self.user_list, msg['from'], "/markov")
+        update = self.log_usage(self.user_dict, msg['from'], "/markov")
         self.bot.deleteMessage((chat_id, msg_id))
         return update
 
     def callback_help(self, msg, chat_id):
-        update = self.log_usage(self.user_list, msg['from'], "/help")
+        update = self.log_usage(self.user_dict, msg['from'], "/help")
         self.bot.sendMessage(chat_id, self.strings["help"])
         return update
 
     def callback_greet(self, txt, msg, chat_id):
-        update = self.log_usage(self.user_list, msg['from'], txt)
+        update = self.log_usage(self.user_dict, msg['from'], txt)
 
         if txt == "Hello" or txt == "Hola":
             self.bot.sendMessage(chat_id, txt + " " + get_name(msg['from']))
@@ -188,7 +188,7 @@ class DanBot:
         return update
 
     def callback_getahk(self, msg, chat_id):
-        update = self.log_usage(self.user_list, msg['from'], "/getahk")
+        update = self.log_usage(self.user_dict, msg['from'], "/getahk")
 
         if "/getahk@noobdanbot" in msg['text']:
             st = len("/getahk@noobdanbot ")
@@ -211,12 +211,12 @@ class DanBot:
         return update
 
     def callback_hint(self, msg, chat_id):
-        update = self.log_usage(self.user_list, msg['from'], "/hint")
+        update = self.log_usage(self.user_dict, msg['from'], "/hint")
         self.bot.sendMessage(chat_id, self.strings["hint"])
         return update
 
     def callback_passphrase(self, msg, chat_id):
-        update = self.log_usage(self.user_list, msg['from'], "Passphrase")
+        update = self.log_usage(self.user_dict, msg['from'], "Passphrase")
 
         indx = rand.randint(0, len(self.quotes) - 1)
         self.bot.sendMessage(chat_id, self.quotes[indx])
@@ -232,7 +232,7 @@ class DanBot:
         if msg['text'] == "/spamratio" or msg['text'] == "/spamratio@noobdanbot":
             self.bot.sendMessage(chat_id, self.strings["spamratio_tooltip"])
         else:
-            update = self.log_usage(self.user_list, msg['from'], "/spamratio")
+            update = self.log_usage(self.user_dict, msg['from'], "/spamratio")
 
             text = msg['text'][msg['text'].find("<") + 1: msg['text'].find(">")]
             end = False
@@ -264,7 +264,7 @@ class DanBot:
             return update
 
     def callback_equip(self, msg, chat_id):
-        update = self.log_usage(self.user_list, msg['from'], "/equip")
+        update = self.log_usage(self.user_dict, msg['from'], "/equip")
 
         max_slot_len = 15
         max_slots = 16
@@ -306,18 +306,18 @@ class DanBot:
                     self.bot.sendMessage(chat_id,
                                          "Use only alphabetic characters for the item (or null to delete the slot)")
                 else:
-                    if len(self.user_list[str(msg['from']['id'])]['equipment']) > max_slots:
+                    if len(self.user_dict[str(msg['from']['id'])]['equipment']) > max_slots:
                         self.bot.sendMessage(chat_id,
                                              "Maximum number of equipment slots in use (" + str(max_slots) + ")")
                     else:
                         if what == "null":
                             try:
-                                del self.user_list[str(msg['from']['id'])]['equipment'][slot.lower()]
+                                del self.user_dict[str(msg['from']['id'])]['equipment'][slot.lower()]
                                 update = True
                             except:
                                 self.bot.sendMessage(chat_id, "No such slot")
                         else:
-                            self.user_list[str(msg['from']['id'])]['equipment'][slot.lower()] = what
+                            self.user_dict[str(msg['from']['id'])]['equipment'][slot.lower()] = what
                             update = True
 
         return update
@@ -332,20 +332,20 @@ class DanBot:
             slot = text[text.find("<") + len("<"): text.find(">")]
 
             try:
-                del self.user_list[str(msg['from']['id'])]['equipment'][slot.lower()]
-                update = self.log_usage(self.user_list, msg['from'], "/delequip")
+                del self.user_dict[str(msg['from']['id'])]['equipment'][slot.lower()]
+                update = self.log_usage(self.user_dict, msg['from'], "/delequip")
             except:
                 self.bot.sendMessage(chat_id, "No such slot")
 
         return update
 
     def callback_showequip(self, msg, chat_id):
-        update = self.log_usage(self.user_list, msg['from'], "/showequip")
+        update = self.log_usage(self.user_dict, msg['from'], "/showequip")
 
         equip = ""
-        for key in self.user_list[str(msg['from']['id'])]['equipment']:
-            if self.user_list[str(msg['from']['id'])]['equipment'][key] != "":
-                equip += key.title() + ": " + self.user_list[str(msg['from']['id'])]['equipment'][key] + "\n"
+        for key in self.user_dict[str(msg['from']['id'])]['equipment']:
+            if self.user_dict[str(msg['from']['id'])]['equipment'][key] != "":
+                equip += key.title() + ": " + self.user_dict[str(msg['from']['id'])]['equipment'][key] + "\n"
         if equip != "":
             self.bot.sendMessage(chat_id, equip)
         else:
@@ -359,7 +359,7 @@ class DanBot:
 
         if spell != "wrong" and effect != "wrong":
             self.bot.sendMessage(chat_id, effect)
-            update = self.log_usage(self.user_list, msg['from'], spell)
+            update = self.log_usage(self.user_dict, msg['from'], spell)
 
         return update
 
@@ -369,25 +369,25 @@ class DanBot:
 
     def users_in_group(self, group, chat_id):
         users = []
-        for key in self.user_list:
-            if "chats" in self.user_list[key]:
-                if chat_id in self.user_list[key]["chats"]:
-                    if "groups" in self.user_list[key]:
+        for key in self.user_dict:
+            if "chats" in self.user_dict[key]:
+                if chat_id in self.user_dict[key]["chats"]:
+                    if "groups" in self.user_dict[key]:
                         found = (group.lower() == "everyone")
                         i = 0
-                        while not found and i < len(self.user_list[key]["groups"]):
-                            if group.lower() == self.user_list[key]["groups"][i].lower():
+                        while not found and i < len(self.user_dict[key]["groups"]):
+                            if group.lower() == self.user_dict[key]["groups"][i].lower():
                                 found = True
                             i += 1
                         if found:
                             users.append(key)
                     else:
-                        self.user_list[key]["groups"] = []
+                        self.user_dict[key]["groups"] = []
 
         return users
 
     def callback_newjoin(self, msg, chat_id):
-        update = self.log_usage(self.user_list, msg['from'], "/join")
+        update = self.log_usage(self.user_dict, msg['from'], "/join")
 
         group = msg["text"][len("/join "):].strip()
 
@@ -402,11 +402,11 @@ class DanBot:
                 self.bot.sendMessage(chat_id, self.strings["that_wont_work"][
                     rand.randint(0, len(self.strings["that_wont_work"]) - 1)])
             else:
-                if "groups" in self.user_list[str(msg["from"]["id"])]:
-                    if group not in self.user_list[str(msg["from"]["id"])]["groups"]:
-                        self.user_list[str(msg["from"]["id"])]["groups"].append(group)
+                if "groups" in self.user_dict[str(msg["from"]["id"])]:
+                    if group not in self.user_dict[str(msg["from"]["id"])]["groups"]:
+                        self.user_dict[str(msg["from"]["id"])]["groups"].append(group)
                 else:
-                    self.user_list[str(msg["from"]["id"])]["groups"] = [group]
+                    self.user_dict[str(msg["from"]["id"])]["groups"] = [group]
 
         else:
             self.bot.sendMessage(chat_id, self.strings["join_tooltip"])
@@ -414,7 +414,7 @@ class DanBot:
         return update
 
     def callback_newleave(self, msg, chat_id):
-        update = self.log_usage(self.user_list, msg['from'], "/join")
+        update = self.log_usage(self.user_dict, msg['from'], "/join")
 
         group = msg["text"][len("/leave "):].strip()
 
@@ -425,15 +425,15 @@ class DanBot:
             if len(group) > self.MAX_GROUP_NAME_LEN:
                 group = group[:self.MAX_GROUP_NAME_LEN]
 
-            if "groups" in self.user_list[str(msg["from"]["id"])]:
+            if "groups" in self.user_dict[str(msg["from"]["id"])]:
                 some_left = True
                 while some_left:
-                    if group in self.user_list[str(msg["from"]["id"])]["groups"]:
-                        self.user_list[str(msg["from"]["id"])]["groups"].remove(group)
+                    if group in self.user_dict[str(msg["from"]["id"])]["groups"]:
+                        self.user_dict[str(msg["from"]["id"])]["groups"].remove(group)
                     else:
                         some_left = False
             else:
-                self.user_list[str(msg["from"]["id"])]["groups"] = [group]
+                self.user_dict[str(msg["from"]["id"])]["groups"] = [group]
 
         else:
             self.bot.sendMessage(chat_id, self.strings["leave_tooltip"])
@@ -441,7 +441,7 @@ class DanBot:
         return update
 
     def callback_shoutouts(self, msg, chat_id):
-        update = self.log_usage(self.user_list, msg['from'], "/shoutouts")
+        update = self.log_usage(self.user_dict, msg['from'], "/shoutouts")
 
         group = msg["text"][len("/shoutouts "):].strip()
         message = ""
@@ -459,10 +459,10 @@ class DanBot:
             empty = True
             for userID in self.users_in_group(group, chat_id):
                 empty = False
-                if "username" in self.user_list[userID]:
-                    message += "@{} ".format(self.user_list[userID]["username"], userID)
+                if "username" in self.user_dict[userID]:
+                    message += "@{} ".format(self.user_dict[userID]["username"], userID)
                 else:
-                    message += "[{}](tg://user?id={}) ".format(self.user_list[userID]["first_name"], userID)
+                    message += "[{}](tg://user?id={}) ".format(self.user_dict[userID]["first_name"], userID)
 
             if empty:
                 message = "Empty group"
@@ -475,9 +475,9 @@ class DanBot:
         return update
 
     def callback_lsgroups(self, msg, chat_id):
-        update = self.log_usage(self.user_list, msg['from'], "/lsgroups")
-        if len(self.user_list[str(msg["from"]["id"])]["groups"]) > 0:
-            self.bot.sendMessage(chat_id, ", ".join(self.user_list[str(msg["from"]["id"])]["groups"]))
+        update = self.log_usage(self.user_dict, msg['from'], "/lsgroups")
+        if len(self.user_dict[str(msg["from"]["id"])]["groups"]) > 0:
+            self.bot.sendMessage(chat_id, ", ".join(self.user_dict[str(msg["from"]["id"])]["groups"]))
         else:
             self.bot.sendMessage(chat_id, self.strings["no_groups"])
         return update
@@ -500,7 +500,7 @@ class DanBot:
             self.bot.sendMessage(chat_id, laughs[rand.randint(0, len(laughs) - 1)])
 
     def callback_ifc(self, msg, chat_id):
-        update = self.log_usage(self.user_list, msg['from'], "/ifc")
+        update = self.log_usage(self.user_dict, msg['from'], "/ifc")
 
         txt = msg["text"]
 
@@ -535,12 +535,12 @@ class DanBot:
             self.bot.sendMessage(chat_id, message, parse_mode="Markdown", disable_web_page_preview=True)
 
     def callback_gdquote(self, msg, chat_id):
-        self.log_usage(self.user_list, msg['from'], "/gdquote")
+        self.log_usage(self.user_dict, msg['from'], "/gdquote")
         self.bot.sendMessage(chat_id, get_gdquote())
 
     def callback_debatemode(self, msg, chat_id):
         usage_msg = "Usage: /debatemode [on|off]"
-        self.log_usage(self.user_list, msg['from'], "/debatemode")
+        self.log_usage(self.user_dict, msg['from'], "/debatemode")
         args = msg['text'].split(" ")
         if len(args) != 2:
             self.bot.sendMessage(chat_id, usage_msg)
@@ -554,7 +554,7 @@ class DanBot:
                 self.bot.sendMessage(chat_id, usage_msg)
 
     def callback_showcoins(self, msg, chat_id):
-        self.log_usage(self.user_list, msg['from'], "/showcoins")
+        self.log_usage(self.user_dict, msg['from'], "/showcoins")
 
         name = get_callsign(msg['from'])
         coins = self.get_user_coins(msg['from'])
@@ -562,39 +562,44 @@ class DanBot:
         self.bot.sendMessage(chat_id, f"{name} has {coins} coins.")
 
     def callback_msgcount(self, msg, chat_id):
-        self.log_usage(self.user_list, msg['from'], "/msgcount")
+        self.log_usage(self.user_dict, msg['from'], "/msgcount")
 
         name = get_callsign(msg['from'])
-        messages = self.user_list[str(msg["from"]["id"])]["msg_count"]
+        messages = self.user_dict[str(msg["from"]["id"])]["msg_count"]
 
         reply = f"{name} has sent a total of {messages} messages accross all DanBot groups."
 
         self.bot.sendMessage(chat_id, reply)
 
     def get_total_messages_sent(self, after_jackpot=False):
-        total_msg = sum(user["msg_count"] for user in self.user_list.values())
+        total_msg = sum(user["msg_count"] for user in self.user_dict.values())
 
         if after_jackpot:
-            total_msg_before_jackpot = sum(user["msg_count_before_jackpot"] for user in self.user_list.values())
+            total_msg_before_jackpot = sum(user["msg_count_before_jackpot"] for user in self.user_dict.values())
             return total_msg - total_msg_before_jackpot
         else:
             return total_msg
 
     def get_total_coins(self):
-        return sum(self.get_user_coins(user) for user in self.user_list.values())
+        return sum(self.get_user_coins(user) for user in self.user_dict.values())
 
     def callback_luck(self, msg, chat_id):
-        self.log_usage(self.user_list, msg['from'], "/luck")
+        self.log_usage(self.user_dict, msg['from'], "/luck")
+
+        user_id = str(msg["from"]["id"])
 
         name = get_callsign(msg['from'])
-        user_msg_total = self.user_list[str(msg["from"]["id"])]["msg_count"]
-        user_msg_after_jackpot = user_msg_total - self.user_list[str(msg["from"]["id"])]["msg_count_before_jackpot"]
+        user_msg_total = self.user_dict[user_id]["msg_count"]
+        user_msg_after_jackpot = user_msg_total - self.user_dict[user_id]["msg_count_before_jackpot"]
 
         global_msg_total = self.get_total_messages_sent(after_jackpot=True)
         ratio = user_msg_after_jackpot / global_msg_total
 
-        current_coins = self.get_user_coins(msg['from'])
+        current_coins = self.user_dict[user_id]["inventory"]["coins"]
         expected_coins = calc_expected_coins(global_msg_total, user_msg_after_jackpot, 1 - 1 / self.BINGO_NUM)
+
+        if user_msg_after_jackpot == 0 or current_coins == 0:
+            reply = ""
 
         luck_percentage = 100 * (current_coins - expected_coins) / expected_coins
         lucky_str = "LUCKY" if luck_percentage > 0 else "UNLUCKY"
@@ -626,7 +631,7 @@ class DanBot:
         return luck_percentage
 
     def callback_coin_volume(self, msg, chat_id):
-        self.log_usage(self.user_list, msg['from'], "/coinvolume")
+        self.log_usage(self.user_dict, msg['from'], "/coinvolume")
 
         total_coins = self.get_total_coins()
         global_msg_total = self.get_total_messages_sent(after_jackpot=True)
@@ -642,9 +647,88 @@ class DanBot:
         self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
 
     def callback_jackpot(self, msg, chat_id):
-        self.log_usage(self.user_list, msg['from'], "/jackpot")
+        self.log_usage(self.user_dict, msg['from'], "/jackpot")
         reply = f"Currenly, the jackpot is at {self.global_data['jackpot']} coins."
         self.bot.sendMessage(chat_id, reply)
+
+    def get_user_luck(self, user_id):
+        global_msg_total = self.get_total_messages_sent(after_jackpot=True)
+        user_msg_total = self.user_dict[user_id]["msg_count"]
+        user_msg_after_jackpot = user_msg_total - self.user_dict[user_id]["msg_count_before_jackpot"]
+        current_coins = self.user_dict[user_id]["inventory"]["coins"]
+        expected_coins = calc_expected_coins(global_msg_total, user_msg_after_jackpot, 1 - 1 / self.BINGO_NUM)
+
+        if user_msg_after_jackpot == 0 or current_coins == 0:
+            return None
+
+        luck_percentage = 100 * (current_coins - expected_coins) / expected_coins
+
+        return luck_percentage
+
+    def get_user_callsign(self, user_id):
+        user = self.user_dict[user_id]
+        return user.get('username') or user['first_name']
+
+    def make_top(self, get_attr, percentage=True):
+        top = []
+        for user_id in self.user_dict:
+            user = self.get_user_callsign(user_id)
+            luck = get_attr(user_id)
+            if luck is not None:
+                top.append([user, luck])
+
+        top.sort(key=lambda t: t[1], reverse=True)
+
+        if percentage:
+            total = sum(t[1] for t in top)
+            for t in top:
+                t.append(100 * t[1] / total)
+
+        return top
+
+    @staticmethod
+    def get_std_top_str(top):
+        top_str = "\n".join(f"{user + ':':<12} {count}\t({ratio:.2f}%)" for user, count, ratio in top)
+        return "```\n" + top_str + "\n```"
+
+    def callback_topluck(self, msg, chat_id):
+        self.log_usage(self.user_dict, msg['from'], "/topluck")
+
+        top = self.make_top(lambda uid: self.get_user_luck(uid), percentage=False)
+        reply = "Luck ranking:\n\n" \
+                + "```\n" \
+                + "\n".join(f"{user + ':':<12} {luck:.2f}%" for user, luck in top) \
+                + "\n```"
+
+        self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
+
+    def callback_topmsg(self, msg, chat_id):
+        self.log_usage(self.user_dict, msg['from'], "/topmsg")
+
+        top = self.make_top(lambda uid: self.user_dict[uid]["msg_count"] or None)
+        reply = "Messages sent ranking:\n\n" + self.get_std_top_str(top)
+
+        self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
+
+    def callback_topmsg_jackpot(self, msg, chat_id):
+        self.log_usage(self.user_dict, msg['from'], "/topmsg_jackpot")
+
+        def get_attr(uid):
+            count = self.user_dict[uid]["msg_count"] - self.user_dict[uid]["msg_count_before_jackpot"]
+            return count or None
+
+        top = self.make_top(get_attr)
+        reply = "Messages sent after jackpot ranking:\n\n" + self.get_std_top_str(top)
+
+        self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
+
+    def callback_topcoins(self, msg, chat_id):
+        self.log_usage(self.user_dict, msg['from'], "/topcoins")
+
+        top = self.make_top(lambda uid: self.user_dict[uid]["inventory"]["coins"] or None)
+        reply = "Coins owned ranking:\n\n" + self.get_std_top_str(top)
+
+        self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
 
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
         trolls = []
@@ -654,7 +738,7 @@ class DanBot:
 
         if not is_edit:
             self.global_data["jackpot"] += 1
-            self.user_list[str(msg["from"]["id"])]["msg_count"] += 1
+            self.user_dict[str(msg["from"]["id"])]["msg_count"] += 1
 
         if content_type == "text" and msg['text'][:len("/yamete")] == "/yamete":
             print("\nTaking a break...")
@@ -774,6 +858,18 @@ class DanBot:
             elif msg['text'].lower().startswith("/jackpot"):
                 self.callback_jackpot(msg, chat_id)
 
+            elif msg['text'].lower().startswith("/topluck"):
+                self.callback_topluck(msg, chat_id)
+
+            elif msg['text'].lower().startswith("/topmsg_jackpot"):
+                self.callback_topmsg_jackpot(msg, chat_id)
+
+            elif msg['text'].lower().startswith("/topmsg"):
+                self.callback_topmsg(msg, chat_id)
+
+            elif msg['text'].lower().startswith("/topcoins"):
+                self.callback_topcoins(msg, chat_id)
+
         if prob == self.BINGO_NUM and not is_edit:
             jackpot = self.global_data["jackpot"]
             print(f"\nBINGO! After {jackpot} messages")
@@ -786,7 +882,7 @@ class DanBot:
             r = rand.randint(0, len(self.strings["comments"]) - 1)
             self.bot.sendMessage(chat_id, self.strings["comments"][r])
 
-        db.save_resource("users", self.user_list)
+        db.save_resource("users", self.user_dict)
         db.save_resource("global", self.global_data)
 
 
