@@ -875,6 +875,7 @@ class DanBot:
             print(f"\nBINGO! After {jackpot} messages")
             self.global_data["bingo_stats"].append({"coins": jackpot, "user": msg['from']['id']})
             self.add_coins_to_user(jackpot, msg['from'])
+            self.global_data["jackpot"] = 0
             name = get_callsign(msg['from'])
             self.bot.sendMessage(chat_id, f"{name} just won the jackpot of {jackpot} coins++ !!!".upper())
 
