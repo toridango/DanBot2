@@ -730,6 +730,53 @@ class DanBot:
 
         self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
 
+    def callback_investigate_fraud(self, msg, chat_id):
+        self.bot.sendMessage(chat_id, "DanBot Police is now investigating jackpot fraud...")
+
+        if not self.global_data["fraud"]:
+            self.bot.sendMessage(chat_id, "*No instances of jackpot fraud have been found.*", parse_mode="Markdown")
+            return
+
+        jackpots_after_update = [j for j in self.global_data["bingo_stats"] if j["user"] is not None]
+
+        offenders = {}
+        corrected_jackpots = []
+
+        for i in range(1, len(jackpots_after_update)):
+            prev_jackpot = jackpots_after_update[i - 1]
+            curr_jackpot = jackpots_after_update[i]
+            proper_jackpot_coins = curr_jackpot["coins"] - prev_jackpot["coins"]
+            user = curr_jackpot["user"]
+            if user not in offenders:
+                offenders[user] = []
+            offenders[user].append((curr_jackpot["coins"], proper_jackpot_coins))
+            corrected_jackpots.append(proper_jackpot_coins)
+
+        # correct current jackpot
+        self.global_data["jackpot"] -= jackpots_after_update[-1]["coins"]
+
+        # correct jackpot stats
+        index_offset = len(self.global_data["bingo_stats"]) - len(jackpots_after_update) + 1
+        for i in range(len(corrected_jackpots)):
+            self.global_data["bingo_stats"][index_offset + i]["coins"] = corrected_jackpots[i]
+
+        # correct user coins
+        for user, offences in offenders.items():
+            username = self.get_user_callsign(user)
+            reply = f"*{username} has been found guilty of fraud!*\n\n"
+            total_fraud_coins = 0
+            for actual_coins, proper_coins in offences:
+                reply += f"- Received a jackpot valued in {actual_coins} coins, when it should have been {proper_coins} coins.\n"
+                total_fraud_coins += actual_coins - proper_coins
+            reply += f"\n*As such, DanBot Police will confiscate {total_fraud_coins} coins from {username}.*\n\n"
+            reply += f"{username}'s coin balance was {self.user_dict[user]['inventory']['coins']}"
+            self.user_dict[user]['inventory']['coins'] -= total_fraud_coins
+            reply += f", but after the intervention it has been reduced to {self.user_dict[user]['inventory']['coins']} coins."
+            self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
+
+        self.global_data["fraud"] = False
+        self.bot.sendMessage(chat_id, "*All instances of jackpot fraud have been corrected.*", parse_mode="Markdown")
+
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
         trolls = []
         self.preliminary_checks(msg)
@@ -869,6 +916,9 @@ class DanBot:
 
             elif msg['text'].lower().startswith("/topcoins"):
                 self.callback_topcoins(msg, chat_id)
+
+            elif msg['text'].lower().startswith("/investigate_fraud"):
+                self.callback_investigate_fraud(msg, chat_id)
 
         if prob == self.BINGO_NUM and not is_edit:
             jackpot = self.global_data["jackpot"]
