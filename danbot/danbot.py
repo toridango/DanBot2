@@ -923,7 +923,7 @@ class DanBot:
         if prob == self.BINGO_NUM and not is_edit:
             jackpot = self.global_data["jackpot"]
             print(f"\nBINGO! After {jackpot} messages")
-            self.global_data["bingo_stats"].append({"coins": jackpot, "user": msg['from']['id']})
+            self.global_data["bingo_stats"].append({"coins": jackpot, "user": str(msg['from']['id'])})
             self.add_coins_to_user(jackpot, msg['from'])
             self.global_data["jackpot"] = 0
             name = get_callsign(msg['from'])
