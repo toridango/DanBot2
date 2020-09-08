@@ -648,7 +648,8 @@ class DanBot:
 
     def callback_jackpot(self, msg, chat_id):
         self.log_usage(self.user_dict, msg['from'], "/jackpot")
-        reply = f"Currenly, the jackpot is at {self.global_data['jackpot']} coins."
+        print(f"Currenly, the jackpot is at {self.global_data['jackpot']} coins.")
+        reply = f"Currenly, the jackpot is going to cost you 2000 coins.\nBut there's no pay command yet lol"
         self.bot.sendMessage(chat_id, reply)
 
     def get_user_luck(self, user_id):
