@@ -827,7 +827,8 @@ class DanBot:
         self.log_usage(self.user_dict, msg['from'], "/topjackpotcoins")
 
         sorted_jackpots = sorted(self.global_data["bingo_stats"], key=lambda jp: jp['coins'], reverse=True)[:10]
-        top_jackpots = [(str(jp['coins']), jp['user'] or "Unknown") for jp in sorted_jackpots]
+        top_jackpots = [(str(jp['coins']), self.get_user_callsign(jp['user']) if jp['user'] else "Unknown")
+                        for jp in sorted_jackpots]
 
         reply = "Top 10 jackpots:\n\n" + \
                 "```\n" + \
