@@ -815,11 +815,24 @@ class DanBot:
             if not jp['user']:
                 user = "Unknown"
             else:
-                user = get_callsign(self.user_dict[jp['user']])
+                user = self.get_user_callsign(jp['user'])
             coins = jp['coins']
             jp_list.append(f"*{user}* won a jackpot valued at *{coins}* coins!")
 
         reply = "Last 10 jackpots:\n\n" + "\n".join(jp_list)
+
+        self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
+
+    def callback_topjackpotcoins(self, msg, chat_id):
+        self.log_usage(self.user_dict, msg['from'], "/topjackpotcoins")
+
+        sorted_jackpots = sorted(self.global_data["bingo_stats"], key=lambda jp: jp['coins'], reverse=True)[:10]
+        top_jackpots = [(str(jp['coins']), jp['user'] or "Unknown") for jp in sorted_jackpots]
+
+        reply = "Top 10 jackpots:\n\n" + \
+                "```\n" + \
+                "\n".join(f"{coins:<4} coins; won by {user}." for coins, user in top_jackpots) + \
+                "\n```"
 
         self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
 
@@ -965,6 +978,9 @@ class DanBot:
 
             elif msg['text'].lower().startswith("/investigate_fraud"):
                 self.callback_investigate_fraud(msg, chat_id)
+
+            elif msg['text'].lower().startswith("/topjackpotcoins"):
+                self.callback_topjackpotcoins(msg, chat_id)
 
             elif msg['text'].lower().startswith("/topjackpot"):
                 self.callback_topjackpot(msg, chat_id)
