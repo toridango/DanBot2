@@ -684,8 +684,11 @@ class DanBot:
         return top
 
     @staticmethod
-    def get_std_top_str(top):
-        top_str = "\n".join(f"{user + ':':<12} {count}\t({ratio:.2f}%)" for user, count, ratio in top)
+    def get_std_top_str(top, ratio=True):
+        if ratio:
+            top_str = "\n".join(f"{user + ':':<12} {count}\t({ratio:.2f}%)" for user, count, ratio in top)
+        else:
+            top_str = "\n".join(f"{user + ':':<12} {count}" for user, count in top)
         return "```\n" + top_str + "\n```"
 
     def callback_topluck(self, msg, chat_id):
@@ -773,6 +776,38 @@ class DanBot:
 
         self.global_data["fraud"] = False
         self.bot.sendMessage(chat_id, "*All instances of jackpot fraud have been corrected.*", parse_mode="Markdown")
+
+    def callback_topjackpot(self, msg, chat_id):
+        self.log_usage(self.user_dict, msg['from'], "/topjackpot")
+
+        user_jackpots = {}
+        for entry in self.global_data["bingo_stats"]:
+            if entry["user"] not in user_jackpots:
+                user_jackpots[entry["user"]] = 0
+            user_jackpots[entry["user"]] += 1
+
+        top = self.make_top(lambda uid: user_jackpots.get(uid), percentage=False)
+        reply = "Jackpots won:\n\n" + self.get_std_top_str(top, ratio=False)
+
+        self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
+
+    def callback_papalist(self, msg, chat_id):
+        self.log_usage(self.user_dict, msg['from'], "/papalist")
+
+        latest_jackpots = self.global_data["bingo_stats"][-10:][::-1]
+
+        jp_list = []
+        for jp in latest_jackpots:
+            if not jp['user']:
+                user = "Unknown"
+            else:
+                user = get_callsign(self.user_dict[jp['user']])
+            coins = jp['coins']
+            jp_list.append(f"*{user}* won a jackpot valued at *{coins}* coins!")
+
+        reply = "Last 10 jackpots:\n\n" + "\n".join(jp_list)
+
+        self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
 
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
         trolls = []
@@ -916,6 +951,12 @@ class DanBot:
 
             elif msg['text'].lower().startswith("/investigate_fraud"):
                 self.callback_investigate_fraud(msg, chat_id)
+
+            elif msg['text'].lower().startswith("/topjackpot"):
+                self.callback_topjackpot(msg, chat_id)
+
+            elif msg['text'].lower().startswith("/papalist"):
+                self.callback_papalist(msg, chat_id)
 
         if prob == self.BINGO_NUM and not is_edit:
             jackpot = self.global_data["jackpot"]
