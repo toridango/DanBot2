@@ -607,15 +607,12 @@ class DanBot:
         lucky_percentage_norm = luck_percentage - self.get_average_users_luck()
         lucky_str_norm = "LUCKY" if lucky_percentage_norm > 0 else "UNLUCKY"
 
-        reply = f"Since jackpot was enabled:\n" \
-                f"{name} has sent {user_msg_after_jackpot} messages.\n" \
-                f"A total of {global_msg_total} messages have been sent by all users.\n" \
-                f"As such, {name} has sent {100 * ratio:.2f}% of all messages.\n" \
-                f"After performing advanced AI probabilistic calculations, I believe that...\n" \
+        reply = f"Since jackpot was enabled,\n" \
+                f"{name} has sent {user_msg_after_jackpot} messages ({100 * ratio:.2f}% of all messages).\n" \
+                f"After performing advanced AI calculations, I believe that...\n" \
                 f"*{name} deserves to have {int(expected_coins)} coins.*\n" \
                 f"Currently, {name} has {current_coins} coins. Thus, I conclude that...\n" \
-                f"*{name} is {abs(luck_percentage):.2f}% more {lucky_str} than average.*\n" \
-                f"However, taking into account the average luck of DanBot users, I conclude that...\n" \
+                f"*{name} is {abs(luck_percentage):.2f}% more {lucky_str} than average,*\n" \
                 f"*{name} is {abs(lucky_percentage_norm):.2f}% more {lucky_str_norm} than other DanBot users.*\n"
 
         self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
