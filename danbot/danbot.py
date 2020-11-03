@@ -51,6 +51,11 @@ def try_parsing_date(text):
     raise ValueError('no valid date format found')
 
 
+def current_activity_key():
+    t = dt.datetime.now()
+    return str(f"{t.year}-{t.month}-{t.day}-{t.hour}")
+
+
 class DanBot:
     def __init__(self, bot):
         # TODO move all these constants to a JSON or smth instead of hardcoding in init
@@ -846,6 +851,10 @@ class DanBot:
         if not is_edit:
             self.global_data["jackpot"] += 1
             self.user_dict[str(msg["from"]["id"])]["msg_count"] += 1
+            curr_act_key = current_activity_key()
+            if curr_act_key not in self.global_data["activity"]:
+                self.global_data["activity"][curr_act_key] = 0
+            self.global_data["activity"][curr_act_key] += 1
 
         if content_type == "text" and msg['text'][:len("/yamete")] == "/yamete":
             print("\nTaking a break...")
