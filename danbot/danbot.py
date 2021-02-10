@@ -1,6 +1,7 @@
 import datetime as dt
 import random as rand
 import re
+import time
 
 from . import db_handler as db
 from .modules.gdquote import get_gdquote
@@ -796,6 +797,63 @@ class DanBot:
         self.global_data["fraud"] = False
         self.bot.sendMessage(chat_id, "*All instances of jackpot fraud have been corrected.*", parse_mode="Markdown")
 
+    def callback_investigate_danney_fraud(self, msg, chat_id):
+        if self.global_data.get("case_concluded", False):
+            self.bot.sendMessage(chat_id, "Danney's case has already been closed.")
+            return
+
+        danney_current_coins = self.user_dict["13363913"]['inventory']['coins']
+
+        self.bot.sendMessage(chat_id, "DanBot jury will now render the verdict of Danney's case.")
+        time.sleep(5)
+
+        stolen_coins = 1513
+        self.bot.sendMessage(chat_id, f"The defendant has been found guilty as charged in the counts of jackpot fraud, "
+                                      f"digital currency forgery, evidence tampering, obstruction of justice and cyberbullying "
+                                      f"of our great benevolent dictator. The value of public assets affected by his crimes"
+                                      f" amounts to {stolen_coins} coins.")
+
+        time.sleep(3)
+        self.bot.sendMessage(chat_id, f"The amount of {stolen_coins} is to be deducted from the defendant's liquid assets, "
+                                      f"effective inmediately.")
+
+        danney_legit_coins = danney_current_coins - stolen_coins
+        self.bot.sendMessage(chat_id, f"User: DaniAz\n"
+                                      f"Current balance: {danney_legit_coins} coins.")
+
+        compensation = calc_expected_coins(total_messages, danney_messages, 1 - 1 / self.BINGO_NUM)
+        self.bot.sendMessage(chat_id, f"On the other hand, notwithstanding the heinous crimes commited by the defendant, "
+                                      f"in his infinite magnanimity, our benevolent dictator recognizes that the provisional "
+                                      f"disciplinary action that was inflicted upon the defendant exceeded reasonable retribution, "
+                                      f"and thus the defendant has been found deserving of the following indemnification:"
+                                      f"\t- The defendant will be provided with liquid assets equivalent to the average gains that he "
+                                      f"would have acquired during the period in which the aforementioned disciplinary action was in effect.")
+
+
+
+        self.bot.sendMessage(chat_id, f"This amounts to...")
+        time.sleep(1)
+        self.bot.sendMessage(chat_id, f"Ahem...")
+
+        time.sleep(8)
+        self.bot.sendMessage(chat_id, f"{compensation} coins")
+
+        final_danney_coins = danney_legit_coins + compensation
+        self.bot.sendMessage(chat_id, f"User: DaniAz\n"
+                                      f"Current balance: {final_danney_coins} coins.")
+
+
+        self.bot.sendMessage(chat_id, f"This concludes <>")
+
+        self.user_dict["13363913"]['inventory']['coins'] = final_danney_coins
+        self.global_data["case_concluded"] = True
+
+
+
+
+
+
+
     def callback_topjackpot(self, msg, chat_id):
         self.log_usage(self.user_dict, msg['from'], "/topjackpot")
 
@@ -997,6 +1055,9 @@ class DanBot:
 
             elif msg['text'].lower().startswith("/papalist"):
                 self.callback_papalist(msg, chat_id)
+
+            elif msg['text'].lower().startswith("/danney_verdict"):
+                self.callback_investigate_danney_fraud(msg, chat_id)
 
         if prob == self.BINGO_NUM and not is_edit:
             jackpot = self.global_data["jackpot"]
