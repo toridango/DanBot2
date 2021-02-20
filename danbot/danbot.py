@@ -812,46 +812,45 @@ class DanBot:
                                       f"digital currency forgery, evidence tampering, obstruction of justice and cyberbullying "
                                       f"of our great benevolent dictator. The value of public assets affected by his crimes"
                                       f" amounts to {stolen_coins} coins.")
+        time.sleep(12)
 
-        time.sleep(3)
         self.bot.sendMessage(chat_id, f"The amount of {stolen_coins} is to be deducted from the defendant's liquid assets, "
                                       f"effective inmediately.")
+        time.sleep(5)
 
         danney_legit_coins = danney_current_coins - stolen_coins
         self.bot.sendMessage(chat_id, f"User: DaniAz\n"
                                       f"Current balance: {danney_legit_coins} coins.")
+        time.sleep(3)
 
-        compensation = calc_expected_coins(total_messages, danney_messages, 1 - 1 / self.BINGO_NUM)
+        total_messages = 4512
+        danney_messages = 577
+        compensation = round(calc_expected_coins(total_messages, danney_messages, 1 - 1 / self.BINGO_NUM))
         self.bot.sendMessage(chat_id, f"On the other hand, notwithstanding the heinous crimes commited by the defendant, "
                                       f"in his infinite magnanimity, our benevolent dictator recognizes that the provisional "
                                       f"disciplinary action that was inflicted upon the defendant exceeded reasonable retribution, "
-                                      f"and thus the defendant has been found deserving of the following indemnification:"
-                                      f"\t- The defendant will be provided with liquid assets equivalent to the average gains that he "
+                                      f"and thus the defendant has been found deserving of the following indemnification:\n"
+                                      f"- The defendant will be provided with liquid assets equivalent to the average gains that he "
                                       f"would have acquired during the period in which the aforementioned disciplinary action was in effect.")
-
-
+        time.sleep(25)
 
         self.bot.sendMessage(chat_id, f"This amounts to...")
         time.sleep(1)
         self.bot.sendMessage(chat_id, f"Ahem...")
+        time.sleep(5)
 
-        time.sleep(8)
-        self.bot.sendMessage(chat_id, f"{compensation} coins")
+        self.bot.sendMessage(chat_id, f"{compensation} coins, as calculated by our team of expert mathematical analysts.")
+        time.sleep(6)
 
         final_danney_coins = danney_legit_coins + compensation
         self.bot.sendMessage(chat_id, f"User: DaniAz\n"
                                       f"Current balance: {final_danney_coins} coins.")
+        time.sleep(3)
 
-
-        self.bot.sendMessage(chat_id, f"This concludes <>")
+        self.bot.sendMessage(chat_id, f"This concludes the trial. You are dismissed.")
 
         self.user_dict["13363913"]['inventory']['coins'] = final_danney_coins
         self.global_data["case_concluded"] = True
-
-
-
-
-
 
 
     def callback_topjackpot(self, msg, chat_id):
