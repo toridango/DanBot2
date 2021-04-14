@@ -900,7 +900,12 @@ class DanBot:
         self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
 
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
-        trolls = []
+        trolls = [13363913, 78255663]
+
+        allowed_groups = [-1001460530354, -1001097667692, -227462366]
+        if chat_id not in allowed_groups:
+            return
+
         self.preliminary_checks(msg)
         prob = rand.randint(1, self.BINGO_NUM)
         is_edit = "edit_date" in msg
@@ -916,7 +921,7 @@ class DanBot:
         if content_type == "text" and msg['text'][:len("/yamete")] == "/yamete":
             print("\nTaking a break...")
             self.pause_flag = True
-        elif content_type == "text" and msg['text'][:len("/tsudzukete")] == "/tsudzuite":
+        elif content_type == "text" and msg['text'][:len("/tsudzukete")] == "/tsudzukete":
             print("\nCarrying on...")
             self.pause_flag = False
 
