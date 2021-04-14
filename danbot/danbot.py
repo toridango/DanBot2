@@ -901,6 +901,8 @@ class DanBot:
 
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
         trolls = [13363913, 78255663]
+        if msg["from"]["id"] in trolls:
+            return
 
         allowed_groups = [-1001460530354, -1001097667692, -227462366]
         if chat_id not in allowed_groups:
