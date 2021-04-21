@@ -900,7 +900,7 @@ class DanBot:
         self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
 
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
-        trolls = [13363913, 78255663]
+        trolls = []
         if msg["from"]["id"] in trolls:
             return
 
