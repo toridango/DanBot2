@@ -2,6 +2,7 @@ import datetime as dt
 import inspect
 import random as rand
 import re
+import time
 import traceback
 
 from danbot.modules.activity_stats import date_to_datetime
@@ -67,6 +68,7 @@ class DanBot:
             "activity_date": r"^\d{4}-\d{2}-\d{2}-\d{2}$"
         }
         self.SUBREDDIT_LEN = 21
+        self.ALLOWED_CHATS = [-1001460530354, -1001097667692, -227462366, 192616195]
 
         self.strings = db.load_resource("strings")
         self.user_dict = db.load_resource("users")
@@ -812,8 +814,9 @@ class DanBot:
                                       f" amounts to {stolen_coins} coins.")
         time.sleep(12)
 
-        self.bot.sendMessage(chat_id, f"The amount of {stolen_coins} is to be deducted from the defendant's liquid assets, "
-                                      f"effective inmediately.")
+        self.bot.sendMessage(chat_id,
+                             f"The amount of {stolen_coins} is to be deducted from the defendant's liquid assets, "
+                             f"effective inmediately.")
         time.sleep(5)
 
         danney_legit_coins = danney_current_coins - stolen_coins
@@ -824,12 +827,13 @@ class DanBot:
         total_messages = 4512
         danney_messages = 577
         compensation = round(calc_expected_coins(total_messages, danney_messages, 1 - 1 / self.BINGO_NUM))
-        self.bot.sendMessage(chat_id, f"On the other hand, notwithstanding the heinous crimes commited by the defendant, "
-                                      f"in his infinite magnanimity, our benevolent dictator recognizes that the provisional "
-                                      f"disciplinary action that was inflicted upon the defendant exceeded reasonable retribution, "
-                                      f"and thus the defendant has been found deserving of the following indemnification:\n"
-                                      f"- The defendant will be provided with liquid assets equivalent to the average gains that he "
-                                      f"would have acquired during the period in which the aforementioned disciplinary action was in effect.")
+        self.bot.sendMessage(chat_id,
+                             f"On the other hand, notwithstanding the heinous crimes commited by the defendant, "
+                             f"in his infinite magnanimity, our benevolent dictator recognizes that the provisional "
+                             f"disciplinary action that was inflicted upon the defendant exceeded reasonable retribution, "
+                             f"and thus the defendant has been found deserving of the following indemnification:\n"
+                             f"- The defendant will be provided with liquid assets equivalent to the average gains that he "
+                             f"would have acquired during the period in which the aforementioned disciplinary action was in effect.")
         time.sleep(25)
 
         self.bot.sendMessage(chat_id, f"This amounts to...")
@@ -837,7 +841,8 @@ class DanBot:
         self.bot.sendMessage(chat_id, f"Ahem...")
         time.sleep(5)
 
-        self.bot.sendMessage(chat_id, f"{compensation} coins, as calculated by our team of expert mathematical analysts.")
+        self.bot.sendMessage(chat_id,
+                             f"{compensation} coins, as calculated by our team of expert mathematical analysts.")
         time.sleep(6)
 
         final_danney_coins = danney_legit_coins + compensation
@@ -849,7 +854,7 @@ class DanBot:
 
         self.user_dict["13363913"]['inventory']['coins'] = final_danney_coins
         self.global_data["case_concluded"] = True
-        
+
     def callback_topjackpot(self, msg, chat_id):
         self.log_usage(self.user_dict, msg['from'], "/topjackpot")
 
@@ -1043,8 +1048,7 @@ class DanBot:
         if msg["from"]["id"] in trolls:
             return
 
-        allowed_groups = [-1001460530354, -1001097667692, -227462366]
-        if chat_id not in allowed_groups:
+        if chat_id not in self.ALLOWED_CHATS:
             return
 
         self.preliminary_checks(msg)
