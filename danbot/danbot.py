@@ -1,14 +1,17 @@
 import datetime as dt
+import inspect
 import random as rand
 import re
-import time
+import traceback
 
+from danbot.modules.activity_stats import date_to_datetime
 from . import db_handler as db
+from .modules import activity_stats as act
 from .modules.gdquote import get_gdquote
 from .modules.get_ahk import get_ahk
 from .modules.ifc_calendar import get_ifc_string_date
-from .modules.process_spells import process_spell
 from .modules.jackpot_calculations import calc_expected_coins, calc_expected_coin_volume
+from .modules.process_spells import process_spell
 
 
 def get_ratio(data):
@@ -52,21 +55,16 @@ def try_parsing_date(text):
     raise ValueError('no valid date format found')
 
 
-def current_activity_key():
-    t = dt.datetime.now()
-    return str(f"{t.year}-{t.month}-{t.day}-{t.hour}")
-
-
 class DanBot:
     def __init__(self, bot):
-        # TODO move all these constants to a JSON or smth instead of hardcoding in init
         self.MAX_GROUP_NAME_LEN = 20
         self.BINGO_NUM = 512
         self.COMMENT_THRESH = 0.02
         self.RE_DICT = {
             "date": r"((\d{4})[-\/\.](0?[1-9]|1[012])[-\/\.](3[01]|[12][0-9]|0?[1-9]))|"
                     r"((3[01]|[12][0-9]|0?[1-9])[-\/\.](0?[1-9]|1[012])[-\/\.](\d{4}))",
-            "subreddit": r"r/([^\s/]+)"
+            "subreddit": r"r/([^\s/]+)",
+            "activity_date": r"^\d{4}-\d{2}-\d{2}-\d{2}$"
         }
         self.SUBREDDIT_LEN = 21
 
@@ -851,8 +849,7 @@ class DanBot:
 
         self.user_dict["13363913"]['inventory']['coins'] = final_danney_coins
         self.global_data["case_concluded"] = True
-
-
+        
     def callback_topjackpot(self, msg, chat_id):
         self.log_usage(self.user_dict, msg['from'], "/topjackpot")
 
@@ -899,6 +896,148 @@ class DanBot:
 
         self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
 
+    def callback_activity(self, msg, chat_id):
+        self.log_usage(self.user_dict, msg['from'], "/callback_activity")
+
+        # strings #
+        usage = """```
+            Usage:
+            /activity <mode> [mode params] [date range]
+
+            Modes:
+                hour: shows total activity for each hour of the day
+                weekdays: shows total activity for each day of the week
+                months: shows total activity for each month of the year
+
+                evol [bucket]: shows continuous activity evolution
+                    Param bucket:
+                        days: each day's total is a datapoint (default)
+                        months: each month's total is a datapoint
+                        years: each year's total is a datapoint
+
+            Date range:
+                You can specify a date range with the Python slice format [start date]:[end date].
+                The date format is YYYY-MM-DD-HH.
+                E.g.:
+                    2020-01-01-00:2020-01-02-00, activity for the 1st of January of 2020
+                    2019-01-01-17:, activity from 1st of January of 2020 at 17:00 until now
+                    :2020-01-01-23, activity from the beginning of time until 1st of January of 2020 at 23:00
+
+            Examples:
+                /activity evol months 2019-01-01-00:2020-01-01-00
+                /activity weekdays 2018-09-01-00:```
+        """
+        usage = inspect.cleandoc(usage)
+        wrong_usage_suffix = "Click /activity for usage."
+        invalid_date_range = f"Invalid date range. {wrong_usage_suffix}"
+        graph_except = "Something went wrong while generating the activity graph :("
+        modes = ("hours", "weekdays", "months", "evol")
+        buckets = ("days", "months", "years")
+
+        # default values #
+        start_date = ""
+        end_date = ""
+        bucket = "days"
+
+        # helper funcs #
+        def parse_date_range(date_range):
+            split = date_range.split(":")
+            if len(split) != 2:
+                return
+            start, end = split
+            if start:
+                if not re.match(self.RE_DICT["activity_date"], start):
+                    return
+            if end:
+                if not re.match(self.RE_DICT["activity_date"], end):
+                    return
+            if start and end:
+                if date_to_datetime(start) > date_to_datetime(end):
+                    return
+            return start, end
+
+        # logic #
+        cmd = msg["text"].split()
+
+        # send help if no params
+        if len(cmd) == 1:
+            self.bot.sendMessage(chat_id, usage, parse_mode="Markdown")
+            return
+
+        args = cmd[1:]
+        mode = args[0]
+
+        # send error msg if first arg is not a mode
+        if mode not in modes:
+            self.bot.sendMessage(chat_id, f"Unknown mode '{mode}'. {wrong_usage_suffix}", parse_mode="Markdown")
+            return
+
+        if mode == "evol":
+            # evol mode could have bucket or date range as first param
+            if len(args) == 2:
+                if args[1] in buckets:
+                    bucket = args[1]
+                else:
+                    date_range = parse_date_range(args[1])
+                    if not date_range:
+                        self.bot.sendMessage(chat_id, invalid_date_range, parse_mode="Markdown")
+                        return
+                    start_date, end_date = date_range
+            # evol mode could have bucket and date range as first and second params
+            elif len(args) == 3:
+                bucket = args[1]
+                date_range = parse_date_range(args[2])
+                if not date_range:
+                    self.bot.sendMessage(chat_id, invalid_date_range, parse_mode="Markdown")
+                    return
+                start_date, end_date = date_range
+            elif len(args) > 3:
+                self.bot.sendMessage(chat_id, f"Too many params provided for {mode} mode. {wrong_usage_suffix}",
+                                     parse_mode="Markdown")
+                return
+        else:
+            # other modes can only have date range as param
+            if len(args) == 2:
+                date_range = parse_date_range(args[1])
+                if not date_range:
+                    self.bot.sendMessage(chat_id, invalid_date_range, parse_mode="Markdown")
+                    return
+                start_date, end_date = date_range
+            elif len(args) > 2:
+                self.bot.sendMessage(chat_id, f"Too many params provided for {mode} mode. {wrong_usage_suffix}",
+                                     parse_mode="Markdown")
+                return
+
+        # filter activity
+        activity = self.global_data["activity"]
+        if start_date or end_date:
+            activity = act.filter_activity(activity, start_date, end_date)
+
+        # compute and plot corresponding graph
+        try:
+            if mode == "hours":
+                hour_activity = act.calc_hour_activity(activity)
+                img_path = act.plot_hour_activity(hour_activity)
+            elif mode == "weekdays":
+                weekday_activity = act.calc_weekday_activity(activity)
+                img_path = act.plot_weekday_activity(weekday_activity)
+            elif mode == "months":
+                months_activity = act.calc_month_activity(activity)
+                img_path = act.plot_month_activity(months_activity)
+            elif mode == "evol":
+                img_path = act.plot_activity_evolution(activity, bucket=bucket)
+            else:
+                raise ValueError("This should never happen, check /activity arg parsing logic.")
+        except:
+            traceback.print_exc()
+            self.bot.sendMessage(chat_id, graph_except, parse_mode="Markdown")
+            return
+
+        # send result img
+        img = open(img_path, 'rb')
+        self.bot.sendPhoto(chat_id, img, caption=None, parse_mode=None)
+        img.close()
+
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
         trolls = []
         if msg["from"]["id"] in trolls:
@@ -915,7 +1054,7 @@ class DanBot:
         if not is_edit:
             self.global_data["jackpot"] += 1
             self.user_dict[str(msg["from"]["id"])]["msg_count"] += 1
-            curr_act_key = current_activity_key()
+            curr_act_key = act.datetime_to_date(dt.datetime.now())
             if curr_act_key not in self.global_data["activity"]:
                 self.global_data["activity"][curr_act_key] = 0
             self.global_data["activity"][curr_act_key] += 1
@@ -1062,8 +1201,8 @@ class DanBot:
             elif msg['text'].lower().startswith("/papalist"):
                 self.callback_papalist(msg, chat_id)
 
-            elif msg['text'].lower().startswith("/danney_verdict"):
-                self.callback_investigate_danney_fraud(msg, chat_id)
+            elif msg['text'].lower().startswith("/activity"):
+                self.callback_activity(msg, chat_id)
 
         if prob == self.BINGO_NUM and not is_edit:
             jackpot = self.global_data["jackpot"]
