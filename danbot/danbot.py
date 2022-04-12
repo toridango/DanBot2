@@ -5,6 +5,8 @@ import re
 import time
 import traceback
 
+import pytz
+
 from danbot.modules.activity_stats import date_to_datetime
 from . import db_handler as db
 from .modules import activity_stats as act
@@ -69,6 +71,7 @@ class DanBot:
         }
         self.SUBREDDIT_LEN = 21
         self.ALLOWED_CHATS = [-1001460530354, -1001097667692, -227462366, 192616195]
+        self.CHAT_TIMEZONE = pytz.timezone("Europe/Madrid")
 
         self.strings = db.load_resource("strings")
         self.user_dict = db.load_resource("users")
@@ -1061,7 +1064,7 @@ class DanBot:
         if not is_edit:
             self.global_data["jackpot"] += 1
             self.user_dict[str(msg["from"]["id"])]["msg_count"] += 1
-            curr_act_key = act.datetime_to_date(dt.datetime.fromisoformat(msg["date"]))
+            curr_act_key = act.datetime_to_date(dt.datetime.fromtimestamp(msg["date"], tz=self.CHAT_TIMEZONE))
             if curr_act_key not in self.global_data["activity"]:
                 self.global_data["activity"][curr_act_key] = 0
             self.global_data["activity"][curr_act_key] += 1
