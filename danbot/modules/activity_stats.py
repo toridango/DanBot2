@@ -28,6 +28,8 @@ WEEKDAYS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 MAX_LABELS = 35
 FIG_PATH = "figures"
+if not os.path.exists(FIG_PATH):
+    os.makedirs(FIG_PATH)
 
 
 # conversion functions #
@@ -191,7 +193,7 @@ def plot_discrete_activity(activity: dict, labels: iter) -> str:
     return fig_path
 
 
-def plot_activity_evolution(activity: dict, bucket="days") -> str:
+def plot_activity_evolution(activity: dict, bucket="days", interp=True) -> str:
     # merge dates into buckets depending on bucket argument
     bucket_func = {
         "days": bucket_days,
@@ -254,11 +256,14 @@ def plot_activity_evolution(activity: dict, bucket="days") -> str:
     # rotate labels vertically in case there are a lot (4 discrete levels)
     label_rot = 70 * (round(4 * (len(label_x) / MAX_LABELS)) / 4)
 
-    # cubic interpolation
-    f = interp1d(np.array(x, dtype=np.float), np.array(y, dtype=np.int), kind='cubic')
-    xinterp = np.linspace(x[0], x[-1], num=len(x) * 25)
+    # cubic interpolation, requires 3+ points
+    if interp and len(x) > 3:
+        f = interp1d(np.array(x, dtype=np.float), np.array(y, dtype=np.int), kind='cubic')
+        xinterp = np.linspace(x[0], x[-1], num=len(x) * 25)
+        plt.plot(xinterp, f(xinterp))
+    else:
+        plt.plot(x, y)
 
-    plt.plot(xinterp, f(xinterp))
     plt.xticks(label_x, label_str, rotation=label_rot)
     fig_path = new_fig_path()
     plt.savefig(fig_path)
@@ -270,7 +275,7 @@ def plot_activity_evolution(activity: dict, bucket="days") -> str:
 def main():
     with open("tally.json") as f:
         activity = json.load(f)
-    activity = filter_activity(activity, "2020-01-01-00", "2020-02-01-00")
+    activity = filter_activity(activity, "2020-01-01-00", "2020-04-02-00")
     # print(activity)
     # hour_activity = calc_hour_activity(activity)
     # print(hour_activity)
@@ -282,9 +287,9 @@ def main():
     # print(month_activity)
     # plot_discrete_activity(month_activity, labels=MONTHS)
     # plot_full_activity(activity)
-    plot_activity_evolution(activity, bucket="days")
+    # plot_activity_evolution(activity, bucket="days")
     plot_activity_evolution(activity, bucket="months")
-    plot_activity_evolution(activity, bucket="years")
+    # plot_activity_evolution(activity, bucket="years")
 
 
 if __name__ == "__main__":

@@ -1,16 +1,17 @@
 import datetime as dt
+import inspect
 import random as rand
 import re
-import inspect
 import traceback
 
+from danbot.modules.activity_stats import date_to_datetime
 from . import db_handler as db
+from .modules import activity_stats as act
 from .modules.gdquote import get_gdquote
 from .modules.get_ahk import get_ahk
 from .modules.ifc_calendar import get_ifc_string_date
-from .modules.process_spells import process_spell
 from .modules.jackpot_calculations import calc_expected_coins, calc_expected_coin_volume
-from .modules import activity_stats as act
+from .modules.process_spells import process_spell
 
 
 def get_ratio(data):
@@ -860,7 +861,7 @@ class DanBot:
                         years: each year's total is a datapoint
 
             Date range:
-                You can specify a date range with the format [start date]:[end date].
+                You can specify a date range with the Python slice format [start date]:[end date].
                 The date format is YYYY-MM-DD-HH.
                 E.g.:
                     2020-01-01-00:2020-01-02-00, activity for the 1st of January of 2020
@@ -872,8 +873,9 @@ class DanBot:
                 /activity weekdays 2018-09-01-00:```
         """
         usage = inspect.cleandoc(usage)
-        wrong_usage = "Incorrect params. Type /activity without any params for usage."
-        graph_except = "Something went wrong while generating the graph, check that the parameters make sense."
+        wrong_usage_suffix = "Click /activity for usage."
+        invalid_date_range = f"Invalid date range. {wrong_usage_suffix}"
+        graph_except = "Something went wrong while generating the activity graph :("
         modes = ("hours", "weekdays", "months", "evol")
         buckets = ("days", "months", "years")
 
@@ -894,6 +896,9 @@ class DanBot:
             if end:
                 if not re.match(self.RE_DICT["activity_date"], end):
                     return
+            if start and end:
+                if date_to_datetime(start) > date_to_datetime(end):
+                    return
             return start, end
 
         # logic #
@@ -905,13 +910,12 @@ class DanBot:
             return
 
         args = cmd[1:]
+        mode = args[0]
 
         # send error msg if first arg is not a mode
-        if args[0] not in modes:
-            self.bot.sendMessage(chat_id, wrong_usage, parse_mode="Markdown")
+        if mode not in modes:
+            self.bot.sendMessage(chat_id, f"Unknown mode '{mode}'. {wrong_usage_suffix}", parse_mode="Markdown")
             return
-
-        mode = args[0]
 
         if mode == "evol":
             # evol mode could have bucket or date range as first param
@@ -921,7 +925,7 @@ class DanBot:
                 else:
                     date_range = parse_date_range(args[1])
                     if not date_range:
-                        self.bot.sendMessage(chat_id, wrong_usage, parse_mode="Markdown")
+                        self.bot.sendMessage(chat_id, invalid_date_range, parse_mode="Markdown")
                         return
                     start_date, end_date = date_range
             # evol mode could have bucket and date range as first and second params
@@ -929,22 +933,24 @@ class DanBot:
                 bucket = args[1]
                 date_range = parse_date_range(args[2])
                 if not date_range:
-                    self.bot.sendMessage(chat_id, wrong_usage, parse_mode="Markdown")
+                    self.bot.sendMessage(chat_id, invalid_date_range, parse_mode="Markdown")
                     return
                 start_date, end_date = date_range
             elif len(args) > 3:
-                self.bot.sendMessage(chat_id, wrong_usage, parse_mode="Markdown")
+                self.bot.sendMessage(chat_id, f"Too many params provided for {mode} mode. {wrong_usage_suffix}",
+                                     parse_mode="Markdown")
                 return
         else:
             # other modes can only have date range as param
             if len(args) == 2:
                 date_range = parse_date_range(args[1])
                 if not date_range:
-                    self.bot.sendMessage(chat_id, wrong_usage, parse_mode="Markdown")
+                    self.bot.sendMessage(chat_id, invalid_date_range, parse_mode="Markdown")
                     return
                 start_date, end_date = date_range
             elif len(args) > 2:
-                self.bot.sendMessage(chat_id, wrong_usage, parse_mode="Markdown")
+                self.bot.sendMessage(chat_id, f"Too many params provided for {mode} mode. {wrong_usage_suffix}",
+                                     parse_mode="Markdown")
                 return
 
         # filter activity
