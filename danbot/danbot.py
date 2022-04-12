@@ -1017,6 +1017,9 @@ class DanBot:
         activity = self.global_data["activity"]
         if start_date or end_date:
             activity = act.filter_activity(activity, start_date, end_date)
+        if not activity:
+            self.bot.sendMessage(chat_id, "No activity found in the given date range.", parse_mode="Markdown")
+            return
 
         # compute and plot corresponding graph
         try:
