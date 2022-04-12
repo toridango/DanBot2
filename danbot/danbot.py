@@ -1061,7 +1061,7 @@ class DanBot:
         if not is_edit:
             self.global_data["jackpot"] += 1
             self.user_dict[str(msg["from"]["id"])]["msg_count"] += 1
-            curr_act_key = act.datetime_to_date(dt.datetime.now())
+            curr_act_key = act.datetime_to_date(dt.datetime.fromisoformat(msg["date"]))
             if curr_act_key not in self.global_data["activity"]:
                 self.global_data["activity"][curr_act_key] = 0
             self.global_data["activity"][curr_act_key] += 1

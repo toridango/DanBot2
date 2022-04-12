@@ -35,7 +35,7 @@ if not os.path.exists(FIG_PATH):
 # conversion functions #
 
 def datetime_to_date(datetime: dt.datetime) -> str:
-    return str(f"{datetime.year:04d}-{datetime.month:02d}-{datetime.day:02d}-{datetime.hour:02d}")
+    return f"{datetime.year:04d}-{datetime.month:02d}-{datetime.day:02d}-{datetime.hour:02d}"
 
 
 def date_to_datetime(date: str) -> dt.datetime:
