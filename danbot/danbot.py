@@ -1147,7 +1147,7 @@ class DanBot:
                 self.callback_shoutouts(msg, chat_id)
 
             elif msg['text'].startswith("/everyone") and not is_edit:
-                msg["text"] = "/shoutouts <everyone>"
+                msg["text"] = "/shoutouts everyone"
                 self.callback_shoutouts(msg, chat_id)
 
             elif msg['text'].startswith("/lsgroups"):
