@@ -1222,7 +1222,7 @@ class DanBot:
                 self.callback_activity(msg, chat_id)
 
             elif msg['text'].lower().startswith("/soapstone"):
-                self.callback_activity(msg, chat_id)
+                self.callback_soapstone(msg, chat_id)
 
         if prob == self.BINGO_NUM and not is_edit:
             jackpot = self.global_data["jackpot"]

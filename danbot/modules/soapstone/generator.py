@@ -1,13 +1,16 @@
 import random
+from pathlib import Path
+
+BASE_PATH = Path(__file__).resolve().parent
 
 
 class SoapstoneGenerator:
     def __init__(self):
-        with open("templates.txt") as f:
+        with open(BASE_PATH / "templates.txt") as f:
             self.templates = f.read().splitlines()
-        with open("words.txt") as f:
+        with open(BASE_PATH / "words.txt") as f:
             self.words = f.read().splitlines()
-        with open("conjunctions.txt") as f:
+        with open(BASE_PATH / "conjunctions.txt") as f:
             self.conjunctions = f.read().splitlines()
 
     def get_random_template(self):
