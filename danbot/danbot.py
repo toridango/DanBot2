@@ -7,14 +7,15 @@ import traceback
 
 import pytz
 
-from danbot.modules.activity_stats import date_to_datetime
 from . import db_handler as db
 from .modules import activity_stats as act
+from .modules.activity_stats import date_to_datetime
 from .modules.gdquote import get_gdquote
 from .modules.get_ahk import get_ahk
 from .modules.ifc_calendar import get_ifc_string_date
 from .modules.jackpot_calculations import calc_expected_coins, calc_expected_coin_volume
 from .modules.process_spells import process_spell
+from .modules.soapstone.generator import SoapstoneGenerator
 
 
 def get_ratio(data):
@@ -63,6 +64,7 @@ class DanBot:
         self.MAX_GROUP_NAME_LEN = 20
         self.BINGO_NUM = 512
         self.COMMENT_THRESH = 0.02
+        self.SOAPSTONE_CHANCE = 0.2
         self.RE_DICT = {
             "date": r"((\d{4})[-\/\.](0?[1-9]|1[012])[-\/\.](3[01]|[12][0-9]|0?[1-9]))|"
                     r"((3[01]|[12][0-9]|0?[1-9])[-\/\.](0?[1-9]|1[012])[-\/\.](\d{4}))",
@@ -78,6 +80,7 @@ class DanBot:
         self.spells = db.load_resource("spells")
         self.global_data = db.load_resource("global")
         self.quotes = db.get_quotes()
+        self.soapstone_generator = SoapstoneGenerator()
 
         self.passphrase = self.strings["passphrase"]
         self.default_passphrase = self.strings["default_passphrase"]
@@ -1049,6 +1052,10 @@ class DanBot:
         self.bot.sendPhoto(chat_id, img, caption=None, parse_mode=None)
         img.close()
 
+    def callback_soapstone(self, msg, chat_id):
+        message = self.soapstone_generator.get_random_soapstone()
+        self.bot.sendMessage(chat_id, message)
+
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
         trolls = []
         if msg["from"]["id"] in trolls:
@@ -1214,6 +1221,9 @@ class DanBot:
             elif msg['text'].lower().startswith("/activity"):
                 self.callback_activity(msg, chat_id)
 
+            elif msg['text'].lower().startswith("/soapstone"):
+                self.callback_activity(msg, chat_id)
+
         if prob == self.BINGO_NUM and not is_edit:
             jackpot = self.global_data["jackpot"]
             print(f"\nBINGO! After {jackpot} messages")
@@ -1224,8 +1234,11 @@ class DanBot:
             self.bot.sendMessage(chat_id, f"{name} just won the jackpot of {jackpot} coins++ !!!".upper())
 
         if rand.random() < self.COMMENT_THRESH and not self.debate_mode:
-            r = rand.randint(0, len(self.strings["comments"]) - 1)
-            self.bot.sendMessage(chat_id, self.strings["comments"][r])
+            if rand.random() < self.SOAPSTONE_CHANCE:
+                message = self.soapstone_generator.get_random_soapstone()
+            else:
+                message = rand.choice(self.strings["comments"])
+            self.bot.sendMessage(chat_id, message)
 
         db.save_resource("users", self.user_dict)
         db.save_resource("global", self.global_data)
