@@ -15,7 +15,7 @@ from .modules.get_ahk import get_ahk
 from .modules.ifc_calendar import get_ifc_string_date
 from .modules.jackpot_calculations import calc_expected_coins, calc_expected_coin_volume
 from .modules.process_spells import process_spell
-from .modules.soapstone.generator import SoapstoneGenerator
+from .modules.soapstone.generator import RandomSoapstoneGenerator
 
 
 def get_ratio(data):
@@ -64,7 +64,7 @@ class DanBot:
         self.MAX_GROUP_NAME_LEN = 20
         self.BINGO_NUM = 512
         self.COMMENT_THRESH = 0.02
-        self.SOAPSTONE_CHANCE = 0.2
+        self.SOAPSTONE_CHANCE = 0.25
         self.RE_DICT = {
             "date": r"((\d{4})[-\/\.](0?[1-9]|1[012])[-\/\.](3[01]|[12][0-9]|0?[1-9]))|"
                     r"((3[01]|[12][0-9]|0?[1-9])[-\/\.](0?[1-9]|1[012])[-\/\.](\d{4}))",
@@ -80,7 +80,7 @@ class DanBot:
         self.spells = db.load_resource("spells")
         self.global_data = db.load_resource("global")
         self.quotes = db.get_quotes()
-        self.soapstone_generator = SoapstoneGenerator()
+        self.soapstone_generator = RandomSoapstoneGenerator()
 
         self.passphrase = self.strings["passphrase"]
         self.default_passphrase = self.strings["default_passphrase"]
@@ -1053,7 +1053,7 @@ class DanBot:
         img.close()
 
     def callback_soapstone(self, msg, chat_id):
-        message = self.soapstone_generator.get_random_soapstone()
+        message = self.soapstone_generator.get_soapstone()
         self.bot.sendMessage(chat_id, message)
 
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
@@ -1235,7 +1235,7 @@ class DanBot:
 
         if rand.random() < self.COMMENT_THRESH and not self.debate_mode:
             if rand.random() < self.SOAPSTONE_CHANCE:
-                message = self.soapstone_generator.get_random_soapstone()
+                message = self.soapstone_generator.get_soapstone()
             else:
                 message = rand.choice(self.strings["comments"])
             self.bot.sendMessage(chat_id, message)

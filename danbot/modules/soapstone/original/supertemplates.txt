@@ -1,0 +1,10 @@
+{0}\nand then {1}
+{0}\nor {1}
+{0}\nbut {1}
+{0}\ntherefore {1}
+{0}\nin short {1}
+{0}\nexcept {1}
+{0}\nby the way {1}
+{0}\nso to speak {1}
+{0}\nall the more {1}
+{0},\n{1}

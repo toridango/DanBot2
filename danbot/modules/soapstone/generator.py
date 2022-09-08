@@ -4,46 +4,46 @@ from pathlib import Path
 BASE_PATH = Path(__file__).resolve().parent
 
 
-class SoapstoneGenerator:
-    def __init__(self):
-        with open(BASE_PATH / "templates.txt") as f:
+class RandomSoapstoneGenerator:
+    def __init__(self, data_folder="original"):
+        with open(BASE_PATH / data_folder / "templates.txt") as f:
             self.templates = f.read().splitlines()
-        with open(BASE_PATH / "words.txt") as f:
+        with open(BASE_PATH / data_folder / "words.txt") as f:
             self.words = f.read().splitlines()
-        with open(BASE_PATH / "conjunctions.txt") as f:
-            self.conjunctions = f.read().splitlines()
+        with open(BASE_PATH / data_folder / "supertemplates.txt") as f:
+            self.supertemplates = list(map(lambda s: s.replace(r"\n", "\n"), f.read().splitlines()))
 
-    def get_random_template(self):
+    def get_template(self):
         return random.choice(self.templates)
 
-    def get_random_word(self):
+    def get_word(self):
         return random.choice(self.words)
 
-    def get_random_conjunction(self):
-        return random.choice(self.conjunctions)
+    def get_supertemplate(self):
+        return random.choice(self.supertemplates)
 
-    def get_simple_random_soapstone(self):
-        word = self.get_random_word()
-        template = self.get_random_template()
+    def get_simple_soapstone(self):
+        word = self.get_word()
+        template = self.get_template()
 
         return template.format(word)
 
-    def get_complex_random_soapstone(self):
-        sentence1 = self.get_simple_random_soapstone()
-        sentence2 = self.get_simple_random_soapstone()
-        conjunction = self.get_random_conjunction()
+    def get_complex_soapstone(self):
+        sentence1 = self.get_simple_soapstone()
+        sentence2 = self.get_simple_soapstone()
+        supertemplate = self.get_supertemplate()
 
-        return f"{sentence1}\n{conjunction} {sentence2}"
+        return supertemplate.format(sentence1, sentence2)
 
-    def get_random_soapstone(self):
+    def get_soapstone(self):
         if random.random() < 0.5:
-            return self.get_simple_random_soapstone()
+            return self.get_simple_soapstone()
         else:
-            return self.get_complex_random_soapstone()
+            return self.get_complex_soapstone()
 
 
 if __name__ == "__main__":
-    soapstone_generator = SoapstoneGenerator()
+    soapstone_generator = RandomSoapstoneGenerator()
     for _ in range(10):
-        print(soapstone_generator.get_random_soapstone())
+        print(soapstone_generator.get_soapstone())
         print()
