@@ -75,7 +75,7 @@ class DanBot:
         }
         self.SUBREDDIT_LEN = 21
         self.ALLOWED_CHATS = [-1001460530354, -1001097667692, -227462366, 192616195]
-        self.AZEMAR_ID = 192616195
+        self.AZEMAR_ID = 13363913
         self.CHAT_TIMEZONE = pytz.timezone("Europe/Madrid")
 
         self.strings = db.load_resource("strings")
@@ -677,7 +677,8 @@ class DanBot:
         reply = f"Currenly, the jackpot is at {fuzzy_str} coins."
         self.bot.sendMessage(chat_id, reply)
 
-        if int(msg['from']) == self.AZEMAR_ID and random.random() < self.AZEMAR_COMMENT_CHANCE:
+        if msg['from']["id"] == self.AZEMAR_ID and random.random() < self.AZEMAR_COMMENT_CHANCE:
+            time.sleep(0.5 + 1.5 * random.random())
             self.bot.sendMessage(chat_id, reply_to_message_id=msg['message_id'], text=random.choice(self.strings["azemar_jackpot_comments"]))
 
     def get_user_luck(self, user_id):
