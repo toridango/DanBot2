@@ -80,7 +80,7 @@ class DanBot:
         self.spells = db.load_resource("spells")
         self.global_data = db.load_resource("global")
         self.quotes = db.get_quotes()
-        self.soapstone_generator = RandomSoapstoneGenerator()
+        self.soapstone_generator = RandomSoapstoneGenerator(data_folder="lotsbalg")
 
         self.passphrase = self.strings["passphrase"]
         self.default_passphrase = self.strings["default_passphrase"]
