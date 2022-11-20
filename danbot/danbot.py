@@ -677,9 +677,11 @@ class DanBot:
         reply = f"Currenly, the jackpot is at {fuzzy_str} coins."
         self.bot.sendMessage(chat_id, reply)
 
-        if msg['from']["id"] == self.AZEMAR_ID and random.random() < self.AZEMAR_COMMENT_CHANCE:
-            time.sleep(0.5 + 1.5 * random.random())
-            self.bot.sendMessage(chat_id, reply_to_message_id=msg['message_id'], text=random.choice(self.strings["azemar_jackpot_comments"]))
+        if msg['from']["id"] == self.AZEMAR_ID:
+            print("DaniAz invoked /jackpot")
+            if random.random() < self.AZEMAR_COMMENT_CHANCE:
+                time.sleep(0.5 + 1.5 * random.random())
+                self.bot.sendMessage(chat_id, reply_to_message_id=msg['message_id'], text=random.choice(self.strings["azemar_jackpot_comments"]))
 
     def get_user_luck(self, user_id):
         global_msg_total = self.get_total_messages_sent(after_jackpot=True)
