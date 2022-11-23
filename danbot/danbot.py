@@ -66,7 +66,7 @@ class DanBot:
         self.BINGO_NUM = 512
         self.COMMENT_THRESH = 0.02
         self.SOAPSTONE_CHANCE = 0.25
-        self.AZEMAR_COMMENT_CHANCE = 0.25
+        self.AZEMAR_COMMENT_CHANCE = 0.5
         self.RE_DICT = {
             "date": r"((\d{4})[-\/\.](0?[1-9]|1[012])[-\/\.](3[01]|[12][0-9]|0?[1-9]))|"
                     r"((3[01]|[12][0-9]|0?[1-9])[-\/\.](0?[1-9]|1[012])[-\/\.](\d{4}))",
