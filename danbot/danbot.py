@@ -66,7 +66,8 @@ class DanBot:
         self.BINGO_NUM = 512
         self.COMMENT_THRESH = 0.02
         self.SOAPSTONE_CHANCE = 0.25
-        self.AZEMAR_COMMENT_CHANCE = 0.5
+        self.AZEMAR_JACKPOT_COMMENT_CHANCE = 0.4
+        self.NON_AZEMAR_JACKPOT_COMMENT_CHANCE = 0.2
         self.RE_DICT = {
             "date": r"((\d{4})[-\/\.](0?[1-9]|1[012])[-\/\.](3[01]|[12][0-9]|0?[1-9]))|"
                     r"((3[01]|[12][0-9]|0?[1-9])[-\/\.](0?[1-9]|1[012])[-\/\.](\d{4}))",
@@ -677,11 +678,36 @@ class DanBot:
         reply = f"Currenly, the jackpot is at {fuzzy_str} coins."
         self.bot.sendMessage(chat_id, reply)
 
-        if msg['from']["id"] == self.AZEMAR_ID:
-            print("DaniAz invoked /jackpot")
-            if random.random() < self.AZEMAR_COMMENT_CHANCE:
-                time.sleep(0.5 + 1.5 * random.random())
-                self.bot.sendMessage(chat_id, reply_to_message_id=msg['message_id'], text=random.choice(self.strings["azemar_jackpot_comments"]))
+        is_azemar = msg['from']["id"] == self.AZEMAR_ID
+        comment_chance = self.AZEMAR_JACKPOT_COMMENT_CHANCE if is_azemar else self.NON_AZEMAR_JACKPOT_COMMENT_CHANCE
+        if random.random() < comment_chance:
+            # wait between 0.5~2 seconds
+            time.sleep(0.5 + 1.5 * random.random())
+
+            def choose_comment(target_set, other_set, ratio=1):
+                p_ti = 1 / len(target_set)
+                p_oi = 1 / len(other_set)
+                p_t = ratio * p_oi / (p_ti + ratio * p_oi)
+
+                if random.random() < p_t:
+                    return random.choice(target_set)
+                else:
+                    return random.choice(other_set)
+
+            if is_azemar:
+                # make azemar-specific comments twice as likely as the general ones
+                # forbid non-azemar comments
+                target_set = self.strings["azemar_jackpot_comments"]
+                other_set = self.strings["general_jackpot_comments"]
+                comment = choose_comment(target_set, other_set, ratio=2)
+            else:
+                # make non-azemar-specific comments twice as likely as the general ones
+                # forbid azemar comments
+                target_set = self.strings["non_azemar_jackpot_comments"]
+                other_set = self.strings["general_jackpot_comments"]
+                comment = choose_comment(target_set, other_set, ratio=2)
+
+            self.bot.sendMessage(chat_id, reply_to_message_id=msg['message_id'], text=comment)
 
     def get_user_luck(self, user_id):
         global_msg_total = self.get_total_messages_sent(after_jackpot=True)

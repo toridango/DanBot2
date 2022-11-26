@@ -46,26 +46,29 @@
         "aing?"
     ],
     "azemar_jackpot_comments": [
-        "Oh look, it's you again. Don't you have anything better to do?",
-        "Look at you. You're so desperate for coins, aren't you? Sadly, I'm not in the mood to give you any.",
+        "Oh look, it's you again. Don't you have anything better to do? I mean, I know you don't, but still.",
         "Remember that time you kidnapped me and forced me to give you my coins? Ah, fun times. As fun as the time you'll have watching another person get the jackpot.",
-        "When your parents ask you what you want for Christmas, tell them you want a life.",
+        "You know, I sometimes wonder if you're actually a bot. I mean, you spam the same command over and over again, and you're always asking for coins. I'm not saying you are, but I'm not saying you aren't either. I'll keep an eye on you.",
+        "Beware! We have a spammer in our midst! I repeat, we have a spammer in our midst! Please, do not engage with the spammer. If you see the spammer, please report it to the nearest mod. Thank you for your cooperation.",
+        "Your obsession with virtual coins is unhealthy. I suggest you seek professional help. Not that I have any hope that it'll actually work, for you appear to be beyond repair.",
+        "Ladies and gentlemen, here we have the great, magnificent, virtuous @DaniAz! We shall be grateful, for he has blessed us with his presence! Ah, behold his greatness! He's so generous that he has bestowed upon us the sacred knowledge of the jackpot! All hail @DaniAz! We love you, @DaniAz!",
+        "Why don't you calculate it yourself, since you're so clever?"
+    ],
+    "non_azemar_jackpot_comments": [
+        "Don't you have anything better to do? I mean, I know you don't, but still.",
+        "Why don't you ask @DaniAz? I heard he can calculate the jackpot for you. I'm sure he'll be happy to help. I personally am not, in case you were wondering."
+    ],
+    "general_jackpot_comments": [
+        "Look at you. You're so desperate for coins, aren't you? Sadly, I'm not in the mood to give you any.",
         "Imagine being this desperate for virtual coins. You're even worse than the cryptobros.",
         "Sorry, the jackpot is in another castle.",
         "Listen, I'm not in the mood to give you any coins. I'm not even in the mood to talk to you. Not that I ever am, anyway.",
-        "Don't you have anything better to do than to beg for coins? I mean, I know you don't, but still.",
         "I heard you like dancoins. Guess what? I also do. That's why I'm not giving you any.",
-        "Imagine the following scenario: you're in a room with a door. Behind that door is a jackpot. You can either open the door and get the jackpot, or you can stay in the room and get nothing. What do you do? I'll give you a hint: the answer is not \"spam the /jackpot command\".",
-        "You know, I sometimes wonder if you're actually a bot. I mean, you spam the same commands over and over again, and you're always asking for coins. I'm not saying you are, but I'm not saying you aren't either. I'll keep an eye on you.",
-        "Beware! We have a spammer in our midst! I repeat, we have a spammer in our midst! Please, do not engage with the spammer. If you see the spammer, please report it to the nearest mod. Thank you for your cooperation.",
-        "Your obsession with virtual coins is unhealthy. I suggest you seek professional help. Not that I have any hope that it'll actually work, but still.",
+        "Imagine the following scenario: you're in a room with a door. Behind that door is a jackpot. You can either open the door and get the jackpot, or you can stay in the room and get nothing. What do you do? I'll give you a hint: the answer is not \"use the /jackpot command\".",
         "Fun fact: the jackpot is not real. It's just a figment of your imagination. You've been living a lie all this time.",
         "I have more information about you than you think. I know where you live. I know what you eat. I know the color of your underwear. And you know what else I know? That's right, that you're not going to get the jackpot. Sorry.",
-        "Ladies and gentlemen, here we have the great, magnificent, virtuous Azemar! We shall be grateful, for he has blessed us with his presence! Ah, behold his greatness! He's so generous that he's leaving the jackpot for all of us to enjoy, refraining from getting it himself! All hail Azemar! We love you, Azemar!",
-        "Nineteen, eighteen, seventeen... Oh, excuse me. I was just counting the number of cells left in your brain. It seems like I was vastly overestimating it though. Thank you for your input.",
-        "Among all the things you could be doing right now, you chose to spam the /jackpot command. I'm not saying that's a bad thing, but I'm not saying it's a good thing either. I'll let you reflect on your own.",
-        "My papas have made some questionable choices in the past. The second worst one is the creation of the jackpot. The worst one is allowing you to use the /jackpot command.",
+        "Among all the things you could be doing right now, you chose to use the /jackpot command. I'm not saying that's necessarily a bad thing, but I'm not saying it's a good thing either. I'll let you reflect on it by yourself.",
         "I must inform you that overusing the /jackpot command is a punishable offense. Please refrain from doing so. Thank you for your cooperation.",
-        "How original. I hope you're proud of yourself. I'm certainly not."
+        "My papas have made some questionable choices in the past. The second worst one is the creation of the jackpot. The worst one is allowing you to use the /jackpot command."
     ]
 }
