@@ -742,7 +742,8 @@ class DanBot:
         reply_chance = (
             0
             if user_saturation == 0
-            else self.JACKPOT_REPLY_MIN_CHANCE + self.JACKPOT_REPLY_MAX_CHANCE * user_saturation
+            else self.JACKPOT_REPLY_MIN_CHANCE
+            + user_saturation * (self.JACKPOT_REPLY_MAX_CHANCE - self.JACKPOT_REPLY_MIN_CHANCE)
         )
 
         if random.random() < reply_chance:
