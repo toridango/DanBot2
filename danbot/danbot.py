@@ -67,7 +67,7 @@ class DanBot:
         self.COMMENT_CHANCE = 1 / 50
         self.SOAPSTONE_CHANCE = 1 / 4
         self.JACKPOT_REPLY_MAX_CHANCE = 1 / 3
-        self.JACKPOT_REPLY_MIN_CHANCE = 1 / 50
+        self.JACKPOT_REPLY_MIN_CHANCE = 1 / 10
         self.RE_DICT = {
             "date": r"((\d{4})[-\/\.](0?[1-9]|1[012])[-\/\.](3[01]|[12][0-9]|0?[1-9]))|"
             r"((3[01]|[12][0-9]|0?[1-9])[-\/\.](0?[1-9]|1[012])[-\/\.](\d{4}))",
@@ -738,9 +738,11 @@ class DanBot:
         # Snarky reply
 
         normalized_jackpot_counts = self._calculate_jackpot_reply_chances()
+        user_saturation = normalized_jackpot_counts[str(msg["from"]["id"])]
         reply_chance = (
-            self.JACKPOT_REPLY_MIN_CHANCE
-            + self.JACKPOT_REPLY_MAX_CHANCE * normalized_jackpot_counts[str(msg["from"]["id"])]
+            0
+            if user_saturation == 0
+            else self.JACKPOT_REPLY_MIN_CHANCE + self.JACKPOT_REPLY_MAX_CHANCE * user_saturation
         )
 
         if random.random() < reply_chance:
