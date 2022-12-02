@@ -45,8 +45,7 @@
         "I'm in it for the money",
         "aing?"
     ],
-    "azemar_jackpot_comments": [
-        "Oh look, it's you again. Don't you have anything better to do? I mean, I know you don't, but still.",
+    "azemar_jackpot_replies": [
         "Remember that time you kidnapped me and forced me to give you my coins? Ah, fun times. As fun as the time you'll have watching another person get the jackpot.",
         "You know, I sometimes wonder if you're actually a bot. I mean, you spam the same command over and over again, and you're always asking for coins. I'm not saying you are, but I'm not saying you aren't either. I'll keep an eye on you.",
         "Beware! We have a spammer in our midst! I repeat, we have a spammer in our midst! Please, do not engage with the spammer. If you see the spammer, please report it to the nearest mod. Thank you for your cooperation.",
@@ -54,11 +53,11 @@
         "Ladies and gentlemen, here we have the great, magnificent, virtuous @DaniAz! We shall be grateful, for he has blessed us with his presence! Ah, behold his greatness! He's so generous that he has bestowed upon us the sacred knowledge of the jackpot! All hail @DaniAz! We love you, @DaniAz!",
         "Why don't you calculate it yourself, since you're so clever?"
     ],
-    "non_azemar_jackpot_comments": [
-        "Don't you have anything better to do? I mean, I know you don't, but still.",
+    "non_azemar_jackpot_replies": [
         "Why don't you ask @DaniAz? I heard he can calculate the jackpot for you. I'm sure he'll be happy to help. I personally am not, in case you were wondering."
     ],
-    "general_jackpot_comments": [
+    "general_jackpot_replies": [
+        "Don't you have anything better to do? I mean, I know you don't, but still.",
         "Look at you. You're so desperate for coins, aren't you? Sadly, I'm not in the mood to give you any.",
         "Imagine being this desperate for virtual coins. You're even worse than the cryptobros.",
         "Sorry, the jackpot is in another castle.",
