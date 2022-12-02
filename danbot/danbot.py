@@ -699,15 +699,20 @@ class DanBot:
         self.log_usage(self.user_dict, msg["from"], "/jackpot_saturation")
 
         normalized_jackpot_counts = self._calculate_jackpot_reply_chances()
+        top = sorted(normalized_jackpot_counts.items(), key=lambda x: x[1], reverse=True)
 
         reply = (
             "Jackpot saturation:\n\n"
             + "```\n"
-            + "\n".join(f"{user + ':':<12} {chance * 100:.2f}" for user, chance in normalized_jackpot_counts.items())
+            + "\n".join(
+                f"{self.get_user_callsign(str(user)) + ':':<12} {chance * 100:.2f}"
+                for user, chance in top
+                if chance > 0
+            )
             + "\n```"
         )
 
-        self.bot.sendMessage(chat_id, reply)
+        self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
 
     def callback_jackpot(self, msg, chat_id):
         self.log_usage(self.user_dict, msg["from"], "/jackpot")
