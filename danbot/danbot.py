@@ -705,7 +705,7 @@ class DanBot:
             "Jackpot saturation:\n\n"
             + "```\n"
             + "\n".join(
-                f"{self.get_user_callsign(str(user)) + ':':<12} {chance * 100:.2f}"
+                f"{self.get_user_callsign(str(user)) + ':':<12} {chance * 100:.2f}%"
                 for user, chance in top
                 if chance > 0
             )
