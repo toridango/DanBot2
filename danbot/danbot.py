@@ -687,7 +687,7 @@ class DanBot:
 
     def _calculate_jackpot_reply_chances(self):
         """Calculate the normalized chance of a snarky reply for each user, proportional to their usage of /jackpot"""
-        jackpot_counts = {user: user_data["cmdUsage"]["/jackpot"] for user, user_data in self.user_dict.items()}
+        jackpot_counts = {user: user_data["cmdUsage"].get("/jackpot", 0) for user, user_data in self.user_dict.items()}
         max_count = max(jackpot_counts.values())
         min_count = min(value for value in jackpot_counts.values() if value > 0)
         normalized_jackpot_counts = {
