@@ -1323,6 +1323,9 @@ class DanBot:
             elif msg["text"].lower().startswith("/coinvolume"):
                 self.callback_coin_volume(msg, chat_id)
 
+            elif msg["text"].lower().startswith("/jackpot_saturation"):
+                self.callback_jackpot_saturation(msg, chat_id)
+
             elif msg["text"].lower().startswith("/jackpot"):
                 self.callback_jackpot(msg, chat_id)
 
@@ -1355,9 +1358,6 @@ class DanBot:
 
             elif msg["text"].lower().startswith("/soapstone"):
                 self.callback_soapstone(msg, chat_id)
-
-            elif msg["text"].lower().startswith("/jackpot_saturation"):
-                self.callback_jackpot_saturation(msg, chat_id)
 
         if not is_edit and random.random() < self.JACKPOT_CHANCE:
             jackpot = self.global_data["jackpot"]
