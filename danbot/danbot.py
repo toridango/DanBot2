@@ -154,12 +154,11 @@ class DanBot:
     def log_usage(self, user_list, user, command):
         userid = str(user["id"])
         print("UserID:", userid, " Command:", command)
-        # print(self.userList)
-        # print(self.userList[userid]['cmdUsage'])
+
         if command in self.user_dict[userid]["cmdUsage"]:
-            self.user_dict[userid]["cmdUsage"][command] = str(1 + int(self.user_dict[userid]["cmdUsage"][command]))
+            self.user_dict[userid]["cmdUsage"][command] += 1
         else:
-            self.user_dict[userid]["cmdUsage"][command] = "1"
+            self.user_dict[userid]["cmdUsage"][command] = 1
 
         return True
 
