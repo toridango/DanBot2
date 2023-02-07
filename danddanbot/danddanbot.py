@@ -34,8 +34,9 @@ def ParseRollArguments(message):
     msg = msg.replace("\t", "")
     # \(\d{0,2})d(4|6|8|10|12|20)([+-]\d{1,2})??
     # print(msg)
-    match = re.search("(?P<num_rolls>\d{0,2})[dD](?P<dice_size>4|6|8|100|12|20|10)(?P<plus_minus>[+-]\d{1,2})?", msg)
-    
+    # match = re.search("(?P<num_rolls>\d{0,2})[dD](?P<dice_size>4|6|8|100|12|20|10)(?P<plus_minus>[+-]\d{1,2})?", msg)
+    match = re.search("(?P<num_rolls>\d{0,2})[dD](?P<dice_size>100|\d{1,2})(?P<plus_minus>[+-]\d{1,2})?", msg)
+
     if(match):
         if(match.group(0)):
             # print("Rolling...")
@@ -46,7 +47,8 @@ def ParseRollArguments(message):
             dice_size = int(match.group("dice_size"))
             mod = 0 if not match.group("plus_minus") else int(match.group("plus_minus"))
             # print(num_rolls, dice_size, mod)
-            return num_rolls, dice_size, mod
+            if(dice_size > 0):
+                return num_rolls, dice_size, mod
     return -1, -1, -1
 
 
