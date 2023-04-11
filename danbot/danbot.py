@@ -75,7 +75,7 @@ class DanBot:
             "activity_date": r"^\d{4}-\d{2}-\d{2}-\d{2}$",
         }
         self.SUBREDDIT_LEN = 21
-        self.ALLOWED_CHATS = [-1001460530354, -1001097667692, -227462366, 192616195, -994485322]
+        self.ALLOWED_CHATS = [-1001460530354, -1001097667692, -227462366, 192616195, -1001921964502]
         self.AZEMAR_ID = 13363913
         self.CHAT_TIMEZONE = pytz.timezone("Europe/Madrid")
 
