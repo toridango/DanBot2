@@ -80,6 +80,8 @@ class DanBot:
         self.CHAT_TIMEZONE = pytz.timezone("Europe/Madrid")
 
         self.strings = db.load_resource("strings")
+        self.add_visible_commands_to_help_list()
+
         self.user_dict = db.load_resource("users")
         self.spells = db.load_resource("spells")
         self.global_data = db.load_resource("global")
@@ -118,6 +120,12 @@ class DanBot:
             update = True
 
         return update
+    
+    def add_visible_commands_to_help_list(self):
+        commands = self.strings["help"].keys()
+        # print(commands)
+        if len(commands) > 0:
+            self.strings["help"]["help"] += "```\n" + ", ".join(commands) + "```"
 
     def new_user(self, msg):
         user_id = str(msg["from"]["id"])
@@ -151,9 +159,12 @@ class DanBot:
 
         return update
 
-    def log_usage(self, user_list, user, command):
+    def log_usage(self, user_list, user, command, extra_logs = ""):
         userid = str(user["id"])
-        print("UserID:", userid, " Command:", command)
+        if extra_logs != "":
+            print("UserID:", userid, " Command:", command, " Extra input:", extra_logs)
+        else:
+            print("UserID:", userid, " Command:", command)
 
         if command in self.user_dict[userid]["cmdUsage"]:
             self.user_dict[userid]["cmdUsage"][command] += 1
@@ -162,7 +173,7 @@ class DanBot:
 
         return True
 
-    def add_coins_to_user(self, jackpot, user):
+    def add_coins_to_user(self, jackpot, user, is_from_jackpot = True):
         if "inventory" in self.user_dict[str(user["id"])]:
             if "coins" in self.user_dict[str(user["id"])]["inventory"]:
                 self.user_dict[str(user["id"])]["inventory"]["coins"] += jackpot
@@ -188,8 +199,19 @@ class DanBot:
         return update
 
     def callback_help(self, msg, chat_id):
-        update = self.log_usage(self.user_dict, msg["from"], "/help")
-        self.bot.sendMessage(chat_id, self.strings["help"])
+        cmd, *args = msg["text"].strip().split()
+        
+        if not args:
+            update = self.log_usage(self.user_dict, msg["from"], "/help")
+            self.bot.sendMessage(chat_id, self.strings["help"]["help"], parse_mode="Markdown")
+        else:
+            update = self.log_usage(self.user_dict, msg["from"], "/help", ", ".join(args))
+            first_arg = args[0].replace("/","")
+            if first_arg in self.strings["help"].keys():
+                self.bot.sendMessage(chat_id, self.strings["help"][first_arg].replace("\t", "    "), parse_mode="Markdown")
+            else:
+                self.bot.sendMessage(chat_id, "Command not listed in the help directory.")
+
         return update
 
     def callback_greet(self, txt, msg, chat_id):
@@ -1033,33 +1055,7 @@ class DanBot:
         self.log_usage(self.user_dict, msg["from"], "/callback_activity")
 
         # strings #
-        usage = """```
-            Usage:
-            /activity <mode> [mode params] [date range]
-
-            Modes:
-                hour: shows total activity for each hour of the day
-                weekdays: shows total activity for each day of the week
-                months: shows total activity for each month of the year
-
-                evol [bucket]: shows continuous activity evolution
-                    Param bucket:
-                        days: each day's total is a datapoint (default)
-                        months: each month's total is a datapoint
-                        years: each year's total is a datapoint
-
-            Date range:
-                You can specify a date range with the Python slice format [start date]:[end date].
-                The date format is YYYY-MM-DD-HH.
-                E.g.:
-                    2020-01-01-00:2020-01-02-00, activity for the 1st of January of 2020
-                    2019-01-01-17:, activity from 1st of January of 2020 at 17:00 until now
-                    :2020-01-01-23, activity from the beginning of time until 1st of January of 2020 at 23:00
-
-            Examples:
-                /activity evol months 2019-01-01-00:2020-01-01-00
-                /activity weekdays 2018-09-01-00:```
-        """
+        usage = self.strings["help"]["activity"].replace("\t", "    ")
         usage = inspect.cleandoc(usage)
         wrong_usage_suffix = "Click /activity for usage."
         invalid_date_range = f"Invalid date range. {wrong_usage_suffix}"
@@ -1232,7 +1228,7 @@ class DanBot:
             elif msg["text"][: len("/markov")] == "/markov":
                 self.callback_markov(msg, chat_id, msg_id)
 
-            elif msg["text"] in ["/help", "/help@noobdanbot"]:
+            elif msg["text"].startswith("/help"):
                 self.callback_help(msg, chat_id)
 
             elif msg["text"] == "Hello Danbot":
