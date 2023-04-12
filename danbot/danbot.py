@@ -173,14 +173,31 @@ class DanBot:
 
         return True
 
-    def add_coins_to_user(self, jackpot, user, is_from_jackpot = True):
+    def add_coins_to_user(self, coins, user):
+        if "inventory" in self.user_dict[str(user["id"])]:
+            if "coins" in self.user_dict[str(user["id"])]["inventory"]:
+                self.user_dict[str(user["id"])]["inventory"]["coins"] += coins
+            else:
+                self.user_dict[str(user["id"])]["inventory"]["coins"] = coins
+        else:
+            self.user_dict[str(user["id"])]["inventory"] = {"coins": coins}
+
+        return True
+    
+    def give_jackpot_to_user(self, jackpot, user):
         if "inventory" in self.user_dict[str(user["id"])]:
             if "coins" in self.user_dict[str(user["id"])]["inventory"]:
                 self.user_dict[str(user["id"])]["inventory"]["coins"] += jackpot
             else:
                 self.user_dict[str(user["id"])]["inventory"]["coins"] = jackpot
+            
+            if "jackpotcoins" in self.user_dict[str(user["id"])]["inventory"]:
+                self.user_dict[str(user["id"])]["inventory"]["jackpotcoins"] += jackpot
+            else:
+                self.user_dict[str(user["id"])]["inventory"]["jackpotcoins"] = jackpot
         else:
             self.user_dict[str(user["id"])]["inventory"] = {"coins": jackpot}
+            self.user_dict[str(user["id"])]["inventory"] = {"jackpotcoins": jackpot}
 
         return True
 
@@ -654,13 +671,13 @@ class DanBot:
         global_msg_total = self.get_total_messages_sent(after_jackpot=True)
         ratio = user_msg_after_jackpot / global_msg_total
 
-        current_coins = self.user_dict[user_id]["inventory"]["coins"]
-        expected_coins = calc_expected_coins(global_msg_total, user_msg_after_jackpot, 1 - self.JACKPOT_CHANCE)
+        current_jackpotcoins = self.user_dict[user_id]["inventory"]["jackpotcoins"]
+        expected_jackpotcoins = calc_expected_coins(global_msg_total, user_msg_after_jackpot, 1 - self.JACKPOT_CHANCE)
 
-        if user_msg_after_jackpot == 0 or current_coins == 0:
+        if user_msg_after_jackpot == 0 or current_jackpotcoins == 0:
             reply = ""
 
-        luck_percentage = 100 * (current_coins - expected_coins) / expected_coins
+        luck_percentage = 100 * (current_jackpotcoins - expected_jackpotcoins) / expected_jackpotcoins
         lucky_str = "LUCKY" if luck_percentage > 0 else "UNLUCKY"
 
         lucky_percentage_norm = luck_percentage - self.get_average_users_luck()
@@ -670,8 +687,8 @@ class DanBot:
             f"Since jackpot was enabled,\n"
             f"{name} has sent {user_msg_after_jackpot} messages ({100 * ratio:.2f}% of all messages).\n"
             f"After performing advanced AI calculations, I believe that...\n"
-            f"*{name} deserves to have {int(expected_coins)} coins.*\n"
-            f"Currently, {name} has {current_coins} coins. Thus, I conclude that...\n"
+            f"*{name} deserves to have {int(expected_jackpotcoins)} jackpot coins.*\n"
+            f"Currently, {name} has {current_jackpotcoins} jackpot coins. Thus, I conclude that...\n"
             f"*{name} is {abs(luck_percentage):.2f}% more {lucky_str} than average,*\n"
             f"*{name} is {abs(lucky_percentage_norm):.2f}% more {lucky_str_norm} than other DanBot users.*\n"
         )
@@ -801,13 +818,13 @@ class DanBot:
         global_msg_total = self.get_total_messages_sent(after_jackpot=True)
         user_msg_total = self.user_dict[user_id]["msg_count"]
         user_msg_after_jackpot = user_msg_total - self.user_dict[user_id]["msg_count_before_jackpot"]
-        current_coins = self.user_dict[user_id]["inventory"]["coins"]
-        expected_coins = calc_expected_coins(global_msg_total, user_msg_after_jackpot, 1 - self.JACKPOT_CHANCE)
+        current_jackpotcoins = self.user_dict[user_id]["inventory"]["jackpotcoins"]
+        expected_jackpotcoins = calc_expected_coins(global_msg_total, user_msg_after_jackpot, 1 - self.JACKPOT_CHANCE)
 
-        if user_msg_after_jackpot == 0 or current_coins == 0:
+        if user_msg_after_jackpot == 0 or current_jackpotcoins == 0:
             return None
 
-        luck_percentage = 100 * (current_coins - expected_coins) / expected_coins
+        luck_percentage = 100 * (current_jackpotcoins - expected_jackpotcoins) / expected_jackpotcoins
 
         return luck_percentage
 
@@ -1366,7 +1383,7 @@ class DanBot:
             jackpot = self.global_data["jackpot"]
             print(f"\nBINGO! After {jackpot} messages")
             self.global_data["bingo_stats"].append({"coins": jackpot, "user": str(msg["from"]["id"])})
-            self.add_coins_to_user(jackpot, msg["from"])
+            self.give_jackpot_to_user(jackpot, msg["from"])
             self.global_data["jackpot"] = 0
             name = get_callsign(msg["from"])
             self.bot.sendMessage(chat_id, f"{name} just won the jackpot of {jackpot} coins++ !!!".upper())
