@@ -1210,6 +1210,18 @@ class DanBot:
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             about = loop.run_until_complete(guess_song("./audio.ogg", self.bot))
+    
+    def callback_roll(self, msg, chat_id):
+        import d20
+        try:
+            command = " ".join(msg["text"].split()[1:])            
+            result = str(d20.roll(command, stringifier=d20.MarkdownStringifier()))
+
+            self.bot.sendMessage(chat_id, f"{result}", reply_to_message_id=msg["message_id"], parse_mode="Markdown")
+        except d20.errors.RollSyntaxError:
+            error_message = f"Syntax error. Check the <a href='https://github.com/avrae/d20'>documentation</a>"
+            self.bot.sendMessage(chat_id, error_message, reply_to_message_id=msg["message_id"], parse_mode="HTML", disable_web_page_preview=True)
+
 
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
         trolls = []
@@ -1387,6 +1399,9 @@ class DanBot:
             elif msg["text"].lower().startswith("/guess"):
                 # if msg["from"]["id"] != self.AZEMAR_ID:
                 self.callback_guess_song(msg, chat_id)
+                
+            elif msg["text"].lower().startswith("/roll") or msg["text"].lower().startswith("/r"):
+                self.callback_roll(msg, chat_id)
             
 
         if not is_edit and random.random() < self.JACKPOT_CHANCE:
