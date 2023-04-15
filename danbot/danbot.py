@@ -1206,10 +1206,11 @@ class DanBot:
                 bot.sendMessage(chat_id, reply, reply_to_message_id=msg["reply_to_message"]["message_id"])
 
         if audio != None:
-            self.bot.download_file(audio["file_id"], "./audio.ogg")
+            audio_path = "./audio_guess.ogg"
+            self.bot.download_file(audio["file_id"], audio_path)
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-            about = loop.run_until_complete(guess_song("./audio.ogg", self.bot))
+            about = loop.run_until_complete(guess_song(audio_path, self.bot))
     
     def callback_roll(self, msg, chat_id):
         import d20
@@ -1222,6 +1223,28 @@ class DanBot:
             error_message = f"Syntax error. Check the <a href='https://github.com/avrae/d20'>documentation</a>"
             self.bot.sendMessage(chat_id, error_message, reply_to_message_id=msg["message_id"], parse_mode="HTML", disable_web_page_preview=True)
 
+    def callback_transcribe(self, msg, chat_id, debug = False):
+        import whisper
+        audio_msg = msg["reply_to_message"]["voice"]
+        if audio_msg != None:
+            audio_path = "./audio_trans.ogg"
+            self.bot.download_file(audio_msg["file_id"], "./audio_trans.ogg")
+            model = whisper.load_model("base")
+            audio = whisper.load_audio(audio_path)
+            audio = whisper.pad_or_trim(audio)
+
+            # make log-Mel spectrogram and move to the same device as the model
+            mel = whisper.log_mel_spectrogram(audio).to(model.device)
+
+            # detect the spoken language
+            _, probs = model.detect_language(mel)
+            debug_text = f"Detected language: {max(probs, key=probs.get)}"
+            print(debug_text)
+            result = model.transcribe(audio)
+            msg_reply = f"\"{result['text']}\""
+            if debug:
+                msg_reply = debug_text + "\n" + msg_reply
+            self.bot.sendMessage(chat_id, msg_reply, reply_to_message_id=msg["reply_to_message"]["message_id"])
 
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
         trolls = []
@@ -1402,6 +1425,13 @@ class DanBot:
                 
             elif msg["text"].lower().startswith("/roll") or msg["text"].lower().startswith("/r"):
                 self.callback_roll(msg, chat_id)
+
+            elif msg["text"].lower().startswith("/transcribe"):
+                # if msg["from"]["id"] != self.AZEMAR_ID:
+                if msg["text"].lower().startswith("/transcribed"):
+                    self.callback_transcribe(msg, chat_id, debug = True)
+                else:
+                    self.callback_transcribe(msg, chat_id)
             
 
         if not is_edit and random.random() < self.JACKPOT_CHANCE:
