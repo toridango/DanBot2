@@ -1189,6 +1189,28 @@ class DanBot:
         message = self.soapstone_generator.get_soapstone()
         self.bot.sendMessage(chat_id, message)
 
+    def callback_guess_song(self, msg, chat_id):
+        import asyncio
+        from shazamio import Shazam
+
+        audio = msg["reply_to_message"]["voice"]
+
+        async def guess_song(audiopath, bot):
+            shazam = Shazam()
+            out = await shazam.recognize_song(audiopath)
+            if len(out["matches"]) < 1:
+                bot.sendMessage(chat_id, f"I couldn't find a match :(", reply_to_message_id=msg["reply_to_message"]["message_id"])
+            else:
+                about = await shazam.track_about(track_id=out["matches"][0]["id"])
+                reply = f"Title: {about['title']}\nArtist: {about['subtitle']}"
+                bot.sendMessage(chat_id, reply, reply_to_message_id=msg["reply_to_message"]["message_id"])
+
+        if audio != None:
+            self.bot.download_file(audio["file_id"], "./audio.ogg")
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            about = loop.run_until_complete(guess_song("./audio.ogg", self.bot))
+
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
         trolls = []
         if msg["from"]["id"] in trolls:
@@ -1361,6 +1383,11 @@ class DanBot:
 
             elif msg["text"].lower().startswith("/soapstone"):
                 self.callback_soapstone(msg, chat_id)
+
+            elif msg["text"].lower().startswith("/guess"):
+                # if msg["from"]["id"] != self.AZEMAR_ID:
+                self.callback_guess_song(msg, chat_id)
+            
 
         if not is_edit and random.random() < self.JACKPOT_CHANCE:
             jackpot = self.global_data["jackpot"]
