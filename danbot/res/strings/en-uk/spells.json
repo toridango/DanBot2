@@ -118,6 +118,16 @@
             "requires": [
                 "pray"
             ]
+        },
+        "jackpot": {
+            "text": [
+                "TRGT JUST WON THE JACKPOT OF 666 COINS++ !!!"
+            ],
+            "requires": [
+                "cast",
+                "target"
+            ],
+            "postprocess": 1
         }
     }
 }

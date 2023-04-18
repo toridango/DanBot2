@@ -59,6 +59,35 @@ def try_parsing_date(text):
             pass
     raise ValueError("no valid date format found")
 
+def get_8ball_reply():
+    yes_no = 0
+    text = ""
+    roll = rand.randint(1,20)
+    if roll > 15:
+        yes_no = 2 # definitely
+        text = ["It is certain.", "It is decidedly so.", "Without a doubt.", "Yes definitely.", "You may rely on it."][rand.randint(0,4)]
+    elif roll > 10:
+        yes_no = 1 # yes
+        text = ["As I see it, yes.", "Most likely.", "Outlook good.", "Yes.", "Signs point to yes."][rand.randint(0,4)]
+    elif roll > 5:
+        yes_no = 0 # unknown
+        text = ["Reply hazy, try again.", "Ask again later.", "Better not tell you now.", "Cannot predict now.", "Concentrate and ask again."][rand.randint(0,4)]
+    else: # 1-5
+        yes_no = -1 # unknown
+        text = ["Don't count on it.", "My reply is no.", "My sources say no.", "Outlook not so good.", "Very doubtful."][rand.randint(0,4)]
+    return yes_no, text
+
+def uttaran_dice_tarot():
+    # faces = ["Moon", "Tower", "Death", "Heart", "Tree", "Sun"]
+    faces = ["🌙", "🏰", "💀", "❤️", "🌳", "☀️"]
+    past = faces.pop(rand.randint(0,len(faces)-1))
+    pres = faces.pop(rand.randint(0,len(faces)-1))
+    futu = faces.pop(rand.randint(0,len(faces)-1))
+    # format where readings are randomly inverted 
+    # msg = ["{} {}".format(("", "🔻")[rand.randint(0,1)], roll) for roll in [past, pres, futu]]
+    # alternate format where middle is always inverted
+    msg = [past, pres, futu]
+    return "   ".join(msg)
 
 class DanBot:
     def __init__(self, bot):
@@ -192,6 +221,17 @@ class DanBot:
             self.user_dict[str(user["id"])]["inventory"]["coins"] = 0
 
         return self.user_dict[str(user["id"])]["inventory"]["coins"]
+    
+    def check_cmd_date(self, user, cmd):
+        if "cmd_date" not in self.user_dict[str(user["id"])]:
+            self.user_dict[str(user["id"])]["cmd_date"] = {cmd: str(dt.datetime.today().date())}
+            return True
+        else:
+            if cmd not in self.user_dict[str(user["id"])]["cmd_date"]:
+                self.user_dict[str(user["id"])]["cmd_date"][cmd] = str(dt.datetime.today().date())
+                return True
+            else:
+                return dt.datetime.today().date() > dt.datetime.strptime(self.user_dict[str(user["id"])]["cmd_date"][cmd], '%Y-%m-%d').date()    
 
     def callback_markov(self, msg, chat_id, msg_id):
         update = self.log_usage(self.user_dict, msg["from"], "/markov")
@@ -405,13 +445,15 @@ class DanBot:
 
         return update
 
-    def callback_cast(self, msg, chat_id):
+    def callback_cast(self, msg, chat_id, msg_id):
         update = False
         spell, effect = process_spell(self.spells, msg["from"], msg["text"])
 
         if spell != "wrong" and effect != "wrong":
             self.bot.sendMessage(chat_id, effect)
             update = self.log_usage(self.user_dict, msg["from"], spell)
+        if "jackpot" in spell:
+            self.bot.deleteMessage((chat_id, msg_id))
 
         return update
 
@@ -1246,6 +1288,16 @@ class DanBot:
                 msg_reply = debug_text + "\n" + msg_reply
             self.bot.sendMessage(chat_id, msg_reply, reply_to_message_id=msg["reply_to_message"]["message_id"])
 
+    def callback_deserved(self, msg, chat_id):
+        _, reply = get_8ball_reply()
+        self.bot.sendMessage(chat_id, reply, reply_to_message_id=msg["message_id"])
+
+    def callback_uttaran_dice_tarot(self, msg, chat_id):
+        if self.check_cmd_date(msg["from"], "aesyl"):
+            self.bot.sendMessage(chat_id, uttaran_dice_tarot(), reply_to_message_id=msg["message_id"])
+        else:
+            self.bot.sendMessage(chat_id, "You have already received a reading today", reply_to_message_id=msg["message_id"])
+
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
         trolls = []
         if msg["from"]["id"] in trolls:
@@ -1323,7 +1375,7 @@ class DanBot:
                 or msg["text"][: len("Sing ")].lower() == "sing "
                 or msg["text"][: len("Pray for ")].lower() == "pray for "
             ):
-                self.callback_cast(msg, chat_id)
+                self.callback_cast(msg, chat_id, msg_id)
 
             elif msg["text"].lower() == "danbot":
                 self.bot.sendMessage(chat_id, ["What?", "Nani?"][rand.randint(0, 1)])
@@ -1432,7 +1484,12 @@ class DanBot:
                     self.callback_transcribe(msg, chat_id, debug = True)
                 else:
                     self.callback_transcribe(msg, chat_id)
-            
+                    
+            elif msg["text"].lower().startswith("/deserved?"):
+                self.callback_deserved(msg, chat_id)
+                
+            elif msg["text"].lower().startswith("/aesyl"):
+                self.callback_uttaran_dice_tarot(msg, chat_id)
 
         if not is_edit and random.random() < self.JACKPOT_CHANCE:
             jackpot = self.global_data["jackpot"]

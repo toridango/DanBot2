@@ -13,6 +13,12 @@ def checks_reqs(reqs, cf, sf, pf, tf, gf, glyph, verbose=False):
 
     return all([cf, sf, pf, tf, gf])
 
+def postprocess_spell(spell, effect):
+    if "jackpot" in spell:
+        effect = effect.replace("666", str(rand.randint(666, 2048)))
+        return effect.upper()
+    return effect
+
 
 def process_spell(spells, caster_dict, text, verbose=False):
     glyph_flag = ("draw" in text.lower() and "glyph" in text.lower())
@@ -95,6 +101,8 @@ def process_spell(spells, caster_dict, text, verbose=False):
             effect = effect.replace("TRGT", trgt)
         else:
             effect = effect.replace("TRGT", cstr)
+        if "postprocess" in spells['spells'][spell].keys():
+            effect = postprocess_spell(spell, effect)
 
     return spell, effect
 
