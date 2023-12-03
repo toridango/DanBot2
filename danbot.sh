@@ -1,10 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
-cd /home/pi/Projects/noobdanbot/DanBot2/
+source /home/delom/Projects/noobdanbot/venv/bin/activate
+
+cd /home/delom/Projects/noobdanbot/DanBot2/
 git pull
-x-terminal-emulator -e /usr/bin/python3 tg_adapter.py
-
-cd /home/pi/Projects/noobdanbot/DanBot2/danddanbot/
-/usr/bin/python3 danddanbot.py
-
-$SHELL
+python tg_adapter.py
