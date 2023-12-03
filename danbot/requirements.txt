@@ -1,3 +1,6 @@
 telepot
 requests
 pytz
+shazamio
+ffmpeg
+openai-whisper
