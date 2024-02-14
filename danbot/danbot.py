@@ -778,7 +778,7 @@ class DanBot:
 
         self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
 
-    def callback_jackpot(self, msg, chat_id):
+    def callback_jackpot(self, msg, chat_id, is_alias = False):
         self.log_usage(self.user_dict, msg["from"], "/jackpot")
 
         # Current jackpot
@@ -814,28 +814,34 @@ class DanBot:
             # wait between 0.5~2 seconds
             time.sleep(0.5 + 1.5 * random.random())
 
-            def choose_comment(target_set, other_set, ratio=1):
-                p_ti = 1 / len(target_set)
-                p_oi = 1 / len(other_set)
-                p_t = ratio * p_oi / (p_ti + ratio * p_oi)
-
-                if random.random() < p_t:
-                    return random.choice(target_set)
+            if is_alias:
+                if msg["from"]["id"] == self.AZEMAR_ID:
+                    comment = random.choice(self.strings["azemar_counting_jackpot_replies"])
                 else:
-                    return random.choice(other_set)
-
-            if msg["from"]["id"] == self.AZEMAR_ID:
-                # make azemar-specific comments twice as likely as the general ones
-                # forbid non-azemar comments
-                target_set = self.strings["azemar_jackpot_replies"]
-                other_set = self.strings["general_jackpot_replies"]
-                comment = choose_comment(target_set, other_set, ratio=2)
+                    comment = random.choice(self.strings["counting_jackpot_replies"])
             else:
-                # make non-azemar-specific comments twice as likely as the general ones
-                # forbid azemar comments
-                target_set = self.strings["non_azemar_jackpot_replies"]
-                other_set = self.strings["general_jackpot_replies"]
-                comment = choose_comment(target_set, other_set, ratio=2)
+                def choose_comment(target_set, other_set, ratio=1):
+                    p_ti = 1 / len(target_set)
+                    p_oi = 1 / len(other_set)
+                    p_t = ratio * p_oi / (p_ti + ratio * p_oi)
+
+                    if random.random() < p_t:
+                        return random.choice(target_set)
+                    else:
+                        return random.choice(other_set)
+
+                if msg["from"]["id"] == self.AZEMAR_ID:
+                    # make azemar-specific comments twice as likely as the general ones
+                    # forbid non-azemar comments
+                    target_set = self.strings["azemar_jackpot_replies"]
+                    other_set = self.strings["general_jackpot_replies"]
+                    comment = choose_comment(target_set, other_set, ratio=2)
+                else:
+                    # make non-azemar-specific comments twice as likely as the general ones
+                    # forbid azemar comments
+                    target_set = self.strings["non_azemar_jackpot_replies"]
+                    other_set = self.strings["general_jackpot_replies"]
+                    comment = choose_comment(target_set, other_set, ratio=2)
 
             self.bot.sendMessage(chat_id, reply_to_message_id=msg["message_id"], text=comment)
 
@@ -1329,6 +1335,12 @@ class DanBot:
         else:
             self.update_user_names(msg)
 
+        # unix_timestamp = (dt.datetime.now() - dt.datetime(1970, 1, 1)).total_seconds()
+        # msg_age = -1
+        # if msg["date"]:
+        #     msg_age = abs(unix_timestamp - msg["date"])
+        # is_new = msg_age > 0 and msg_age < 5
+
         if content_type == "text" and not self.pause_flag and not msg["from"]["id"] in trolls:
             if msg["text"].startswith("/markdown"):
                 self.bot.deleteMessage((chat_id, msg_id))
@@ -1440,6 +1452,9 @@ class DanBot:
 
             elif msg["text"].lower().startswith("/jackpot"):
                 self.callback_jackpot(msg, chat_id)
+
+            elif msg["text"].lower().contains("https://t.me/c/"):
+                self.callback_jackpot(msg, chat_id, is_alias = True)
 
             elif msg["text"].lower().startswith("/topluck"):
                 self.callback_topluck(msg, chat_id)

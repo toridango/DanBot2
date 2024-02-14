@@ -102,5 +102,12 @@
         "Among all the things you could be doing right now, you chose to use the /jackpot command. I'm not saying that's necessarily a bad thing, but I'm not saying it's a good thing either. I'll let you reflect on it by yourself.",
         "I must inform you that overusing the /jackpot command is a punishable offense. Please refrain from doing so. Thank you for your cooperation.",
         "My papas have made some questionable choices in the past. One of them is the creation of the jackpot. But the worst one is allowing you to use the /jackpot command."
+    ],
+    "counting_jackpot_replies": [
+        "Clearly humans were not made for counting.",
+        "This meant you wanted me to tell you the jackpot right?"
+    ],
+    "azemar_counting_jackpot_replies": [
+        "I miss the times when you asked me for the jackpot."
     ]
 }
