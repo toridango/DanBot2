@@ -95,7 +95,7 @@ class DanBot:
         self.JACKPOT_CHANCE = 1 / 512
         self.COMMENT_CHANCE = 1 / 50
         self.SOAPSTONE_CHANCE = 1 / 4
-        self.JACKPOT_REPLY_MAX_CHANCE = 1 / 3
+        self.JACKPOT_REPLY_MAX_CHANCE = 1 / 2
         self.JACKPOT_REPLY_MIN_CHANCE = 1 / 10
         self.RE_DICT = {
             "date": r"((\d{4})[-\/\.](0?[1-9]|1[012])[-\/\.](3[01]|[12][0-9]|0?[1-9]))|"
@@ -809,8 +809,10 @@ class DanBot:
             else self.JACKPOT_REPLY_MIN_CHANCE
             + user_saturation * (self.JACKPOT_REPLY_MAX_CHANCE - self.JACKPOT_REPLY_MIN_CHANCE)
         )
+        if is_alias:
+            reply_chance += 0.5
 
-        if random.random() < reply_chance:
+        if is_alias or random.random() < reply_chance:
             # wait between 0.5~2 seconds
             time.sleep(0.5 + 1.5 * random.random())
 
@@ -1453,7 +1455,7 @@ class DanBot:
             elif msg["text"].lower().startswith("/jackpot"):
                 self.callback_jackpot(msg, chat_id)
 
-            elif msg["text"].lower().contains("https://t.me/c/"):
+            elif "https://t.me/c/" in msg["text"].lower():
                 self.callback_jackpot(msg, chat_id, is_alias = True)
 
             elif msg["text"].lower().startswith("/topluck"):
