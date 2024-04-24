@@ -1,12 +1,9 @@
-
-
 import json
 import random
 import re
 import datetime as dt
 import numpy as np
 import discord
-
 
 
 # Reads json from filepath and returns the unadultered read contents
@@ -342,13 +339,14 @@ def runBot(filename):
     token = ""
     data = readJSON(filename)
     if(data):
-        token = data["TOKEN"]
+        token = data["TORIBOT_TOKEN"]
     else:
         return "Problem with the token data file"
     
     logChannelsDict = data["log_channels"]
-
-    client = discord.Client()
+    
+    intents = discord.Intents(messages=True)
+    client = discord.Client(intents=intents)
     random.seed()
 
     @client.event
@@ -537,7 +535,7 @@ def runBot(filename):
 
 
 def main():
-    exitCode = runBot("config.json")
+    exitCode = runBot("./config.json")
 
 
 if __name__ == "__main__":
