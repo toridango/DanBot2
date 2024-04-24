@@ -58,11 +58,9 @@ def ParseHistogramArguments(message):
     msg = msg.replace(" ", "")
     msg = msg.replace("\n", "")
     msg = msg.replace("\t", "")
-    match = re.search("(?P<num_rolls>\d{0,2})[dD](?P<dice_size>100|\d{1,2})(?P<plus_minus>[+-]\d{1,2})(?P<select>kh|kl)((?P<compare>lt|le|gt|ge)(?P<comparison>\d{1,2}))?", msg)
-
+    match = re.search("(?P<num_rolls>\d{0,2})[dD](?P<dice_size>100|\d{1,2})(?P<plus_minus>[+-]\d{1,2})?(?P<select>kh|kl)?((?P<compare>lt|le|gt|ge)(?P<comparison>\d{1,2}))?", msg)
     if(match):
         if(match.group(0)):
-            # print("Rolling...")
             # rolls = np.array([], dtype=int)
             rolls = []
 
@@ -246,7 +244,6 @@ class ManaClient(discord.Client):
     def command_histogram(self, message):    
         num_rolls, dice_size, mod, select, compare, comparison = ParseHistogramArguments(message)
         
-
         if num_rolls != -1 and dice_size != -1 and mod != -1:
             # dS = H(dice_size)
             pNdS = num_rolls@P(dice_size)
@@ -303,7 +300,7 @@ def runBot(filename):
     intents = discord.Intents.default()
     intents.message_content = True
 
-    client = ManaClient(command_prefix="!", intents=intents)
+    client = ManaClient(intents=intents)
     client.run(token)
 
     return "No more Mana!"
