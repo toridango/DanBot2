@@ -3,6 +3,7 @@ import random
 import json
 import regex as re
 from dyce import H, P
+from dyce.evaluation import expandable
 
 # d4 = H(4)
 # d6 = H(6)
@@ -52,6 +53,36 @@ def ParseRollArguments(message):
                 return num_rolls, dice_size, mod
     return -1, -1, -1
 
+def ParseRollArguments2(message):
+    msg = message.content
+    
+    msg = msg.replace(" ", "")
+    msg = msg.replace("\n", "")
+    msg = msg.replace("\t", "")
+
+    rolls = []
+    total_mod = 0
+
+    # pattern = r"((?P<num>[+\-]?\d{0,3})[dD](?P<dice_size>\d{1,3}))|(?P<mod>[+\-]\d{1,3})|(?P<select>kh|kl)|((?P<compare>lt|le|gt|ge)(?P<comparison>\d{1,2}))"
+    pattern = r"((?P<num>[+\-]?\d{0,3})[dD](?P<dice_size>\d{1,3})(?P<select>kh|kl)?)|(?P<mod>[+\-]\d{1,3})"
+    for m in re.finditer(pattern, msg):
+        num = m.group("num")
+        dice_size = m.group("dice_size")
+        select = m.group("select")
+        mod = m.group("mod")
+
+        if dice_size:
+            n = 1 if not num else int(num)
+            if select:
+                rolls += [(n, int(dice_size), select)]
+                # if not last_roll[-1]: # if the selector in the last roll is not set
+            else:
+                rolls += [(n, int(dice_size), None)]
+        elif mod:
+            total_mod += int(mod)
+
+    return rolls, total_mod
+
 def ParseHistogramArguments(message):
     msg = message.content#[len("!roll "):]
     
@@ -75,6 +106,77 @@ def ParseHistogramArguments(message):
                 return num_rolls, dice_size, mod, select, compare, comparison
     return -1, -1, -1, "", "", 0
 
+# def ParseHistogramArguments2(message):
+#     msg = message.content#[len("!roll "):]
+    
+#     msg = msg.replace(" ", "")
+#     msg = msg.replace("\n", "")
+#     msg = msg.replace("\t", "")
+
+#     rolls = []
+#     total_mod = 0
+#     sel = ""
+#     comp = []
+
+#     pattern = r"((?P<num>[+\-]?\d{0,3})[dD](?P<dice_size>\d{1,3}))|(?P<mod>[+\-]\d{1,3})|(?P<select>kh|kl)|((?P<compare>lt|le|gt|ge)(?P<comparison>\d{1,2}))"
+#     for m in re.finditer(pattern, msg):
+#         num = m.group("num")
+#         dice_size = m.group("dice_size")
+#         mod = m.group("mod")
+#         select = m.group("select")
+#         compare = m.group("compare")
+#         comparison = m.group("comparison")
+
+#         if dice_size:
+#             n = 1 if not num else int(num)
+#             rolls += [(n, int(dice_size))]
+#         elif mod:
+#             total_mod += int(mod)
+#         elif select and not sel: # if still not set 
+#             sel = select
+#         elif compare and comparison:
+#             if not comp: # if still not set
+#                 comp = [compare, int(comparison)]
+
+#     return rolls, total_mod, sel, comp
+
+def ParseHistogramArguments2(message):
+    msg = message.content
+    
+    msg = msg.replace(" ", "")
+    msg = msg.replace("\n", "")
+    msg = msg.replace("\t", "")
+
+    rolls = []
+    total_mod = 0
+    sel = ""
+    comp = []
+
+    # pattern = r"((?P<num>[+\-]?\d{0,3})[dD](?P<dice_size>\d{1,3}))|(?P<mod>[+\-]\d{1,3})|(?P<select>kh|kl)|((?P<compare>lt|le|gt|ge)(?P<comparison>\d{1,2}))"
+    pattern = r"((?P<num>[+\-]?\d{0,3})[dD](?P<dice_size>\d{1,3})(?P<select>kh|kl)?)|(?P<mod>[+\-]\d{1,3})|((?P<compare>lt|le|gt|ge)(?P<comparison>\d{1,2}))"
+    for m in re.finditer(pattern, msg):
+        num = m.group("num")
+        dice_size = m.group("dice_size")
+        select = m.group("select")
+        mod = m.group("mod")
+        compare = m.group("compare")
+        comparison = m.group("comparison")
+
+        if dice_size:
+            n = 1 if not num else int(num)
+            if select:
+                rolls += [(n, int(dice_size), select)]
+                # if not last_roll[-1]: # if the selector in the last roll is not set
+            else:
+                rolls += [(n, int(dice_size), None)]
+        elif mod:
+            total_mod += int(mod)
+        elif compare and comparison:
+            if not comp: # if still not set
+                comp = [compare, int(comparison)]
+
+    return rolls, total_mod, comp
+
 def ParseWorkArguments(message):
     msg = message.content
     
@@ -92,6 +194,30 @@ def ParseWorkArguments(message):
             return mod
     return "-1"
 
+MAX_REC = 10
+def reroll_ones_recursive(h, limit = None):
+
+    @expandable(sentinel=h)
+    def reroll_ones(h_result):
+        if h_result.outcome == 1:
+            return reroll_ones(h_result.h)
+        else:
+            return h_result.outcome
+    return reroll_ones(h, limit=limit)
+
+def HistogramStats(reroll=10):
+    # reroll 0 never, 1 once, >=10 always 
+    if reroll == 0:    
+        p_4d6 = 4@P(6)
+        return p_4d6.h(slice(1, None)) # drop lowest
+    elif reroll > 0 and reroll < 10:        
+        p_4d6_reroll_first_one = 4@P(reroll_ones_recursive(H(6), 1))
+        return p_4d6_reroll_first_one.h(slice(1, None)) # drop lowest
+    elif reroll >= 10:
+        p_4d6_reroll_all_ones = 4 @ P(H(5) + 1)
+        return p_4d6_reroll_all_ones.h(slice(1, None)) # drop lowest
+    return None
+
 class ManaClient(discord.Client):
     async def on_ready(self):
         print(f'Mana is flowing as {self.user}!')
@@ -102,21 +228,23 @@ class ManaClient(discord.Client):
         if message.author == self.user:
             return
 
-        msg = message.content
+        msg = message.content.lower()
         response = "-1"
         if msg.startswith('!'):
             if msg.startswith('!help'):
                 response = self.command_help(message)
             elif msg.startswith('!roll'):
                 response = self.command_roll(message)
+            elif msg.startswith('!r'):
+                response = self.command_r(message)
             elif msg.startswith('!gold'):
                 response = self.command_gold(message)
             elif msg.startswith('!work'):
                 response = self.command_work(message)
             elif msg.startswith("!stats"):
                 response = self.command_stats(message)
-            elif msg.startswith("!H"):
-                response = self.command_histogram(message)
+            elif msg.startswith("!h"):
+                response = self.command_h(message)
 
         if response != "-1":
             await message.channel.send(response)
@@ -125,14 +253,16 @@ class ManaClient(discord.Client):
         command_data = [
                 ["!roll <N>d<X>+/-<M>", 
                     "roll N X-sided dice with M as an optional modifier"],
+                ["!r <N>d<X>[kh|kl] [+ M]", 
+                    "roll 1 or more sets of dice (N X-sided dice) with kh and kl as optional selectors (keep highest and keep lowest) and M as an optional modifier.\nThis command rolls using the same framework as the probability command."],
                 ["!gold <class>", 
                     "roll starting gold for class\nSupported classes:  `barbarian, bard, cleric, druid, fighter, monk, paladin, ranger, rogue, sorcerer, warlock, wizard`"],
                 ["!work +/-<M>", 
                     "roll for wages based on ability modifier M"],
                 ["!stats <N>", 
                     "rolls N stats, or 6 if unspecified"],
-                ["!histogram <N>d<X> [+ M] [kh|kl] [lt|le|gt|ge <C>] ", 
-                    "displays probability distribution of N rolls of X-sided dice, with M as an optional modifier\nOptional selectors: kh (keep highest), kl (keep lowest)\nOptional comparison lt (less than), le (less or equal), gt (greater than), or ge (greater or equal) to <C>"]
+                ["!h <N>d<X>[kh|kl] [+ M] [lt|le|gt|ge <C>] ", 
+                    "displays probability distribution of N rolls of X-sided dice, with M as an optional modifier\nOptional selectors (can be specified for each dice set): kh (keep highest), kl (keep lowest)\nOptional comparison lt (less than), le (less or equal), gt (greater than), or ge (greater or equal) to <C>\nSpecial option: !h stats [rr0|rr1] :will display distribution for 4d6 drop lowest. Always rerolls ones by default (add rr0 for no rerolls, rr1 for reroll first one)"]
             ]
         return "Commands:\n"+"\n".join(["`{0}`    {1}\n".format(e[0], e[1]) for e in command_data])
 
@@ -151,6 +281,58 @@ class ManaClient(discord.Client):
         else:
             return "-1"
         
+    def command_r(self, message):    
+        rolls, mod = ParseRollArguments2(message)
+
+        trans_to_int = {"kh":-1, "kl":0} # translation dict
+        total = 0
+        str_results = []
+        
+        # print(rolls, mod, comparison)
+        if rolls:
+            pools = []
+            for n, x, s in rolls:
+                # pool = n@P(x) if n>0 else abs(n)*-P(x)
+                # if not s:
+                #     pools += [pool.h()]
+                # elif s in trans_to_int.keys():
+                #     pools += [pool.h(trans_to_int[s])]
+                if n == 0:
+                    continue
+
+                # res = " +" if n > 0 else " -"
+                pool = abs(n)@P(x) if abs(n) > 1 else H(x)
+                r = pool.roll()
+                if not s:
+                    if type(r) is int:
+                        total = total + r if n > 0 else total - r
+                        str_results += ["`+{}`".format(r) if n > 0 else "`-{}`".format(r)]
+                    else:
+                        total = total + sum(r) if n > 0 else total - sum(r)
+                        str_results += ["`+{}`".format(r) if n > 0 else "`-{}`".format(r)]
+                    # res += "{}".format(r)
+
+                else:
+                    res = 0
+                    if s == "kh":
+                        res = max(r)
+                    elif s == "kl":
+                        res = min(r)
+                    total = total + res if n > 0 else total - res
+                    str_results += ["`+{}` from `{}`".format(res, r) if n > 0 else "`-{}` from `{}`".format(res, r)]
+                
+            # for p in pools:
+            #     results += [p.roll()]
+
+            # h = sum(pools)
+
+            if mod:
+                total += mod
+
+            return "Rolls: {} (Mod: `{}`) - TOTAL: `{}`".format(" ".join(str_results), mod, total)
+        else:
+            return "-1"
+
     def command_gold(self, message):
     
         msg = message.content
@@ -286,6 +468,119 @@ class ManaClient(discord.Client):
         else:
             return "-1"
 
+    # def command_h(self, message):    
+    #     # num_rolls, dice_size, mod, select, compare, comparison = ParseHistogramArguments(message)
+    #     rolls, mod, select, comparison = ParseHistogramArguments2(message)
+
+    #     if rolls:            
+    #         pools = [n@P(x) if n>0 else abs(n)*-P(x) for n, x in rolls]
+    #         h = sum(pools)
+
+    #         str_select = ""
+    #         str_compare = ""
+    #         if select:
+    #             if "kh" in select:
+    #                 h = P(h).h(-1)
+    #                 str_select = " keep highest"
+    #             elif "kl" in select:
+    #                 h = P(h).h(0)
+    #                 str_select = " keep lowest"
+
+    #             if comparison:
+    #                 str_compare += ", then check if"
+    #         # else:            
+    #         #     h = pNdS.h()
+
+    #         if mod:
+    #             h += mod
+
+    #         if comparison:
+    #             compare = comparison[0]
+    #             to = comparison[1]
+    #             if "lt" in compare:
+    #                 h = P(h).lt(to)
+    #                 str_compare += " is less than {}".format(to)
+    #             elif "le" in compare:
+    #                 h = P(h).le(to)
+    #                 str_compare += " is less or equal to {}".format(to)
+    #             elif "gt" in compare:
+    #                 h = P(h).gt(to)
+    #                 str_compare += " is greater than {}".format(to)
+    #             elif "ge" in compare:
+    #                 h = P(h).ge(to)
+    #                 str_compare += " is greater or equal to {}".format(to)
+
+    #         str_rolls = "".join(["{:+}d{}".format(n,x) for n,x in rolls])
+    #         response = "Histogram for {0}{1:+}{2}{3}\n```{4}```".format(str_rolls, mod, str_select, str_compare, h.format())
+    #         # print(response)
+
+    #         return response
+    #     else:
+    #         return "-1"
+
+    def handle_command_h_stats(self, message):        
+        if "rr0" in message.content:
+            h = HistogramStats(0)
+            response = "Histogram for 4d6 (drop lowest, no rerolls)\n```{}```".format(h.format())
+            return response
+        elif "rr1"in message.content:
+            h = HistogramStats(1)
+            response = "Histogram for 4d6 (drop lowest, reroll first one)\n```{}```".format(h.format())
+            return response
+        else:
+            h = HistogramStats()
+            response = "Histogram for 4d6 (drop lowest, no rerolls)\n```{}```".format(h.format())
+            return response
+
+    def command_h(self, message):    
+        # num_rolls, dice_size, mod, select, compare, comparison = ParseHistogramArguments(message)
+        if message.content.startswith("!h stats"):
+            return self.handle_command_h_stats(message)
+
+        rolls, mod, comparison = ParseHistogramArguments2(message)
+        trans_to_int = {"kh":-1, "kl":0} # translation dict
+        trans_to_str = {"kh":" (keep highest)", "kl":" (keep lowest)", None: ""} # translation dict
+        str_select = ""
+        str_compare = ""
+        
+        # print(rolls, mod, comparison)
+        if rolls:
+            pools = []
+            for n, x, s in rolls:
+                pool = n@P(x) if n>0 else abs(n)*-P(x)
+                if not s:
+                    pools += [pool]
+                elif s in trans_to_int.keys():
+                    pools += [pool.h(trans_to_int[s])]
+                    
+            h = sum(pools)
+
+            if mod:
+                h += mod
+
+            if comparison:
+                compare = comparison[0]
+                to = comparison[1]
+                if "lt" in compare:
+                    h = P(h).lt(to)
+                    str_compare += " is less than {}".format(to)
+                elif "le" in compare:
+                    h = P(h).le(to)
+                    str_compare += " is less or equal to {}".format(to)
+                elif "gt" in compare:
+                    h = P(h).gt(to)
+                    str_compare += " is greater than {}".format(to)
+                elif "ge" in compare:
+                    h = P(h).ge(to)
+                    str_compare += " is greater or equal to {}".format(to)
+
+            str_rolls = "".join([" {:+}d{}{}".format(n,x,trans_to_str[s]) for n,x,s in rolls])
+            response = "Histogram for {0} {1:+}{2}{3}\n```{4}```".format(str_rolls, mod, str_select, str_compare, h.format())
+            # print(response)
+
+            return response
+        else:
+            return "-1"
 
 
 def runBot(filename):
