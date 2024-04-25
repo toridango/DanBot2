@@ -98,7 +98,7 @@ def ParseHistogramArguments(message):
         comparison = m.group("comparison")
 
         if dice_size:
-            n = 1 if not num else int(num)
+            n = 1 if not num else int(num) if num not in "+-" else int(num+"1")
             if select:
                 rolls += [(n, int(dice_size), select)]
                 # if not last_roll[-1]: # if the selector in the last roll is not set
