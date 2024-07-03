@@ -796,8 +796,12 @@ class DanBot:
         else:
             fuzzy_str = f"{jackpot // 1000}k+"
 
-        reply = f"Currenly, the jackpot is at {fuzzy_str} coins."
-        self.bot.sendMessage(chat_id, reply)
+        if msg["from"]["id"] == self.AZEMAR_ID:
+            reply = f"El Pot de la Sota va per {jackpot} dannedes."
+            self.bot.sendMessage(chat_id, reply)
+        else:
+            reply = f"Currenly, the jackpot is at {fuzzy_str} coins."
+            self.bot.sendMessage(chat_id, reply)
 
         # Snarky reply
 
@@ -1306,6 +1310,13 @@ class DanBot:
         else:
             self.bot.sendMessage(chat_id, "You have already received a reading today", reply_to_message_id=msg["message_id"])
 
+    def callback_the_azemar_case(self, msg, chat_id):
+        if any(c.isdigit() for c in msg["text"]):
+            if rand.randint(0,99) < 33:
+                comment_list = random.choice(self.strings["azemar_numbers"])
+                comment = random.choice(comment_list)
+                self.bot.sendMessage(chat_id, comment, reply_to_message_id=msg["message_id"], parse_mode="Markdown", disable_web_page_preview=True)
+
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
         trolls = []
         if msg["from"]["id"] in trolls:
@@ -1507,6 +1518,9 @@ class DanBot:
                 
             elif msg["text"].lower().startswith("/aesyl"):
                 self.callback_uttaran_dice_tarot(msg, chat_id)
+            else:
+                if msg["from"]["id"] == self.AZEMAR_ID:
+                    self.callback_the_azemar_case(msg, chat_id)
 
         if not is_edit and random.random() < self.JACKPOT_CHANCE:
             jackpot = self.global_data["jackpot"]
