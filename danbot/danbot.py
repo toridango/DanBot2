@@ -1312,7 +1312,7 @@ class DanBot:
 
     def callback_the_azemar_case(self, msg, chat_id):
         if any(c.isdigit() for c in msg["text"]):
-            if rand.randint(0,99) < 33:
+            if rand.randint(0,99) < 1:
                 comment_list = random.choice(self.strings["azemar_numbers"])
                 comment = random.choice(comment_list)
                 self.bot.sendMessage(chat_id, comment, reply_to_message_id=msg["message_id"], parse_mode="Markdown", disable_web_page_preview=True)
