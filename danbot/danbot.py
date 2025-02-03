@@ -31,7 +31,7 @@ def get_ratio(data):
         for user in sorted(aux, key=aux.get):
             msg += str(i) + ". " + user + ": " + "{0:.2f}".format(aux[user]) + "%\n"
             i += 1
-    except:
+    except Exception:
         msg = "Wrong formatting or no data found"
 
     return msg
@@ -286,7 +286,7 @@ class DanBot:
                 "AHK code to paste in hotkey:\n```" + ahk + "```",
                 parse_mode="Markdown",
             )
-        except:
+        except Exception:
             self.bot.sendMessage(chat_id, "Error getting AHK code.")
 
         return update
@@ -320,7 +320,7 @@ class DanBot:
             i = 1
             users = {}
             while not end:
-                if not str(i) + "." in text:
+                if str(i) + "." not in text:
                     end = True
                 else:
                     segment = text[
@@ -406,7 +406,7 @@ class DanBot:
                             try:
                                 del self.user_dict[str(msg["from"]["id"])]["equipment"][slot.lower()]
                                 update = True
-                            except:
+                            except Exception:
                                 self.bot.sendMessage(chat_id, "No such slot")
                         else:
                             self.user_dict[str(msg["from"]["id"])]["equipment"][slot.lower()] = what
@@ -426,7 +426,7 @@ class DanBot:
             try:
                 del self.user_dict[str(msg["from"]["id"])]["equipment"][slot.lower()]
                 update = self.log_usage(self.user_dict, msg["from"], "/delequip")
-            except:
+            except Exception:
                 self.bot.sendMessage(chat_id, "No such slot")
 
         return update
@@ -556,7 +556,7 @@ class DanBot:
             for userID in self.users_in_group(group, chat_id):
                 empty = False
                 if "username" in self.user_dict[userID]:
-                    message += "@{} ".format(self.user_dict[userID]["username"], userID)
+                    message += "@{} ".format(self.user_dict[userID]["username"])
                 else:
                     message += "[{}](tg://user?id={}) ".format(self.user_dict[userID]["first_name"], userID)
 
@@ -589,7 +589,7 @@ class DanBot:
         if len(msg["text"].split(" ")[1]) == 3:
             try:
                 ret = int(msg["text"].split(" ")[1])
-            except:
+            except Exception:
                 ret = self.COMMENT_CHANCE
 
         # TODO when can len != 3? it will explode in the return because ret not defined
@@ -682,7 +682,7 @@ class DanBot:
             return total_msg
 
     def get_total_coins(self):
-        return sum(self.get_user_coins(user) for user in self.user_dict.values())
+        return sum(self.get_user_coins(user) for user in self.user_dict.values())        
 
     def callback_luck(self, msg, chat_id):
         self.log_usage(self.user_dict, msg["from"], "/luck")
@@ -1023,18 +1023,18 @@ class DanBot:
         compensation = round(calc_expected_coins(total_messages, danney_messages, 1 - self.JACKPOT_CHANCE))
         self.bot.sendMessage(
             chat_id,
-            f"On the other hand, notwithstanding the heinous crimes commited by the defendant, "
-            f"in his infinite magnanimity, our benevolent dictator recognizes that the provisional "
-            f"disciplinary action that was inflicted upon the defendant exceeded reasonable retribution, "
-            f"and thus the defendant has been found deserving of the following indemnification:\n"
-            f"- The defendant will be provided with liquid assets equivalent to the average gains that he "
-            f"would have acquired during the period in which the aforementioned disciplinary action was in effect.",
+            "On the other hand, notwithstanding the heinous crimes commited by the defendant, "
+            "in his infinite magnanimity, our benevolent dictator recognizes that the provisional "
+            "disciplinary action that was inflicted upon the defendant exceeded reasonable retribution, "
+            "and thus the defendant has been found deserving of the following indemnification:\n"
+            "- The defendant will be provided with liquid assets equivalent to the average gains that he "
+            "would have acquired during the period in which the aforementioned disciplinary action was in effect.",
         )
         time.sleep(25)
 
-        self.bot.sendMessage(chat_id, f"This amounts to...")
+        self.bot.sendMessage(chat_id, "This amounts to...")
         time.sleep(1)
-        self.bot.sendMessage(chat_id, f"Ahem...")
+        self.bot.sendMessage(chat_id, "Ahem...")
         time.sleep(5)
 
         self.bot.sendMessage(
@@ -1047,7 +1047,7 @@ class DanBot:
         self.bot.sendMessage(chat_id, f"User: DaniAz\n" f"Current balance: {final_danney_coins} coins.")
         time.sleep(3)
 
-        self.bot.sendMessage(chat_id, f"This concludes the trial. You are dismissed.")
+        self.bot.sendMessage(chat_id, "This concludes the trial. You are dismissed.")
 
         self.user_dict["13363913"]["inventory"]["coins"] = final_danney_coins
         self.global_data["case_concluded"] = True
@@ -1228,7 +1228,7 @@ class DanBot:
                 img_path = act.plot_activity_evolution(activity, bucket=bucket)
             else:
                 raise ValueError("This should never happen, check /activity arg parsing logic.")
-        except:
+        except Exception:
             traceback.print_exc()
             self.bot.sendMessage(chat_id, graph_except, parse_mode="Markdown")
             return
@@ -1253,18 +1253,18 @@ class DanBot:
             shazam = Shazam()
             out = await shazam.recognize_song(audiopath)
             if len(out["matches"]) < 1:
-                bot.sendMessage(chat_id, f"I couldn't find a match :(", reply_to_message_id=msg["reply_to_message"]["message_id"])
+                bot.sendMessage(chat_id, "I couldn't find a match :(", reply_to_message_id=msg["reply_to_message"]["message_id"])
             else:
                 about = await shazam.track_about(track_id=out["matches"][0]["id"])
                 reply = f"Title: {about['title']}\nArtist: {about['subtitle']}"
                 bot.sendMessage(chat_id, reply, reply_to_message_id=msg["reply_to_message"]["message_id"])
 
-        if audio != None:
+        if audio is not None:
             audio_path = "./audio_guess.ogg"
             self.bot.download_file(audio["file_id"], audio_path)
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-            about = loop.run_until_complete(guess_song(audio_path, self.bot))
+            loop.run_until_complete(guess_song(audio_path, self.bot))
     
     def callback_roll(self, msg, chat_id):
         import d20
@@ -1274,13 +1274,13 @@ class DanBot:
 
             self.bot.sendMessage(chat_id, f"{result}", reply_to_message_id=msg["message_id"], parse_mode="Markdown")
         except d20.errors.RollSyntaxError:
-            error_message = f"Syntax error. Check the <a href='https://github.com/avrae/d20'>documentation</a>"
+            error_message = "Syntax error. Check the <a href='https://github.com/avrae/d20'>documentation</a>"
             self.bot.sendMessage(chat_id, error_message, reply_to_message_id=msg["message_id"], parse_mode="HTML", disable_web_page_preview=True)
 
     def callback_transcribe(self, msg, chat_id, debug = False):
         import whisper
         audio_msg = msg["reply_to_message"]["voice"]
-        if audio_msg != None:
+        if audio_msg is not None:
             audio_path = "./audio_trans.ogg"
             self.bot.download_file(audio_msg["file_id"], "./audio_trans.ogg")
             model = whisper.load_model("base")
@@ -1354,7 +1354,7 @@ class DanBot:
         #     msg_age = abs(unix_timestamp - msg["date"])
         # is_new = msg_age > 0 and msg_age < 5
 
-        if content_type == "text" and not self.pause_flag and not msg["from"]["id"] in trolls:
+        if content_type == "text" and not self.pause_flag and msg["from"]["id"] not in trolls:
             if msg["text"].startswith("/markdown"):
                 self.bot.deleteMessage((chat_id, msg_id))
                 self.bot.sendMessage(chat_id, msg["text"][len("/markdown ") :], parse_mode="Markdown")
