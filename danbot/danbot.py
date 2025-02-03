@@ -700,7 +700,9 @@ class DanBot:
         expected_coins = calc_expected_coins(global_msg_total, user_msg_after_jackpot, 1 - self.JACKPOT_CHANCE)
 
         if user_msg_after_jackpot == 0 or current_coins == 0:
-            reply = ""
+            reply = "You have never won a jackpot, as such I am unable to calculate your luck."
+            self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
+            return
 
         luck_percentage = 100 * (current_coins - expected_coins) / expected_coins
         lucky_str = "LUCKY" if luck_percentage > 0 else "UNLUCKY"
@@ -1316,6 +1318,35 @@ class DanBot:
                 comment_list = random.choice(self.strings["azemar_numbers"])
                 comment = random.choice(comment_list)
                 self.bot.sendMessage(chat_id, comment, reply_to_message_id=msg["message_id"], parse_mode="Markdown", disable_web_page_preview=True)
+
+    def callback_luck_sim(self, msg, chat_id):
+        self.log_usage(self.user_dict, msg["from"], "/luck_sim")
+
+        user_id = str(msg["from"]["id"])
+
+        user_msg_total = self.user_dict[user_id]["msg_count"]
+        user_msg_after_jackpot = user_msg_total - self.user_dict[user_id]["msg_count_before_jackpot"]
+
+        global_msg_total = self.get_total_messages_sent(after_jackpot=True)
+
+        current_coins = self.user_dict[user_id]["inventory"]["coins"]
+        would_be_coins = current_coins + self.global_data["jackpot"]
+        expected_coins = calc_expected_coins(global_msg_total, user_msg_after_jackpot, 1 - self.JACKPOT_CHANCE)
+
+        if user_msg_after_jackpot == 0 or current_coins == 0:
+            reply = "You have never won a jackpot, as such I am unable to calculate your luck."
+            self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
+            return
+
+        luck = (current_coins - expected_coins) / expected_coins
+        would_be_luck = (would_be_coins - expected_coins) / expected_coins
+
+        reply = (
+            f"According to my calculations, if you won the jackpot right now, "
+            f"you would have {would_be_luck:.2%} luck ({would_be_luck - luck:+.2%})."
+        )
+
+        self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
 
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
         trolls = []
