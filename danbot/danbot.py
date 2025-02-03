@@ -1484,7 +1484,10 @@ class DanBot:
 
             elif msg["text"].lower().startswith("/msgcount"):
                 self.callback_msgcount(msg, chat_id)
-
+            
+            elif msg["text"].lower().startswith("/luck_sim"):
+                self.callback_luck_sim(msg, chat_id)
+            
             elif msg["text"].lower().startswith("/luck"):
                 self.callback_luck(msg, chat_id)
 
