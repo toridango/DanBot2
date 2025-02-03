@@ -797,7 +797,7 @@ class DanBot:
             fuzzy_str = f"{jackpot // 1000}k+"
 
         if msg["from"]["id"] == self.AZEMAR_ID:
-            reply = f"El Pot de la Sota va per {fuzzy_str} dannedes.\nCost de gestió per la consulta: 100 monedes."
+            reply = f"El Pot de la Sota va per {fuzzy_str} dannedes.\nCost de gestió per la consulta: 100 dannedes."
             self.bot.sendMessage(chat_id, reply)
         else:
             reply = f"Currenly, the jackpot is at {fuzzy_str} coins."
