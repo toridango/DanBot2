@@ -14,7 +14,7 @@ from .modules.activity_stats import date_to_datetime
 from .modules.gdquote import get_gdquote
 from .modules.get_ahk import get_ahk
 from .modules.ifc_calendar import get_ifc_string_date
-from .modules.jackpot_calculations import calc_expected_coins, calc_expected_coin_volume
+from .modules.jackpot_calculations import calc_expected_coins, calc_standard_deviation
 from .modules.process_spells import process_spell
 from .modules.soapstone.generator import RandomSoapstoneGenerator
 
@@ -697,7 +697,7 @@ class DanBot:
         ratio = user_msg_after_jackpot / global_msg_total
 
         current_coins = self.user_dict[user_id]["inventory"]["coins"]
-        expected_coins = calc_expected_coins(global_msg_total, user_msg_after_jackpot, 1 - self.JACKPOT_CHANCE)
+        expected_coins = calc_expected_coins(user_msg_after_jackpot, self.JACKPOT_CHANCE)
 
         if user_msg_after_jackpot == 0 or current_coins == 0:
             reply = "You have never won a jackpot, as such I am unable to calculate your luck."
@@ -726,7 +726,7 @@ class DanBot:
         global_msg_total = self.get_total_messages_sent(after_jackpot=True)
 
         total_coins = self.get_total_coins()
-        expected_coins = calc_expected_coin_volume(global_msg_total, 1 - self.JACKPOT_CHANCE)
+        expected_coins = calc_expected_coins(global_msg_total, self.JACKPOT_CHANCE)
 
         luck_percentage = 100 * (total_coins - expected_coins) / expected_coins
 
@@ -737,7 +737,7 @@ class DanBot:
 
         total_coins = self.get_total_coins()
         global_msg_total = self.get_total_messages_sent(after_jackpot=True)
-        expected_coins = calc_expected_coin_volume(global_msg_total, 1 - self.JACKPOT_CHANCE)
+        expected_coins = calc_expected_coins(global_msg_total, self.JACKPOT_CHANCE)
 
         luck_percentage = self.get_average_users_luck()
         lucky_str = "LUCKY" if luck_percentage > 0 else "UNLUCKY"
@@ -854,11 +854,10 @@ class DanBot:
             self.bot.sendMessage(chat_id, reply_to_message_id=msg["message_id"], text=comment)
 
     def get_user_luck(self, user_id):
-        global_msg_total = self.get_total_messages_sent(after_jackpot=True)
         user_msg_total = self.user_dict[user_id]["msg_count"]
         user_msg_after_jackpot = user_msg_total - self.user_dict[user_id]["msg_count_before_jackpot"]
         current_coins = self.user_dict[user_id]["inventory"]["coins"]
-        expected_coins = calc_expected_coins(global_msg_total, user_msg_after_jackpot, 1 - self.JACKPOT_CHANCE)
+        expected_coins = calc_expected_coins(user_msg_after_jackpot, self.JACKPOT_CHANCE)
 
         if user_msg_after_jackpot == 0 or current_coins == 0:
             return None
@@ -866,6 +865,20 @@ class DanBot:
         luck_percentage = 100 * (current_coins - expected_coins) / expected_coins
 
         return luck_percentage
+
+    def get_user_zscore(self, user_id):
+        user_msg_total = self.user_dict[user_id]["msg_count"]
+        user_msg_after_jackpot = user_msg_total - self.user_dict[user_id]["msg_count_before_jackpot"]
+        current_coins = self.user_dict[user_id]["inventory"]["coins"]
+        expected_coins = calc_expected_coins(user_msg_after_jackpot, self.JACKPOT_CHANCE)
+
+        if user_msg_after_jackpot == 0 or current_coins == 0:
+            return None
+
+        stdev = calc_standard_deviation(user_msg_after_jackpot, self.JACKPOT_CHANCE)
+        zscore = (current_coins - expected_coins) / stdev
+
+        return zscore
 
     def get_user_callsign(self, user_id):
         user = self.user_dict[user_id]
@@ -875,9 +888,9 @@ class DanBot:
         top = []
         for user_id in self.user_dict:
             user = self.get_user_callsign(user_id)
-            luck = get_attr(user_id)
-            if luck is not None:
-                top.append([user, luck])
+            attr = get_attr(user_id)
+            if attr is not None:
+                top.append([user, attr])
 
         top.sort(key=lambda t: t[1], reverse=True)
 
@@ -899,9 +912,19 @@ class DanBot:
     def callback_topluck(self, msg, chat_id):
         self.log_usage(self.user_dict, msg["from"], "/topluck")
 
-        top = self.make_top(lambda uid: self.get_user_luck(uid), percentage=False)
+        top = self.make_top(lambda uid: (self.get_user_luck(uid), self.get_user_zscore(uid)), percentage=False)
         reply = (
-            "Luck ranking:\n\n" + "```\n" + "\n".join(f"{user + ':':<12} {luck:.2f}%" for user, luck in top) + "\n```"
+            "Luck ranking:\n\n" + "```\n" + "\n".join(f"{user + ':':<12} {luck:.2f}% (z={z:.2f})" for user, (luck, z) in top) + "\n```"
+        )
+
+        self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
+
+    def callback_topz(self, msg, chat_id):
+        self.log_usage(self.user_dict, msg["from"], "/topz")
+
+        top = self.make_top(lambda uid: (self.get_user_zscore(uid), self.get_user_luck(uid)), percentage=False)
+        reply = (
+            "Luck ranking:\n\n" + "```\n" + "\n".join(f"{user + ':':<12} {z:.2f} (dev={luck:.2f}%)" for user, (z, luck) in top) + "\n```"
         )
 
         self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
@@ -1022,7 +1045,7 @@ class DanBot:
 
         total_messages = 4512
         danney_messages = 577
-        compensation = round(calc_expected_coins(total_messages, danney_messages, 1 - self.JACKPOT_CHANCE))
+        compensation = round(calc_expected_coins(danney_messages, self.JACKPOT_CHANCE))
         self.bot.sendMessage(
             chat_id,
             "On the other hand, notwithstanding the heinous crimes commited by the defendant, "
@@ -1327,11 +1350,9 @@ class DanBot:
         user_msg_total = self.user_dict[user_id]["msg_count"]
         user_msg_after_jackpot = user_msg_total - self.user_dict[user_id]["msg_count_before_jackpot"]
 
-        global_msg_total = self.get_total_messages_sent(after_jackpot=True)
-
         current_coins = self.user_dict[user_id]["inventory"]["coins"]
         would_be_coins = current_coins + self.global_data["jackpot"]
-        expected_coins = calc_expected_coins(global_msg_total, user_msg_after_jackpot, 1 - self.JACKPOT_CHANCE)
+        expected_coins = calc_expected_coins(user_msg_after_jackpot, self.JACKPOT_CHANCE)
 
         if user_msg_after_jackpot == 0 or current_coins == 0:
             reply = "You have never won a jackpot, as such I am unable to calculate your luck."
@@ -1505,6 +1526,9 @@ class DanBot:
 
             elif msg["text"].lower().startswith("/topluck"):
                 self.callback_topluck(msg, chat_id)
+
+            elif msg["text"].lower().startswith("/topz"):
+                self.callback_topz(msg, chat_id)
 
             elif msg["text"].lower().startswith("/topmsg_jackpot"):
                 self.callback_topmsg_jackpot(msg, chat_id)

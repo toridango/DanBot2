@@ -1,21 +1,19 @@
-def calc_expected_coin_volume(m, p):
+from math import sqrt
+
+def calc_expected_coins(n, p):
+    """
+    :param n: number of messages sent
+    :param p: probability of jackpot each message
+    :return: expected coins after m messages have been sent
+    """
+    q = 1 - p
+    return n - (1 * (1**n - 1)) / (q - 1)
+
+def calc_standard_deviation(n, p):
     """
     :param m: number of messages sent
-    :param p: 1 - probability of jackpot each message
-    :return: expected coin volume after m messages have been sent
+    :param p: probability of jackpot each message
+    :return: standard deviation after m messages have been sent
     """
-    return m - (p * (p**m - 1)) / (p - 1)
-
-
-def calc_expected_coins(total_msg, user_msg, p):
-    """
-    :param total_msg: total messages sent since jackpot enabled
-    :param user_msg: messages sent by used since jackpot enabled
-    :param p: 1 - probability of jackpot each message
-    :return: expected number of coins that the user should have
-    """
-    total_coins = calc_expected_coin_volume(total_msg, p)
-    msg_ratio = user_msg / total_msg
-    expected_coins = total_coins * msg_ratio
-
-    return expected_coins
+    q = 1 - p
+    return sqrt((2 * n * (q - 1) * q ** (n + 1) - q * (q**n - 1) * (q ** (n + 1) + 1))) / (1 - q)
