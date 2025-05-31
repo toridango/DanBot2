@@ -889,7 +889,11 @@ class DanBot:
         for user_id in self.user_dict:
             user = self.get_user_callsign(user_id)
             attr = get_attr(user_id)
-            if attr is not None:
+            is_attr_none = attr is None
+            if isinstance(attr, tuple):
+                for e in attr:
+                    is_attr_none = is_attr_none or e is None
+            if not is_attr_none:
                 top.append([user, attr])
 
         top.sort(key=lambda t: t[1], reverse=True)
