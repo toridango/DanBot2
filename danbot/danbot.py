@@ -862,9 +862,9 @@ class DanBot:
         if user_msg_after_jackpot == 0 or current_coins == 0:
             return None
 
-        luck_percentage = 100 * (current_coins - expected_coins) / expected_coins
+        luck = (current_coins - expected_coins) / expected_coins
 
-        return luck_percentage
+        return luck
 
     def get_user_zscore(self, user_id):
         user_msg_total = self.user_dict[user_id]["msg_count"]
@@ -918,7 +918,7 @@ class DanBot:
 
         top = self.make_top(lambda uid: (self.get_user_luck(uid), self.get_user_zscore(uid)), percentage=False)
         reply = (
-            "Luck ranking:\n\n" + "```\n" + "\n".join(f"{user + ':':<12} {luck:<8.2f}% (z={z:.2f})" for user, (luck, z) in top) + "\n```"
+            "Luck ranking:\n\n" + "```\n" + "\n".join(f"{user[:11] + ':':<12} {luck:<8.2%}% (z={z:.2f})" for user, (luck, z) in top) + "\n```"
         )
 
         self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
@@ -928,7 +928,7 @@ class DanBot:
 
         top = self.make_top(lambda uid: (self.get_user_zscore(uid), self.get_user_luck(uid)), percentage=False)
         reply = (
-            "Z-score ranking:\n\n" + "```\n" + "\n".join(f"{user + ':':<12} {z:<6.2f} (dev={luck:.2f}%)" for user, (z, luck) in top) + "\n```"
+            "Z-score ranking:\n\n" + "```\n" + "\n".join(f"{user[:11] + ':':<12} {z:<6.2f} (dev={luck:.2%}%)" for user, (z, luck) in top) + "\n```"
         )
 
         self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
