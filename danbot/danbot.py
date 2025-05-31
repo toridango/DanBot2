@@ -918,7 +918,7 @@ class DanBot:
 
         top = self.make_top(lambda uid: (self.get_user_luck(uid), self.get_user_zscore(uid)), percentage=False)
         reply = (
-            "Luck ranking:\n\n" + "```\n" + "\n".join(f"{user + ':':<12} {luck:.2f}% (z={z:.2f})" for user, (luck, z) in top) + "\n```"
+            "Luck ranking:\n\n" + "```\n" + "\n".join(f"{user + ':':<12} {luck:<8.2f}% (z={z:.2f})" for user, (luck, z) in top) + "\n```"
         )
 
         self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
@@ -928,7 +928,7 @@ class DanBot:
 
         top = self.make_top(lambda uid: (self.get_user_zscore(uid), self.get_user_luck(uid)), percentage=False)
         reply = (
-            "Luck ranking:\n\n" + "```\n" + "\n".join(f"{user + ':':<12} {z:.2f} (dev={luck:.2f}%)" for user, (z, luck) in top) + "\n```"
+            "Z-score ranking:\n\n" + "```\n" + "\n".join(f"{user + ':':<12} {z:<6.2f} (dev={luck:.2f}%)" for user, (z, luck) in top) + "\n```"
         )
 
         self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
