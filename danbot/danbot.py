@@ -1597,7 +1597,8 @@ class DanBot:
                 self.callback_uttaran_dice_tarot(msg, chat_id)
 
             elif msg["text"].lower().startswith("/geodistance"):
-                self.callback_geodistance(msg, chat_id)
+                r = self.callback_geodistance(msg, chat_id)
+                self.bot.sendMessage(chat_id, r)
 
             else:
                 if msg["from"]["id"] == self.AZEMAR_ID:
