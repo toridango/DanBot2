@@ -1378,15 +1378,15 @@ class DanBot:
         return re.findall("\d+\.\d+", s)
 
     def callback_geodistance(self, msg, chat_id):
-        latlongs = self.extract_latlongs(msg)
+        latlongs = self.extract_latlongs(msg["text"])
         r = "Usage: provide two sets of coordinates"
         floatlongs = [float(e) for e in latlongs]
         
         if len(floatlongs) == 4:
             m = gd((float(floatlongs[0]),floatlongs[1]),(floatlongs[2],floatlongs[3])).m
             r = f"{m:.3f} metres"
-
-        return r
+        
+        self.bot.sendMessage(chat_id, r)
 
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
         trolls = []
@@ -1597,8 +1597,7 @@ class DanBot:
                 self.callback_uttaran_dice_tarot(msg, chat_id)
 
             elif msg["text"].lower().startswith("/geodistance"):
-                r = self.callback_geodistance(msg, chat_id)
-                self.bot.sendMessage(chat_id, r)
+                self.callback_geodistance(msg, chat_id)
 
             else:
                 if msg["from"]["id"] == self.AZEMAR_ID:
