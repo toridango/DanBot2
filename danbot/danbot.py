@@ -5,6 +5,7 @@ import random as rand
 import re
 import time
 import traceback
+from geopy.distance import geodesic as gd
 
 import pytz
 
@@ -1373,6 +1374,20 @@ class DanBot:
 
         self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
 
+    def extract_latlongs(self, s):
+        return re.findall("\d+\.\d+", s)
+
+    def callback_geodistance(self, msg, chat_id):
+        latlongs = self.extract_latlongs(msg)
+        r = "Usage: provide two sets of coordinates"
+        floatlongs = [float(e) for e in latlongs]
+        
+        if len(floatlongs) == 4:
+            m = gd((float(floatlongs[0]),floatlongs[1]),(floatlongs[2],floatlongs[3])).m
+            r = f"{m:.3f} metres"
+
+        return r
+
     def process_msg(self, msg, content_type, chat_type, chat_id, date, msg_id):
         trolls = []
         if msg["from"]["id"] in trolls:
@@ -1580,6 +1595,10 @@ class DanBot:
                 
             elif msg["text"].lower().startswith("/aesyl"):
                 self.callback_uttaran_dice_tarot(msg, chat_id)
+
+            elif msg["text"].lower().startswith("/geodistance"):
+                self.callback_geodistance(msg, chat_id)
+
             else:
                 if msg["from"]["id"] == self.AZEMAR_ID:
                     self.callback_the_azemar_case(msg, chat_id)
